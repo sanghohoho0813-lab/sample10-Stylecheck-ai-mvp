@@ -1,0 +1,132 @@
+import type { DemoSample } from "./types";
+
+/** 8 curated demo outfits with pre-defined analysis metadata. */
+export const DEMO_SAMPLES: DemoSample[] = [
+  {
+    id: "wedding-navy",
+    name: "클래식 하객 룩",
+    occasion: "wedding",
+    outfit: "Navy Jacket · White Shirt · Beige Pants",
+    baseScores: { occasion: 84, formality: 85, color: 88, silhouette: 82, seasonal: 94, detail: 71 },
+    palette: { top: "#f4efe6", outer: "#2c3a55", bottom: "#d8c9ae", shoes: "#f1ece4", bg: "#f4e7e4" },
+    items: [
+      { slot: "아우터", name: "네이비 재킷" },
+      { slot: "상의", name: "화이트 셔츠" },
+      { slot: "하의", name: "베이지 슬랙스" },
+      { slot: "신발", name: "화이트 스니커즈" },
+      { slot: "가방", name: "브라운 레더백" },
+      { slot: "액세서리", name: "실버 워치" },
+    ],
+  },
+  {
+    id: "interview-black",
+    name: "미니멀 면접 룩",
+    occasion: "interview",
+    outfit: "Black Jacket · Slacks",
+    baseScores: { occasion: 90, formality: 94, color: 89, silhouette: 90, seasonal: 88, detail: 86 },
+    palette: { top: "#ffffff", outer: "#2b2b30", bottom: "#33333a", shoes: "#232327", bg: "#ece7e6" },
+    items: [
+      { slot: "아우터", name: "블랙 재킷" },
+      { slot: "상의", name: "화이트 이너" },
+      { slot: "하의", name: "블랙 슬랙스" },
+      { slot: "신발", name: "블랙 더비" },
+      { slot: "가방", name: "다크 브리프케이스" },
+      { slot: "액세서리", name: "미니멀 워치" },
+    ],
+  },
+  {
+    id: "blind-date-knit",
+    name: "러블리 캐주얼 룩",
+    occasion: "blind-date",
+    outfit: "Lavender Knit · Light Denim",
+    baseScores: { occasion: 88, formality: 78, color: 90, silhouette: 87, seasonal: 90, detail: 82 },
+    palette: { top: "#c8b6d9", bottom: "#a9bfd4", shoes: "#f3efe9", bg: "#f6ebef" },
+    items: [
+      { slot: "상의", name: "라벤더 니트" },
+      { slot: "하의", name: "라이트 데님" },
+      { slot: "신발", name: "아이보리 스니커즈" },
+      { slot: "가방", name: "미니 크로스백" },
+      { slot: "액세서리", name: "골드 이어링" },
+    ],
+  },
+  {
+    id: "family-cream",
+    name: "포멀 상견례 룩",
+    occasion: "family-meeting",
+    outfit: "Cream Jacket · Dark Pants",
+    baseScores: { occasion: 89, formality: 88, color: 87, silhouette: 84, seasonal: 86, detail: 83 },
+    palette: { top: "#f7f2e8", outer: "#ece1cd", bottom: "#3f3a3c", shoes: "#4a4142", bg: "#f2e9e2" },
+    items: [
+      { slot: "아우터", name: "크림 재킷" },
+      { slot: "상의", name: "아이보리 블라우스" },
+      { slot: "하의", name: "다크 슬랙스" },
+      { slot: "신발", name: "블랙 펌프스" },
+      { slot: "가방", name: "토트백" },
+      { slot: "액세서리", name: "진주 이어링" },
+    ],
+  },
+  {
+    id: "first-day-oxford",
+    name: "단정한 첫 출근 룩",
+    occasion: "first-day",
+    outfit: "Oxford Shirt · Slacks",
+    baseScores: { occasion: 86, formality: 84, color: 85, silhouette: 85, seasonal: 87, detail: 80 },
+    palette: { top: "#bcd0e4", bottom: "#5a5f6b", shoes: "#8b7355", bg: "#e9ecef" },
+    items: [
+      { slot: "상의", name: "옥스포드 셔츠" },
+      { slot: "하의", name: "그레이 슬랙스" },
+      { slot: "신발", name: "브라운 로퍼" },
+      { slot: "가방", name: "백팩" },
+      { slot: "액세서리", name: "가죽 벨트" },
+    ],
+  },
+  {
+    id: "date-feminine",
+    name: "페미닌 데이트 룩",
+    occasion: "date",
+    outfit: "Pink Cardigan · Ivory Wide Pants",
+    baseScores: { occasion: 90, formality: 82, color: 85, silhouette: 84, seasonal: 85, detail: 86 },
+    palette: { top: "#eec9cf", bottom: "#f2ede3", shoes: "#f5f1ea", bg: "#f8ebee" },
+    items: [
+      { slot: "상의", name: "핑크 가디건" },
+      { slot: "하의", name: "아이보리 와이드 팬츠" },
+      { slot: "신발", name: "화이트 슈즈" },
+      { slot: "가방", name: "미니 화이트백" },
+      { slot: "액세서리", name: "골드 네크리스" },
+    ],
+  },
+  {
+    id: "restaurant-charcoal",
+    name: "다이닝 시크 룩",
+    occasion: "restaurant",
+    outfit: "Charcoal Blazer · Black Turtleneck",
+    baseScores: { occasion: 87, formality: 89, color: 84, silhouette: 88, seasonal: 82, detail: 85 },
+    palette: { top: "#2f2c2e", outer: "#4b4649", bottom: "#3a3538", shoes: "#2a2628", bg: "#eae4e2" },
+    items: [
+      { slot: "아우터", name: "차콜 블레이저" },
+      { slot: "상의", name: "블랙 터틀넥" },
+      { slot: "하의", name: "블랙 슬랙스" },
+      { slot: "신발", name: "블랙 첼시부츠" },
+      { slot: "액세서리", name: "실버 링" },
+    ],
+  },
+  {
+    id: "friends-casual",
+    name: "릴렉스 주말 룩",
+    occasion: "friends",
+    outfit: "Sage Sweatshirt · Wide Denim",
+    baseScores: { occasion: 91, formality: 70, color: 86, silhouette: 84, seasonal: 88, detail: 78 },
+    palette: { top: "#aebfa8", bottom: "#7d8fa6", shoes: "#f2eee7", bg: "#edf0e9" },
+    items: [
+      { slot: "상의", name: "세이지 스웨트셔츠" },
+      { slot: "하의", name: "와이드 데님" },
+      { slot: "신발", name: "화이트 스니커즈" },
+      { slot: "가방", name: "캔버스 토트" },
+      { slot: "액세서리", name: "볼캡" },
+    ],
+  },
+];
+
+export const SAMPLE_MAP: Record<string, DemoSample> = Object.fromEntries(
+  DEMO_SAMPLES.map((s) => [s.id, s])
+);

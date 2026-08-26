@@ -1,0 +1,133 @@
+@import "tailwindcss";
+
+/* Self-hosted display serif (latin) — Korean glyphs cascade to Noto Serif KR / system */
+@font-face {
+  font-family: "Playfair Display";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/playfair-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+2000-206F, U+20AC, U+2122, U+2212, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Playfair Display";
+  font-style: italic;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/playfair-italic-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+2000-206F, U+20AC, U+2122, U+2212, U+FEFF, U+FFFD;
+}
+
+@theme {
+  /* StyleCheck AI palette — warm ivory ground, soft rose accent, deep cocoa ink */
+  --color-cream: #fbf7f4;
+  --color-ivory: #fdfaf8;
+  --color-blush: #f9edef;
+  --color-blush-deep: #f4dfe3;
+  --color-linen: #f0e3e2;
+  --color-ink: #453538;
+  --color-ink-soft: #6f5c60;
+  --color-ink-faint: #a3908f;
+  --color-rose: #d2697f;
+  --color-rose-deep: #b9556b;
+  --color-rose-soft: #f2d3da;
+  --color-gold: #c2a36b;
+  --color-sage: #8ba888;
+
+  --font-display: "Playfair Display", "Noto Serif KR", serif;
+  --font-body: "Pretendard Variable", Pretendard, "Noto Sans KR", -apple-system,
+    BlinkMacSystemFont, system-ui, sans-serif;
+
+  --radius-card: 1.5rem;
+  --radius-photo: 1.75rem;
+
+  --shadow-soft: 0 6px 24px -8px rgba(69, 53, 56, 0.1);
+  --shadow-lift: 0 14px 40px -12px rgba(69, 53, 56, 0.16);
+  --shadow-rose: 0 10px 28px -10px rgba(210, 105, 127, 0.45);
+
+  --animate-fade-up: fade-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-fade-in: fade-in 0.35s ease both;
+  --animate-scale-in: scale-in 0.3s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+  --animate-pulse-soft: pulse-soft 1.8s ease-in-out infinite;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+  --animate-heart-pop: heart-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes scale-in {
+    from { opacity: 0; transform: scale(0.94); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes pulse-soft {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
+  }
+  @keyframes shimmer {
+    from { background-position: -200% 0; }
+    to { background-position: 200% 0; }
+  }
+  @keyframes heart-pop {
+    0% { transform: scale(1); }
+    45% { transform: scale(1.35); }
+    100% { transform: scale(1); }
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  letter-spacing: -0.011em;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--color-rose-soft);
+  color: var(--color-ink);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.skeleton {
+  background: linear-gradient(
+    100deg,
+    var(--color-blush) 40%,
+    #fdf4f5 50%,
+    var(--color-blush) 60%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+
+/* score ring stroke transition */
+.ring-progress {
+  transition: stroke-dashoffset 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* breakdown bar fill transition */
+.bar-fill {
+  transition: width 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+}
