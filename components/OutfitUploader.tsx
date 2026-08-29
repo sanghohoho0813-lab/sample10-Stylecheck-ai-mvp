@@ -3,7 +3,6 @@
 import { useRef, useState } from "react";
 import { Camera, ImagePlus, RefreshCw, Trash2, Sparkles } from "lucide-react";
 import { DEMO_SAMPLES } from "@/lib/demo-samples";
-import { sampleImageDataUrl } from "@/lib/outfit-image";
 import { compressImage, isAcceptedImage } from "@/lib/utils";
 
 interface Props {
@@ -175,7 +174,7 @@ export default function OutfitUploader({ image, isSample, onImage, onSample, onC
                 className="w-24 shrink-0 overflow-hidden rounded-2xl border border-linen bg-white text-left shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:border-rose-soft"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={sampleImageDataUrl(s)} alt={`${s.name} 샘플`} className="aspect-[3/4] w-full object-cover" />
+                <img src={s.image} alt={`${s.name} 샘플`} loading="lazy" className="aspect-[3/4] w-full object-cover" />
                 <p className="truncate px-2 py-1.5 text-[11px] font-medium text-ink-soft">{s.name}</p>
               </button>
             ))}

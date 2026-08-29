@@ -2,7 +2,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Camera, MapPin, Sparkles, ShieldCheck, Heart } from "lucide-react";
 import { DEMO_SAMPLES } from "@/lib/demo-samples";
-import { sampleImageDataUrl } from "@/lib/outfit-image";
 import { OCCASIONS, OCCASION_MAP } from "@/lib/occasions";
 
 const HERO_SAMPLE = DEMO_SAMPLES[0];
@@ -66,9 +65,10 @@ export default function HomePage() {
                 <div className="flex gap-4">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={sampleImageDataUrl(HERO_SAMPLE)}
-                    alt="샘플 코디 일러스트"
-                    className="w-[44%] rounded-2xl object-cover"
+                    src={HERO_SAMPLE.image}
+                    alt="결혼식 하객 룩 샘플 코디"
+                    className="aspect-[3/4] w-[44%] rounded-2xl object-cover"
+                    fetchPriority="high"
                   />
                   <div className="flex flex-1 flex-col justify-center">
                     <p className="text-xs font-semibold text-rose-deep">
@@ -84,12 +84,12 @@ export default function HomePage() {
                 </div>
                 <div className="mt-4 rounded-2xl bg-blush px-4 py-3">
                   <p className="text-xs font-semibold text-rose-deep">한 가지만 바꾼다면</p>
-                  <p className="mt-1 flex items-center gap-2 text-[13px] font-medium text-ink">
-                    화이트 스니커즈
-                    <ArrowRight className="h-3.5 w-3.5 text-rose" />
-                    블랙 로퍼
+                  <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] font-medium text-ink">
+                    {HERO_SAMPLE.recommendation.from}
+                    <ArrowRight className="h-3.5 w-3.5 shrink-0 text-rose" />
+                    {HERO_SAMPLE.recommendation.to}
                     <span className="ml-auto rounded-full bg-white px-2 py-0.5 text-xs font-bold text-rose-deep">
-                      84 → 91
+                      84 → 92
                     </span>
                   </p>
                 </div>
@@ -158,8 +158,9 @@ export default function HomePage() {
               <div className="overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={sampleImageDataUrl(s)}
-                  alt={`${s.name} 일러스트`}
+                  src={s.image}
+                  alt={`${s.name} — ${s.outfit}`}
+                  loading="lazy"
                   className="aspect-[3/4] w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                 />
               </div>

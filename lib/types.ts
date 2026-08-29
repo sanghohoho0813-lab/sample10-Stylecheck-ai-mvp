@@ -109,13 +109,12 @@ export interface DemoSample {
   name: string;
   occasion: OccasionId;
   outfit: string;
+  /** Public path of the look photo (3:4). */
+  image: string;
   baseScores: ScoreSet;
-  palette: {
-    top: string;
-    bottom: string;
-    outer?: string;
-    shoes: string;
-    bg: string;
-  };
   items: { slot: string; name: string }[];
+  /** Sample-specific "한 가지만 바꾼다면" copy matched to the photo. */
+  recommendation: { from: string; to: string; reason: string };
+  /** Wardrobe item offered as the swap for this look. */
+  wardrobe: WardrobeSuggestion;
 }

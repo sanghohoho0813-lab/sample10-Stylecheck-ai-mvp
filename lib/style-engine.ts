@@ -208,15 +208,20 @@ export function generateStyleFeedback(scores: ScoreSet, seed: number) {
 function buildPrimaryRecommendation(
   scores: ScoreSet,
   overall: number,
-  items: { slot: string; name: string }[] | undefined
+  sample: DemoSample | undefined
 ): PrimaryRecommendation {
   const weakest = sortDimensions(scores).at(-1)!;
-  const t = REC_BY_DIMENSION[weakest];
-  const shoeItem = items?.find((i) => i.slot === "신발");
-  const from = weakest === "detail" && shoeItem ? shoeItem.name : t.from;
+  const shoeItem = sample?.items.find((i) => i.slot === "신발");
+  const fallback = REC_BY_DIMENSION[weakest];
+  // Demo samples carry copy written against their actual photo; uploads fall
+  // back to the weakest-dimension template.
+  const t = sample?.recommendation ?? {
+    ...fallback,
+    from: weakest === "detail" && shoeItem ? shoeItem.name : fallback.from,
+  };
   const gain = Math.min(97 - overall, 5 + Math.round((97 - scores[weakest]) / 8));
   return {
-    from,
+    from: t.from,
     to: t.to,
     reason: t.reason,
     scoreBefore: overall,
@@ -232,28 +237,24 @@ const ITEM_COMMENTS = {
   recommend: ["다른 옵션으로 바꾸면 적합도가 올라갈 수 있어요.", "아래 추천 아이템으로 교체를 고려해보세요."],
 };
 
-function buildItemAnalysis(
-  seed: number,
-  scores: ScoreSet,
-  sampleItems?: { slot: string; name: string }[]
-): OutfitItemAnalysis[] {
+function buildItemAnalysis(seed: number, scores: ScoreSet, sample?: DemoSample): OutfitItemAnalysis[] {
   const rand = mulberry32(seed + 7);
-  const items =
-    sampleItems ??
-    DEFAULT_SLOTS.map((slot) => ({ slot, name: `${slot} 아이템` }));
+  const items = sample?.items ?? DEFAULT_SLOTS.map((slot) => ({ slot, name: `${slot} 아이템` }));
 
   const weakest = sortDimensions(scores).at(-1)!;
-  // detail/formality weakness maps to shoes+accessory; color to top; silhouette to bottom
+  // For samples the focus slot is the one their recommendation targets;
+  // for uploads it is derived from the weakest dimension.
   const focusSlot =
-    weakest === "detail" || weakest === "formality"
+    sample?.wardrobe.slot ??
+    (weakest === "detail" || weakest === "formality"
       ? "신발"
       : weakest === "color"
         ? "상의"
         : weakest === "silhouette"
           ? "하의"
-          : "액세서리";
+          : "액세서리");
 
-  return items.map((item) => {
+  const analysed: OutfitItemAnalysis[] = items.map((item) => {
     let status: OutfitItemAnalysis["status"] = "good";
     if (item.slot === focusSlot) status = "recommend";
     else if (item.slot === "액세서리" && rand() > 0.5) status = "adjust";
@@ -261,6 +262,19 @@ function buildItemAnalysis(
     const pool = ITEM_COMMENTS[status];
     return { slot: item.slot, name: item.name, status, comment: pool[Math.floor(rand() * pool.length)] };
   });
+
+  // The recommendation may target a slot the look does not include yet —
+  // surface it as an item to add rather than dropping the suggestion.
+  if (sample && !items.some((i) => i.slot === focusSlot)) {
+    analysed.push({
+      slot: focusSlot,
+      name: "지금은 없어요",
+      status: "recommend",
+      comment: `${sample.recommendation.to}처럼 하나만 더해도 완성도가 올라가요.`,
+    });
+  }
+
+  return analysed;
 }
 
 /** Alternatives keep the current outfit and change as little as possible. */
@@ -315,10 +329,10 @@ export function runStyleAnalysis(input: AnalysisInput): Omit<AnalysisResult, "id
   const overall = evaluateOccasionFit(scores, occasion);
   const occasionLabel = OCCASION_MAP[occasion].label;
   const { positives, improvements } = generateStyleFeedback(scores, seed);
-  const primaryRecommendation = buildPrimaryRecommendation(scores, overall, sample?.items);
-  const items = buildItemAnalysis(seed, scores, sample?.items);
+  const primaryRecommendation = buildPrimaryRecommendation(scores, overall, sample);
+  const items = buildItemAnalysis(seed, scores, sample);
   const alternatives = generateAlternatives(overall, primaryRecommendation);
-  const wardrobeSuggestion = WARDROBE_DEMO[seed % WARDROBE_DEMO.length];
+  const wardrobeSuggestion = sample?.wardrobe ?? WARDROBE_DEMO[seed % WARDROBE_DEMO.length];
 
   return {
     image,

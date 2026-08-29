@@ -10,10 +10,13 @@ import { useToast } from "@/components/Toast";
 import type { AnalysisResult } from "@/lib/types";
 
 const WARDROBE_DEMO = [
-  { slot: "신발", name: "블랙 로퍼", color: "#2b2628" },
-  { slot: "아우터", name: "미니멀 재킷", color: "#4b4649" },
-  { slot: "상의", name: "화이트 셔츠", color: "#f4f1ea" },
-  { slot: "하의", name: "와이드 슬랙스", color: "#8b8489" },
+  { slot: "신발", name: "블랙 스트레이트팁", color: "#262224" },
+  { slot: "신발", name: "베이지 로퍼", color: "#c9b294" },
+  { slot: "아우터", name: "차콜 재킷", color: "#4b4649" },
+  { slot: "아우터", name: "네이비 니트 베스트", color: "#2c3a55" },
+  { slot: "상의", name: "라이트 셔츠", color: "#dbe4ee" },
+  { slot: "가방", name: "아이보리 미니백", color: "#efe7db" },
+  { slot: "액세서리", name: "진주 이어링", color: "#f3ece2" },
   { slot: "액세서리", name: "실버 미니 워치", color: "#c8c8cc" },
 ];
 

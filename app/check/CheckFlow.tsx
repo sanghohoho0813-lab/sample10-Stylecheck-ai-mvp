@@ -8,7 +8,6 @@ import OccasionGrid from "@/components/OccasionGrid";
 import ConditionForm from "@/components/ConditionForm";
 import AnalysisLoading from "@/components/AnalysisLoading";
 import { SAMPLE_MAP } from "@/lib/demo-samples";
-import { sampleImageDataUrl } from "@/lib/outfit-image";
 import { currentSeason, OCCASION_MAP } from "@/lib/occasions";
 import { runStyleAnalysis } from "@/lib/style-engine";
 import { makeId, saveAnalysis } from "@/lib/storage";
@@ -48,7 +47,7 @@ export default function CheckFlow() {
     if (sampleParam && SAMPLE_MAP[sampleParam]) {
       const s = SAMPLE_MAP[sampleParam];
       setSampleId(s.id);
-      setImage(sampleImageDataUrl(s));
+      setImage(s.image);
       setOccasion(s.occasion);
       setStep("conditions");
     } else if (occasionParam && OCCASION_MAP[occasionParam as OccasionId]) {
@@ -63,7 +62,7 @@ export default function CheckFlow() {
     const s = SAMPLE_MAP[id];
     if (!s) return;
     setSampleId(s.id);
-    setImage(sampleImageDataUrl(s));
+    setImage(s.image);
     setOccasion((prev) => prev ?? s.occasion);
     setError(null);
     setStep("occasion");
