@@ -27,7 +27,7 @@ export default function HomePage() {
               <Sparkles className="h-3.5 w-3.5" />
               상황별 AI 코디 판정
             </p>
-            <h1 className="font-display text-[1.75rem] font-semibold leading-[1.18] tracking-tight text-ink sm:text-[2.1rem] md:text-[2.6rem]">
+            <h1 className="font-display text-[2.35rem] font-semibold leading-[1.18] tracking-tight text-ink md:text-[3.2rem]">
               오늘 이 옷,
               <br />
               괜찮을까요?
@@ -99,6 +99,56 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Sample looks */}
+      <section className="mx-auto max-w-6xl px-5 py-12 md:px-8 md:py-16">
+        <div className="flex items-end justify-between">
+          <div>
+            <h2 className="font-display text-2xl font-semibold text-ink md:text-3xl">이런 코디는 어때요?</h2>
+            <p className="mt-2 text-sm text-ink-soft">샘플 코디를 눌러 분석 과정을 바로 체험해보세요.</p>
+          </div>
+        </div>
+        <div className="mt-7 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 md:gap-6">
+          {DEMO_SAMPLES.map((s, i) => (
+            <Link
+              key={s.id}
+              href={`/check?sample=${s.id}`}
+              className="group animate-fade-up overflow-hidden rounded-card border border-linen bg-white shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-lift"
+              style={{ animationDelay: `${i * 60}ms` }}
+            >
+              <div className="relative overflow-hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={s.image}
+                  alt={`${s.name} — ${s.outfit}`}
+                  loading={i < 4 ? "eager" : "lazy"}
+                  className="aspect-[3/4] w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                />
+                {/* Likes sit on the photo so the caption keeps the full card width */}
+                <span className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-white/85 px-2 py-0.5 text-[0.625rem] font-semibold text-rose backdrop-blur-sm">
+                  <Heart className="h-2.5 w-2.5 fill-current" />
+                  {80 + ((i * 17) % 60)}
+                </span>
+              </div>
+              <div className="px-3.5 py-3">
+                <p className="text-[0.8125rem] font-semibold leading-tight text-ink">{s.name}</p>
+                <p className="mt-1.5 truncate text-[0.6875rem] leading-tight text-ink-faint">
+                  {OCCASION_MAP[s.occasion].emoji} {OCCASION_MAP[s.occasion].label}
+                </p>
+              </div>
+            </Link>
+          ))}
+        </div>
+        <div className="mt-8 text-center">
+          <Link
+            href="/check"
+            className="inline-flex items-center gap-2 rounded-full border border-linen bg-white px-6 py-3 text-sm font-semibold text-ink transition-all hover:border-rose-soft hover:bg-blush/60"
+          >
+            내 코디로 확인해보기
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+      </section>
+
       {/* How it works */}
       <section className="mx-auto max-w-6xl px-5 py-12 md:px-8 md:py-16">
         <h2 className="font-display text-2xl font-semibold text-ink md:text-3xl">이렇게 확인해요</h2>
@@ -136,57 +186,6 @@ export default function HomePage() {
               {o.emoji} {o.label}
             </Link>
           ))}
-        </div>
-      </section>
-
-      {/* Sample looks */}
-      <section className="mx-auto max-w-6xl px-5 py-12 md:px-8 md:py-16">
-        <div className="flex items-end justify-between">
-          <div>
-            <h2 className="font-display text-2xl font-semibold text-ink md:text-3xl">이런 코디는 어때요?</h2>
-            <p className="mt-2 text-sm text-ink-soft">샘플 코디를 눌러 분석 과정을 바로 체험해보세요.</p>
-          </div>
-        </div>
-        <div className="mt-7 grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4 xl:gap-6">
-          {DEMO_SAMPLES.map((s, i) => (
-            <Link
-              key={s.id}
-              href={`/check?sample=${s.id}`}
-              className="group animate-fade-up overflow-hidden rounded-card border border-linen bg-white shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-lift"
-              style={{ animationDelay: `${i * 60}ms` }}
-            >
-              <div className="overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={s.image}
-                  alt={`${s.name} — ${s.outfit}`}
-                  loading={i < 4 ? "eager" : "lazy"}
-                  className="aspect-[3/4] w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-                />
-              </div>
-              <div className="px-3.5 py-3">
-                <p className="text-[0.8125rem] font-semibold leading-tight text-ink">{s.name}</p>
-                <div className="mt-1.5 flex items-center justify-between gap-2">
-                  <p className="min-w-0 text-[0.6875rem] leading-tight text-ink-faint">
-                    {OCCASION_MAP[s.occasion].emoji} {OCCASION_MAP[s.occasion].label}
-                  </p>
-                  <span className="flex shrink-0 items-center gap-1 text-[0.6875rem] font-medium text-rose">
-                    <Heart className="h-3 w-3 fill-current" />
-                    {80 + ((i * 17) % 60)}
-                  </span>
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-        <div className="mt-8 text-center">
-          <Link
-            href="/check"
-            className="inline-flex items-center gap-2 rounded-full border border-linen bg-white px-6 py-3 text-sm font-semibold text-ink transition-all hover:border-rose-soft hover:bg-blush/60"
-          >
-            내 코디로 확인해보기
-            <ArrowRight className="h-4 w-4" />
-          </Link>
         </div>
       </section>
 

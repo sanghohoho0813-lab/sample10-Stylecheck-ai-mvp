@@ -196,7 +196,7 @@ export default function CheckFlow() {
 
       {/* Footer controls */}
       {step !== "loading" && (
-        <div className="mt-10 flex flex-col-reverse gap-3 sm:flex-row sm:items-center">
+        <div className="mt-10 flex items-center gap-3">
           {step !== "upload" && (
             <button
               type="button"
@@ -210,7 +210,7 @@ export default function CheckFlow() {
           <button
             type="button"
             onClick={goNext}
-            className="inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-full bg-rose px-4 py-3.5 text-[0.9375rem] font-semibold text-white shadow-rose transition-all duration-200 hover:bg-rose-deep active:scale-[0.98] sm:px-6"
+            className="inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-full bg-rose px-5 py-3.5 text-[0.9375rem] font-semibold text-white shadow-rose transition-all duration-200 hover:bg-rose-deep active:scale-[0.98] sm:px-6"
           >
             {step === "conditions" ? (
               <>

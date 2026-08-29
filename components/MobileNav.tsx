@@ -4,10 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Sparkles, BookOpen, Clock3, User } from "lucide-react";
 
+// 검사 sits in the centre slot so the primary action is under the thumb.
 const ITEMS = [
   { href: "/", label: "홈", icon: Home },
-  { href: "/check", label: "검사", icon: Sparkles, primary: true },
   { href: "/guide", label: "가이드", icon: BookOpen },
+  { href: "/check", label: "검사", icon: Sparkles, primary: true },
   { href: "/history", label: "기록", icon: Clock3 },
   { href: "/mypage", label: "마이", icon: User },
 ];
@@ -22,15 +23,21 @@ export default function MobileNav() {
           const active = href === "/" ? pathname === "/" : pathname?.startsWith(href);
           if (primary) {
             return (
-              <Link key={href} href={href} className="relative -mt-5 flex min-w-0 flex-1 flex-col items-center justify-start px-0.5">
+              <Link
+                key={href}
+                href={href}
+                className="flex min-w-0 flex-1 flex-col items-center justify-center gap-1 px-0.5"
+              >
                 <span
-                  className={`flex h-10 w-10 items-center justify-center rounded-full shadow-rose transition-transform duration-200 active:scale-90 ${
+                  className={`flex h-9 w-9 items-center justify-center rounded-full shadow-rose transition-transform duration-200 active:scale-90 ${
                     active ? "bg-rose-deep" : "bg-rose"
                   }`}
                 >
-                  <Icon className="h-5 w-5 text-white" strokeWidth={2.2} />
+                  <Icon className="h-[1.15rem] w-[1.15rem] text-white" strokeWidth={2.2} />
                 </span>
-                <span className={`mt-1 text-[0.625rem] font-semibold ${active ? "text-rose-deep" : "text-ink-soft"}`}>
+                <span
+                  className={`text-[0.625rem] font-semibold ${active ? "text-rose-deep" : "text-ink-soft"}`}
+                >
                   {label}
                 </span>
               </Link>

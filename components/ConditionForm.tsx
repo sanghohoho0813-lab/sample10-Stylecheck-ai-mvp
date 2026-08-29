@@ -52,7 +52,7 @@ export default function ConditionForm({ conditions, onChange }: Props) {
   return (
     <div className="animate-fade-up space-y-7">
       <div>
-        <h2 className="font-display text-[1.35rem] font-semibold leading-snug text-ink sm:text-[1.6rem] md:text-2xl">
+        <h2 className="font-display text-[1.6rem] font-semibold leading-snug text-ink md:text-3xl">
           조금 더 알려주세요
         </h2>
         <p className="mt-2 text-sm text-ink-soft">선택할수록 판정이 더 정확해져요. 건너뛰어도 괜찮아요.</p>

@@ -13,12 +13,12 @@ interface Props {
 export default function OccasionGrid({ selected, onSelect, error }: Props) {
   return (
     <div className="animate-fade-up">
-      <h2 className="font-display text-[1.35rem] font-semibold leading-snug text-ink sm:text-[1.6rem] md:text-2xl">
+      <h2 className="font-display text-[1.6rem] font-semibold leading-snug text-ink md:text-3xl">
         어디에 입고 가시나요?
       </h2>
       <p className="mt-2 text-sm text-ink-soft">상황에 따라 격식과 스타일 기준이 달라져요.</p>
 
-      <div className="mt-6 grid grid-cols-2 gap-2.5 md:grid-cols-3 xl:grid-cols-4 xl:gap-3.5">
+      <div className="mt-6 grid grid-cols-3 gap-2.5 md:grid-cols-4 md:gap-3.5">
         {OCCASIONS.map((o) => {
           const active = selected === o.id;
           return (

@@ -107,7 +107,7 @@ export default function ResultView({ id }: { id: string }) {
 
   return (
     <div className="mx-auto max-w-6xl px-5 pb-20 pt-8 md:px-8 md:pt-12">
-      <div className="md:grid md:grid-cols-[36%_1fr] md:gap-6 xl:grid-cols-[38%_1fr] xl:gap-10">
+      <div className="md:grid md:grid-cols-[38%_1fr] md:gap-8 xl:gap-10">
         {/* Left: outfit image (sticky on desktop) */}
         <div className="min-w-0 md:sticky md:top-[7.5rem] md:self-start">
           <div className="animate-fade-up relative mx-auto max-w-xs overflow-hidden rounded-photo border border-linen bg-white p-2.5 shadow-lift md:max-w-none">
@@ -143,8 +143,8 @@ export default function ResultView({ id }: { id: string }) {
         <div className="mt-8 min-w-0 space-y-5 md:mt-0">
           {/* Overall score */}
           <section className="animate-fade-up rounded-card border border-linen bg-white p-6 shadow-soft md:p-8">
-            <div className="flex flex-col items-center gap-5 text-center xl:flex-row xl:text-left">
-              <ScoreRing score={result.overallScore} size={140} />
+            <div className="flex flex-col items-center gap-5 text-center md:flex-row md:text-left">
+              <ScoreRing score={result.overallScore} size={152} />
               <div className="flex-1">
                 <p className="text-xs font-semibold uppercase tracking-wider text-rose">코디 적합도</p>
                 <h1 className="mt-1.5 font-display text-xl font-semibold leading-snug text-ink md:text-2xl">
@@ -243,10 +243,10 @@ export default function ResultView({ id }: { id: string }) {
             <ul className="mt-4 divide-y divide-linen/70">
               {result.items.map((item) => (
                 <li key={item.slot} className="flex items-center gap-3 py-3">
-                  <span className="w-16 shrink-0 text-xs font-medium text-ink-faint">{item.slot}</span>
+                  <span className="w-12 shrink-0 text-xs font-medium text-ink-faint sm:w-16">{item.slot}</span>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-ink">{item.name}</p>
-                    <p className="truncate text-[0.75rem] text-ink-soft">{item.comment}</p>
+                    <p className="text-sm font-medium leading-tight text-ink">{item.name}</p>
+                    <p className="mt-0.5 truncate text-[0.75rem] text-ink-soft">{item.comment}</p>
                   </div>
                   <span className={`shrink-0 rounded-full px-2.5 py-1 text-[0.6875rem] font-bold ${STATUS_META[item.status].cls}`}>
                     {STATUS_META[item.status].label}
@@ -262,7 +262,7 @@ export default function ResultView({ id }: { id: string }) {
               <Sparkles className="h-4 w-4 text-rose" />
               대안 코디
             </p>
-            <div className="mt-3 grid gap-3 md:grid-cols-2 2xl:grid-cols-3">
+            <div className="mt-3 grid gap-3 md:grid-cols-3">
               {result.alternatives.map((alt) => (
                 <div
                   key={alt.name}

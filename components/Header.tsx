@@ -46,6 +46,14 @@ export default function Header() {
             코디 확인하기
           </Link>
         </nav>
+
+        {/* mobile quick action */}
+        <Link
+          href="/check"
+          className="whitespace-nowrap rounded-full bg-rose px-3.5 py-1.5 text-[0.75rem] font-semibold text-white shadow-rose md:hidden"
+        >
+          코디 확인
+        </Link>
       </div>
     </header>
   );

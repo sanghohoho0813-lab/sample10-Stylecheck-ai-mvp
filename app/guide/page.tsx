@@ -60,7 +60,7 @@ export default function GuidePage() {
         참고용 가이드로 활용해주세요.
       </p>
 
-      <div className="mt-9 grid gap-5 xl:grid-cols-2">
+      <div className="mt-9 grid gap-5 lg:grid-cols-2">
         {GUIDES.map((g, i) => {
           const occ = OCCASION_MAP[g.id];
           return (

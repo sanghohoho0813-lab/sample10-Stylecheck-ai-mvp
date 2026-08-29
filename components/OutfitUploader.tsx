@@ -41,7 +41,7 @@ export default function OutfitUploader({ image, isSample, onImage, onSample, onC
 
   return (
     <div className="animate-fade-up">
-      <h2 className="font-display text-[1.35rem] font-semibold leading-snug text-ink sm:text-[1.6rem] md:text-2xl">
+      <h2 className="font-display text-[1.6rem] font-semibold leading-snug text-ink md:text-3xl">
         오늘 입을 코디 사진을
         <br className="md:hidden" /> 올려주세요
       </h2>
