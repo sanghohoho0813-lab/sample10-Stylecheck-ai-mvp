@@ -41,7 +41,7 @@ export default function OutfitUploader({ image, isSample, onImage, onSample, onC
 
   return (
     <div className="animate-fade-up">
-      <h2 className="font-display text-[1.6rem] font-semibold leading-snug text-ink md:text-3xl">
+      <h2 className="font-display text-[1.35rem] font-semibold leading-snug text-ink sm:text-[1.6rem] md:text-2xl">
         오늘 입을 코디 사진을
         <br className="md:hidden" /> 올려주세요
       </h2>
@@ -75,7 +75,7 @@ export default function OutfitUploader({ image, isSample, onImage, onSample, onC
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={image} alt="업로드한 코디 사진 미리보기" className="aspect-[3/4] w-full rounded-[1.3rem] object-cover" />
             {isSample && (
-              <span className="absolute left-5 top-5 rounded-full bg-ink/75 px-2.5 py-1 text-[11px] font-semibold text-white backdrop-blur">
+              <span className="absolute left-5 top-5 rounded-full bg-ink/75 px-2.5 py-1 text-[0.6875rem] font-semibold text-white backdrop-blur">
                 샘플 코디
               </span>
             )}
@@ -84,7 +84,7 @@ export default function OutfitUploader({ image, isSample, onImage, onSample, onC
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
-              className="inline-flex items-center gap-1.5 rounded-full border border-linen bg-white px-4 py-2.5 text-[13px] font-semibold text-ink transition-colors hover:bg-blush/60"
+              className="inline-flex items-center gap-1.5 rounded-full border border-linen bg-white px-4 py-2.5 text-[0.8125rem] font-semibold text-ink transition-colors hover:bg-blush/60"
             >
               <RefreshCw className="h-3.5 w-3.5" />
               다시 선택
@@ -92,7 +92,7 @@ export default function OutfitUploader({ image, isSample, onImage, onSample, onC
             <button
               type="button"
               onClick={onClear}
-              className="inline-flex items-center gap-1.5 rounded-full border border-linen bg-white px-4 py-2.5 text-[13px] font-semibold text-ink-soft transition-colors hover:bg-blush/60 hover:text-rose-deep"
+              className="inline-flex items-center gap-1.5 rounded-full border border-linen bg-white px-4 py-2.5 text-[0.8125rem] font-semibold text-ink-soft transition-colors hover:bg-blush/60 hover:text-rose-deep"
             >
               <Trash2 className="h-3.5 w-3.5" />
               삭제
@@ -125,8 +125,8 @@ export default function OutfitUploader({ image, isSample, onImage, onSample, onC
             <span className="flex h-16 w-16 items-center justify-center rounded-full bg-blush">
               <ImagePlus className="h-7 w-7 text-rose" />
             </span>
-            <p className="mt-4 text-[15px] font-semibold text-ink">사진을 끌어다 놓거나 클릭해서 선택</p>
-            <p className="mt-1 text-[13px] text-ink-faint">JPG · PNG · WEBP</p>
+            <p className="mt-4 text-[0.9375rem] font-semibold text-ink">사진을 끌어다 놓거나 클릭해서 선택</p>
+            <p className="mt-1 text-[0.8125rem] text-ink-faint">JPG · PNG · WEBP</p>
           </div>
 
           {/* Mobile: camera-flow buttons */}
@@ -134,7 +134,7 @@ export default function OutfitUploader({ image, isSample, onImage, onSample, onC
             <button
               type="button"
               onClick={() => cameraRef.current?.click()}
-              className="flex items-center justify-center gap-2.5 rounded-card bg-rose py-4 text-[15px] font-semibold text-white shadow-rose transition-transform active:scale-[0.98]"
+              className="flex items-center justify-center gap-2.5 rounded-card bg-rose py-4 text-[0.9375rem] font-semibold text-white shadow-rose transition-transform active:scale-[0.98]"
             >
               <Camera className="h-5 w-5" />
               사진 촬영
@@ -142,7 +142,7 @@ export default function OutfitUploader({ image, isSample, onImage, onSample, onC
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
-              className="flex items-center justify-center gap-2.5 rounded-card border border-linen bg-white py-4 text-[15px] font-semibold text-ink transition-transform active:scale-[0.98]"
+              className="flex items-center justify-center gap-2.5 rounded-card border border-linen bg-white py-4 text-[0.9375rem] font-semibold text-ink transition-transform active:scale-[0.98]"
             >
               <ImagePlus className="h-5 w-5 text-rose" />
               앨범에서 선택
@@ -151,9 +151,9 @@ export default function OutfitUploader({ image, isSample, onImage, onSample, onC
         </>
       )}
 
-      {loading && <p className="mt-3 text-center text-[13px] text-ink-soft animate-pulse-soft">사진을 준비하고 있어요…</p>}
+      {loading && <p className="mt-3 text-center text-[0.8125rem] text-ink-soft animate-pulse-soft">사진을 준비하고 있어요…</p>}
       {(fileError || error) && (
-        <p className="mt-3 rounded-2xl bg-rose-soft/60 px-4 py-2.5 text-center text-[13px] font-medium text-rose-deep">
+        <p className="mt-3 rounded-2xl bg-rose-soft/60 px-4 py-2.5 text-center text-[0.8125rem] font-medium text-rose-deep">
           {fileError ?? error}
         </p>
       )}
@@ -161,7 +161,7 @@ export default function OutfitUploader({ image, isSample, onImage, onSample, onC
       {/* Sample strip */}
       {!image && (
         <div className="mt-8">
-          <p className="flex items-center gap-1.5 text-[13px] font-semibold text-ink-soft">
+          <p className="flex items-center gap-1.5 text-[0.8125rem] font-semibold text-ink-soft">
             <Sparkles className="h-3.5 w-3.5 text-rose" />
             사진이 없다면 샘플 코디로 체험해보세요
           </p>
@@ -175,14 +175,14 @@ export default function OutfitUploader({ image, isSample, onImage, onSample, onC
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={s.image} alt={`${s.name} 샘플`} loading="lazy" className="aspect-[3/4] w-full object-cover" />
-                <p className="truncate px-2 py-1.5 text-[11px] font-medium text-ink-soft">{s.name}</p>
+                <p className="truncate px-2 py-1.5 text-[0.6875rem] font-medium text-ink-soft">{s.name}</p>
               </button>
             ))}
           </div>
         </div>
       )}
 
-      <p className="mt-6 text-center text-[11px] leading-relaxed text-ink-faint">
+      <p className="mt-6 text-center text-[0.6875rem] leading-relaxed text-ink-faint">
         업로드한 사진은 코디 분석을 위해 사용되며, 기록 저장은 이 기기 안에서만 이루어져요.
       </p>
     </div>

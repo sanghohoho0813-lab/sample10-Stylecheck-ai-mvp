@@ -39,10 +39,16 @@ export default function ScoreRing({ score, size = 176, stroke = 10, animate = tr
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
   const progress = mounted ? score / 100 : 0;
+  // `size` is a design-time px value rendered in rem so the ring grows with
+  // the global type scale instead of staying pinned to CSS pixels.
+  const rem = (px: number) => `${px / 16}rem`;
 
   return (
-    <div className={`relative inline-flex items-center justify-center ${className}`} style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="-rotate-90">
+    <div
+      className={`relative inline-flex items-center justify-center ${className}`}
+      style={{ width: rem(size), height: rem(size) }}
+    >
+      <svg width={rem(size)} height={rem(size)} viewBox={`0 0 ${size} ${size}`} className="-rotate-90">
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--color-blush-deep)" strokeWidth={stroke} />
         <circle
           cx={size / 2}
@@ -58,10 +64,10 @@ export default function ScoreRing({ score, size = 176, stroke = 10, animate = tr
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="font-display font-semibold leading-none text-ink" style={{ fontSize: size * 0.3 }}>
+        <span className="font-display font-semibold leading-none text-ink" style={{ fontSize: rem(size * 0.3) }}>
           {display}
         </span>
-        <span className="mt-1 text-ink-faint" style={{ fontSize: Math.max(11, size * 0.08) }}>
+        <span className="mt-1 text-ink-faint" style={{ fontSize: rem(Math.max(11, size * 0.08)) }}>
           /100
         </span>
       </div>

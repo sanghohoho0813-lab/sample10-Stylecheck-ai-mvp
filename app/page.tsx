@@ -27,26 +27,26 @@ export default function HomePage() {
               <Sparkles className="h-3.5 w-3.5" />
               상황별 AI 코디 판정
             </p>
-            <h1 className="font-display text-[2.35rem] font-semibold leading-[1.18] tracking-tight text-ink md:text-[3.2rem]">
+            <h1 className="font-display text-[1.75rem] font-semibold leading-[1.18] tracking-tight text-ink sm:text-[2.1rem] md:text-[2.6rem]">
               오늘 이 옷,
               <br />
               괜찮을까요?
             </h1>
-            <p className="mt-5 max-w-md text-[15px] leading-relaxed text-ink-soft md:text-base">
+            <p className="mt-5 max-w-md text-[0.9375rem] leading-relaxed text-ink-soft md:text-base">
               사진과 상황을 알려주면 지금 코디가 얼마나 잘 맞는지 확인해드려요.
               결혼식·면접·소개팅, 중요한 약속 전 1분이면 충분해요.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/check"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-rose px-7 py-3.5 text-[15px] font-semibold text-white shadow-rose transition-all duration-200 hover:bg-rose-deep hover:shadow-lift active:scale-[0.98]"
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-rose px-7 py-3.5 text-[0.9375rem] font-semibold text-white shadow-rose transition-all duration-200 hover:bg-rose-deep hover:shadow-lift active:scale-[0.98]"
               >
                 코디 확인하기
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 href={`/check?sample=${HERO_SAMPLE.id}`}
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-linen bg-white/90 px-7 py-3.5 text-[15px] font-semibold text-ink transition-all duration-200 hover:border-rose-soft hover:bg-blush/60 active:scale-[0.98]"
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full border border-linen bg-white/90 px-7 py-3.5 text-[0.9375rem] font-semibold text-ink transition-all duration-200 hover:border-rose-soft hover:bg-blush/60 active:scale-[0.98]"
               >
                 샘플로 체험하기
               </Link>
@@ -77,14 +77,14 @@ export default function HomePage() {
                     <p className="mt-1 font-display text-5xl font-semibold text-ink">
                       84<span className="text-lg text-ink-faint">/100</span>
                     </p>
-                    <p className="mt-2 text-[13px] leading-snug text-ink-soft">
+                    <p className="mt-2 text-[0.8125rem] leading-snug text-ink-soft">
                       전반적으로 잘 어울리는 코디예요. 신발만 바꾸면 더 좋아요.
                     </p>
                   </div>
                 </div>
                 <div className="mt-4 rounded-2xl bg-blush px-4 py-3">
                   <p className="text-xs font-semibold text-rose-deep">한 가지만 바꾼다면</p>
-                  <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] font-medium text-ink">
+                  <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.8125rem] font-medium text-ink">
                     {HERO_SAMPLE.recommendation.from}
                     <ArrowRight className="h-3.5 w-3.5 shrink-0 text-rose" />
                     {HERO_SAMPLE.recommendation.to}
@@ -111,7 +111,7 @@ export default function HomePage() {
                 </span>
                 <span className="font-display text-sm text-ink-faint">0{i + 1}</span>
               </div>
-              <h3 className="mt-4 text-[15px] font-semibold text-ink">{title}</h3>
+              <h3 className="mt-4 text-[0.9375rem] font-semibold text-ink">{title}</h3>
               <p className="mt-1.5 text-sm leading-relaxed text-ink-soft">{body}</p>
             </div>
           ))}
@@ -147,7 +147,7 @@ export default function HomePage() {
             <p className="mt-2 text-sm text-ink-soft">샘플 코디를 눌러 분석 과정을 바로 체험해보세요.</p>
           </div>
         </div>
-        <div className="mt-7 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
+        <div className="mt-7 grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4 xl:gap-6">
           {DEMO_SAMPLES.map((s, i) => (
             <Link
               key={s.id}
@@ -160,21 +160,21 @@ export default function HomePage() {
                 <img
                   src={s.image}
                   alt={`${s.name} — ${s.outfit}`}
-                  loading="lazy"
+                  loading={i < 4 ? "eager" : "lazy"}
                   className="aspect-[3/4] w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                 />
               </div>
-              <div className="flex items-center justify-between px-3.5 py-3">
-                <div className="min-w-0">
-                  <p className="truncate text-[13px] font-semibold text-ink">{s.name}</p>
-                  <p className="mt-0.5 text-[11px] text-ink-faint">
+              <div className="px-3.5 py-3">
+                <p className="text-[0.8125rem] font-semibold leading-tight text-ink">{s.name}</p>
+                <div className="mt-1.5 flex items-center justify-between gap-2">
+                  <p className="min-w-0 text-[0.6875rem] leading-tight text-ink-faint">
                     {OCCASION_MAP[s.occasion].emoji} {OCCASION_MAP[s.occasion].label}
                   </p>
+                  <span className="flex shrink-0 items-center gap-1 text-[0.6875rem] font-medium text-rose">
+                    <Heart className="h-3 w-3 fill-current" />
+                    {80 + ((i * 17) % 60)}
+                  </span>
                 </div>
-                <span className="flex items-center gap-1 text-[11px] font-medium text-rose">
-                  <Heart className="h-3 w-3 fill-current" />
-                  {80 + ((i * 17) % 60)}
-                </span>
               </div>
             </Link>
           ))}
@@ -203,15 +203,15 @@ export default function HomePage() {
               업로드한 사진은 코디 분석을 위해서만 사용됩니다.
             </p>
           </div>
-          <div className="flex items-center gap-2.5 rounded-2xl border border-linen bg-white px-4 py-3">
+          <div className="flex max-w-full flex-wrap items-center justify-center gap-2.5 rounded-2xl border border-linen bg-white px-4 py-3">
             <Image
               src="/mirae-ai-lab-logo.jpg"
               alt="미래에이아이랩 로고"
               width={110}
               height={33}
-              className="h-7 w-auto rounded"
+              className="h-6 w-auto rounded sm:h-7"
             />
-            <span className="text-left text-[11px] leading-tight text-ink-soft">
+            <span className="text-left text-[0.6875rem] leading-tight text-ink-soft">
               미래에이아이랩
               <br />
               MVP 샘플 프로젝트

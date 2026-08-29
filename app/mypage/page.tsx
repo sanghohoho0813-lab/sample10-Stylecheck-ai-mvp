@@ -55,7 +55,7 @@ export default function MyPage() {
         <span className="flex h-14 w-14 items-center justify-center rounded-full bg-blush text-2xl">🙂</span>
         <div className="min-w-0 flex-1">
           <h1 className="font-display text-xl font-semibold text-ink">데모 사용자</h1>
-          <p className="mt-0.5 text-[13px] text-ink-soft">StyleCheck AI 체험 계정이에요.</p>
+          <p className="mt-0.5 text-[0.8125rem] text-ink-soft">StyleCheck AI 체험 계정이에요.</p>
         </div>
         <Image
           src="/mirae-ai-lab-logo.jpg"
@@ -75,7 +75,7 @@ export default function MyPage() {
         ].map((s) => (
           <div key={s.label} className="rounded-card border border-linen bg-white px-4 py-4 text-center shadow-soft">
             <p className="font-display text-xl font-semibold text-ink">{s.value}</p>
-            <p className="mt-1 text-[11px] font-medium text-ink-faint">{s.label}</p>
+            <p className="mt-1 text-[0.6875rem] font-medium text-ink-faint">{s.label}</p>
           </div>
         ))}
       </section>
@@ -108,17 +108,17 @@ export default function MyPage() {
       <section className="mt-4 rounded-card border border-linen bg-white p-6 shadow-soft">
         <p className="flex items-center gap-2 text-sm font-bold text-ink">
           <Shirt className="h-4 w-4 text-rose" />
-          내 옷장 <span className="rounded-full bg-blush px-2 py-0.5 text-[10px] font-bold text-rose-deep">DEMO</span>
+          내 옷장 <span className="rounded-full bg-blush px-2 py-0.5 text-[0.625rem] font-bold text-rose-deep">DEMO</span>
         </p>
-        <p className="mt-1.5 text-[12px] text-ink-soft">
+        <p className="mt-1.5 text-[0.75rem] text-ink-soft">
           자주 입는 옷을 등록하면 대체 코디를 더 쉽게 확인할 수 있어요.
         </p>
         <div className="no-scrollbar -mx-6 mt-4 flex gap-3 overflow-x-auto px-6 pb-1">
           {WARDROBE_DEMO.map((w) => (
             <div key={w.name} className="w-28 shrink-0 rounded-2xl border border-linen bg-ivory p-3">
               <span className="block h-16 rounded-xl border border-linen/60" style={{ backgroundColor: w.color }} />
-              <p className="mt-2 truncate text-[12px] font-semibold text-ink">{w.name}</p>
-              <p className="text-[10px] text-ink-faint">{w.slot}</p>
+              <p className="mt-2 truncate text-[0.75rem] font-semibold text-ink">{w.name}</p>
+              <p className="text-[0.625rem] text-ink-faint">{w.slot}</p>
             </div>
           ))}
         </div>
@@ -127,7 +127,7 @@ export default function MyPage() {
       {/* Preferred styles */}
       <section className="mt-4 rounded-card border border-linen bg-white p-6 shadow-soft">
         <p className="text-sm font-bold text-ink">선호 스타일</p>
-        <p className="mt-1.5 text-[12px] text-ink-soft">선택한 무드는 추천 문구에 참고돼요.</p>
+        <p className="mt-1.5 text-[0.75rem] text-ink-soft">선택한 무드는 추천 문구에 참고돼요.</p>
         <div className="mt-3.5 flex flex-wrap gap-2">
           {MOODS.map((m) => {
             const active = prefs.includes(m);
@@ -137,7 +137,7 @@ export default function MyPage() {
                 type="button"
                 onClick={() => togglePref(m)}
                 aria-pressed={active}
-                className={`rounded-full border px-3.5 py-2 text-[13px] font-medium transition-all duration-200 ${
+                className={`rounded-full border px-3.5 py-2 text-[0.8125rem] font-medium transition-all duration-200 ${
                   active
                     ? "border-rose bg-rose text-white"
                     : "border-linen bg-white text-ink-soft hover:border-rose-soft"
@@ -159,7 +159,7 @@ export default function MyPage() {
         <div className="mt-4 flex items-center justify-between gap-4">
           <div>
             <p className="text-sm font-medium text-ink">분석 사진을 기록에 저장</p>
-            <p className="mt-0.5 text-[12px] leading-relaxed text-ink-soft">
+            <p className="mt-0.5 text-[0.75rem] leading-relaxed text-ink-soft">
               끄면 결과 점수만 남기고 사진은 저장하지 않아요. 사진은 이 기기 안에서만 보관돼요.
             </p>
           </div>
@@ -184,7 +184,7 @@ export default function MyPage() {
             />
           </button>
         </div>
-        <p className="mt-5 border-t border-linen pt-4 text-[11px] leading-relaxed text-ink-faint">
+        <p className="mt-5 border-t border-linen pt-4 text-[0.6875rem] leading-relaxed text-ink-faint">
           StyleCheck AI는 얼굴·체형 등 외모를 평가하지 않으며, 착장과 상황의 적합성만 확인해요. 업로드한 사진은 코디
           분석을 위해서만 사용됩니다.
         </p>

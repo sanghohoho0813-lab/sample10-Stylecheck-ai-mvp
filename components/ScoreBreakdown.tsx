@@ -18,14 +18,14 @@ export default function ScoreBreakdown({ scores }: { scores: ScoreSet }) {
     <div className="space-y-4">
       {entries.map(([key, value]) => (
         <div key={key} className="flex items-center gap-3">
-          <span className="w-24 shrink-0 text-[13px] font-medium text-ink-soft">{DIMENSION_LABELS[key]}</span>
+          <span className="w-24 shrink-0 text-[0.8125rem] font-medium text-ink-soft">{DIMENSION_LABELS[key]}</span>
           <div className="h-2 flex-1 overflow-hidden rounded-full bg-blush-deep/60">
             <div
               className="bar-fill h-full rounded-full bg-gradient-to-r from-rose-soft to-rose"
               style={{ width: mounted ? `${value}%` : "0%" }}
             />
           </div>
-          <span className="w-12 shrink-0 text-right text-[13px] font-semibold text-ink">
+          <span className="w-12 shrink-0 text-right text-[0.8125rem] font-semibold text-ink">
             {value}
             <span className="font-normal text-ink-faint">/100</span>
           </span>

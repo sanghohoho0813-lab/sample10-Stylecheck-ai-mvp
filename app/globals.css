@@ -82,6 +82,11 @@
 }
 
 html {
+  /* Global 1.8x type scale — every rem-based size (typography, spacing,
+     radii) grows proportionally, so the layout keeps its balance while the
+     text reads 1.8x larger. Media-query breakpoints are unaffected: `rem`
+     inside a media query always resolves against the initial 16px. */
+  font-size: 180%;
   scroll-behavior: smooth;
 }
 
@@ -90,6 +95,10 @@ body {
   color: var(--color-ink);
   font-family: var(--font-body);
   letter-spacing: -0.011em;
+  /* Korean reads far better when lines break between words rather than
+     between syllables; `break-word` keeps a very long token from overflowing. */
+  word-break: keep-all;
+  overflow-wrap: break-word;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }

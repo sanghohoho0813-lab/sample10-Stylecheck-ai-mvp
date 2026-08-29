@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import BrandBar from "@/components/BrandBar";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
 import { ToastProvider } from "@/components/Toast";
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="min-h-screen">
         <ToastProvider>
+          <BrandBar />
           <Header />
           <main className="pb-24 md:pb-0">{children}</main>
           <MobileNav />

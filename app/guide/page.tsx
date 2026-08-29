@@ -60,7 +60,7 @@ export default function GuidePage() {
         참고용 가이드로 활용해주세요.
       </p>
 
-      <div className="mt-9 grid gap-5 md:grid-cols-2">
+      <div className="mt-9 grid gap-5 xl:grid-cols-2">
         {GUIDES.map((g, i) => {
           const occ = OCCASION_MAP[g.id];
           return (
@@ -74,22 +74,22 @@ export default function GuidePage() {
                 <span className="text-2xl">{occ.emoji}</span>
                 {occ.label}
               </h2>
-              <p className="mt-1 text-[12px] text-ink-faint">{occ.description}</p>
+              <p className="mt-1 text-[0.75rem] text-ink-faint">{occ.description}</p>
 
-              <p className="mt-4 text-[13px] font-bold text-sage">이렇게 입으면 좋아요</p>
+              <p className="mt-4 text-[0.8125rem] font-bold text-sage">이렇게 입으면 좋아요</p>
               <ul className="mt-2 space-y-1.5">
                 {g.points.map((p) => (
-                  <li key={p} className="flex items-start gap-2 text-[13px] leading-relaxed text-ink-soft">
+                  <li key={p} className="flex items-start gap-2 text-[0.8125rem] leading-relaxed text-ink-soft">
                     <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-sage" strokeWidth={3} />
                     {p}
                   </li>
                 ))}
               </ul>
 
-              <p className="mt-4 text-[13px] font-bold text-rose-deep">피하면 좋은 것</p>
+              <p className="mt-4 text-[0.8125rem] font-bold text-rose-deep">피하면 좋은 것</p>
               <ul className="mt-2 space-y-1.5">
                 {g.avoid.map((p) => (
-                  <li key={p} className="flex items-start gap-2 text-[13px] leading-relaxed text-ink-soft">
+                  <li key={p} className="flex items-start gap-2 text-[0.8125rem] leading-relaxed text-ink-soft">
                     <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-rose" />
                     {p}
                   </li>
@@ -98,7 +98,7 @@ export default function GuidePage() {
 
               <Link
                 href={`/check?occasion=${g.id}`}
-                className="mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold text-rose transition-colors hover:text-rose-deep"
+                className="mt-5 inline-flex items-center gap-1.5 text-[0.8125rem] font-semibold text-rose transition-colors hover:text-rose-deep"
               >
                 이 상황으로 코디 확인하기
                 <ArrowRight className="h-3.5 w-3.5" />
@@ -108,7 +108,7 @@ export default function GuidePage() {
         })}
       </div>
 
-      <p className="mt-8 flex items-start gap-2 rounded-card border border-linen bg-ivory px-5 py-4 text-[12px] leading-relaxed text-ink-faint">
+      <p className="mt-8 flex items-start gap-2 rounded-card border border-linen bg-ivory px-5 py-4 text-[0.75rem] leading-relaxed text-ink-faint">
         <Info className="mt-0.5 h-4 w-4 shrink-0" />
         이 가이드는 일반적인 기준을 안내할 뿐, 정답은 아니에요. 지역·문화·모임의 성격에 따라 어울리는 스타일은
         얼마든지 달라질 수 있어요.

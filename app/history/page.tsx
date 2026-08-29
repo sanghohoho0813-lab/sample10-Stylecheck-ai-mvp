@@ -53,7 +53,7 @@ export default function HistoryPage() {
             key={f.id}
             type="button"
             onClick={() => setFilter(f.id)}
-            className={`rounded-full px-4 py-2 text-[13px] font-semibold transition-colors duration-200 ${
+            className={`rounded-full px-4 py-2 text-[0.8125rem] font-semibold transition-colors duration-200 ${
               filter === f.id ? "bg-ink text-white" : "border border-linen bg-white text-ink-soft hover:bg-blush/60"
             }`}
           >
@@ -93,14 +93,14 @@ export default function HistoryPage() {
             return (
               <div
                 key={a.id}
-                className="group animate-fade-up relative flex gap-4 rounded-card border border-linen bg-white p-3.5 shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift"
+                className="group animate-fade-up relative flex min-w-0 gap-3 rounded-card border border-linen bg-white p-3.5 shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift sm:gap-4"
                 style={{ animationDelay: `${i * 50}ms` }}
               >
                 <Link href={`/result/${a.id}`} className="absolute inset-0 z-0 rounded-card" aria-label={`${occ.label} 분석 결과 보기`} />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={a.image} alt="" className="aspect-[3/4] w-20 shrink-0 rounded-xl object-cover" />
+                <img src={a.image} alt="" className="aspect-[3/4] w-16 shrink-0 rounded-xl object-cover sm:w-20" />
                 <div className="min-w-0 flex-1 py-1">
-                  <div className="flex items-center gap-2 text-[11px] text-ink-faint">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.6875rem] text-ink-faint">
                     <span>{formatShortDate(a.createdAt)}</span>
                     <span className="rounded-full bg-blush px-2 py-0.5 font-semibold text-rose-deep">
                       {occ.emoji} {occ.label}
@@ -110,7 +110,7 @@ export default function HistoryPage() {
                     {a.overallScore}
                     <span className="text-xs font-normal text-ink-faint">점</span>
                   </p>
-                  <p className="mt-1 line-clamp-2 text-[12px] leading-snug text-ink-soft">{a.summary}</p>
+                  <p className="mt-1 line-clamp-2 text-[0.75rem] leading-snug text-ink-soft">{a.summary}</p>
                 </div>
                 <div className="z-10 flex flex-col items-center justify-between py-1">
                   <button

@@ -107,9 +107,9 @@ export default function ResultView({ id }: { id: string }) {
 
   return (
     <div className="mx-auto max-w-6xl px-5 pb-20 pt-8 md:px-8 md:pt-12">
-      <div className="md:grid md:grid-cols-[40%_1fr] md:gap-10">
+      <div className="md:grid md:grid-cols-[36%_1fr] md:gap-6 xl:grid-cols-[38%_1fr] xl:gap-10">
         {/* Left: outfit image (sticky on desktop) */}
-        <div className="md:sticky md:top-24 md:self-start">
+        <div className="min-w-0 md:sticky md:top-[7.5rem] md:self-start">
           <div className="animate-fade-up relative mx-auto max-w-xs overflow-hidden rounded-photo border border-linen bg-white p-2.5 shadow-lift md:max-w-none">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={result.image} alt="분석한 코디 사진" className="aspect-[3/4] w-full rounded-[1.35rem] object-cover" />
@@ -118,7 +118,7 @@ export default function ResultView({ id }: { id: string }) {
                 {occ.emoji} {occ.label}
               </span>
               {result.isSample && (
-                <span className="rounded-full bg-white/85 px-2.5 py-1.5 text-[11px] font-semibold text-ink-soft backdrop-blur">
+                <span className="rounded-full bg-white/85 px-2.5 py-1.5 text-[0.6875rem] font-semibold text-ink-soft backdrop-blur">
                   샘플
                 </span>
               )}
@@ -127,7 +127,7 @@ export default function ResultView({ id }: { id: string }) {
           <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5 md:justify-start">
             <span className="text-xs text-ink-faint">{formatDate(result.createdAt)}</span>
             {conditionChips.map((c) => (
-              <span key={c} className="rounded-full border border-linen bg-white px-2.5 py-1 text-[11px] font-medium text-ink-soft">
+              <span key={c} className="rounded-full border border-linen bg-white px-2.5 py-1 text-[0.6875rem] font-medium text-ink-soft">
                 {c}
               </span>
             ))}
@@ -140,11 +140,11 @@ export default function ResultView({ id }: { id: string }) {
         </div>
 
         {/* Right: analysis */}
-        <div className="mt-8 space-y-5 md:mt-0">
+        <div className="mt-8 min-w-0 space-y-5 md:mt-0">
           {/* Overall score */}
           <section className="animate-fade-up rounded-card border border-linen bg-white p-6 shadow-soft md:p-8">
-            <div className="flex flex-col items-center gap-5 text-center md:flex-row md:text-left">
-              <ScoreRing score={result.overallScore} size={168} />
+            <div className="flex flex-col items-center gap-5 text-center xl:flex-row xl:text-left">
+              <ScoreRing score={result.overallScore} size={140} />
               <div className="flex-1">
                 <p className="text-xs font-semibold uppercase tracking-wider text-rose">코디 적합도</p>
                 <h1 className="mt-1.5 font-display text-xl font-semibold leading-snug text-ink md:text-2xl">
@@ -166,13 +166,13 @@ export default function ResultView({ id }: { id: string }) {
               한 가지만 바꾼다면
             </p>
             <div className="mt-4 rounded-2xl bg-white p-4.5">
-              <div className="flex flex-wrap items-center gap-2.5 text-[15px] font-semibold text-ink">
+              <div className="flex flex-wrap items-center gap-2.5 text-[0.9375rem] font-semibold text-ink">
                 <span className="rounded-xl bg-blush px-3 py-1.5 line-through decoration-rose/60">{rec.from}</span>
                 <ArrowRight className="h-4 w-4 text-rose" />
                 <span className="rounded-xl bg-rose px-3 py-1.5 text-white">{rec.to}</span>
               </div>
-              <p className="mt-3 text-[13px] leading-relaxed text-ink-soft">{rec.reason}</p>
-              <div className="mt-4 flex items-center gap-3 border-t border-linen pt-4">
+              <p className="mt-3 text-[0.8125rem] leading-relaxed text-ink-soft">{rec.reason}</p>
+              <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-linen pt-4">
                 <span className="text-xs font-medium text-ink-faint">예상 적합도</span>
                 <span className="font-display text-lg text-ink-faint">{rec.scoreBefore}</span>
                 <ArrowRight className="h-4 w-4 text-rose" />
@@ -198,7 +198,7 @@ export default function ResultView({ id }: { id: string }) {
                   </span>
                   <div>
                     <p className="text-sm font-semibold text-ink">{p.title}</p>
-                    <p className="mt-0.5 text-[13px] leading-relaxed text-ink-soft">{p.body}</p>
+                    <p className="mt-0.5 text-[0.8125rem] leading-relaxed text-ink-soft">{p.body}</p>
                   </div>
                 </li>
               ))}
@@ -214,12 +214,12 @@ export default function ResultView({ id }: { id: string }) {
             <ul className="mt-4 space-y-3.5">
               {result.improvements.map((p) => (
                 <li key={p.title} className="flex gap-3">
-                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gold/15 text-[11px] font-bold text-gold">
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gold/15 text-[0.6875rem] font-bold text-gold">
                     !
                   </span>
                   <div>
                     <p className="text-sm font-semibold text-ink">{p.title}</p>
-                    <p className="mt-0.5 text-[13px] leading-relaxed text-ink-soft">{p.body}</p>
+                    <p className="mt-0.5 text-[0.8125rem] leading-relaxed text-ink-soft">{p.body}</p>
                   </div>
                 </li>
               ))}
@@ -246,9 +246,9 @@ export default function ResultView({ id }: { id: string }) {
                   <span className="w-16 shrink-0 text-xs font-medium text-ink-faint">{item.slot}</span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-ink">{item.name}</p>
-                    <p className="truncate text-[12px] text-ink-soft">{item.comment}</p>
+                    <p className="truncate text-[0.75rem] text-ink-soft">{item.comment}</p>
                   </div>
-                  <span className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-bold ${STATUS_META[item.status].cls}`}>
+                  <span className={`shrink-0 rounded-full px-2.5 py-1 text-[0.6875rem] font-bold ${STATUS_META[item.status].cls}`}>
                     {STATUS_META[item.status].label}
                   </span>
                 </li>
@@ -262,22 +262,22 @@ export default function ResultView({ id }: { id: string }) {
               <Sparkles className="h-4 w-4 text-rose" />
               대안 코디
             </p>
-            <div className="mt-3 grid gap-3 md:grid-cols-3">
+            <div className="mt-3 grid gap-3 md:grid-cols-2 2xl:grid-cols-3">
               {result.alternatives.map((alt) => (
                 <div
                   key={alt.name}
                   className="rounded-card border border-linen bg-white p-5 shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift"
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="font-display text-sm font-semibold text-rose">{alt.name}</span>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="whitespace-nowrap font-display text-sm font-semibold text-rose">{alt.name}</span>
                     <span className="font-display text-xl font-semibold text-ink">
                       {alt.fitScore}
                       <span className="text-xs font-normal text-ink-faint">점</span>
                     </span>
                   </div>
-                  <p className="mt-2.5 text-[13px] font-semibold leading-snug text-ink">{alt.summary}</p>
-                  <p className="mt-1.5 text-[12px] text-ink-soft">{alt.mood}</p>
-                  <p className="mt-3 inline-flex rounded-full bg-blush px-2.5 py-1 text-[11px] font-semibold text-rose-deep">
+                  <p className="mt-2.5 text-[0.8125rem] font-semibold leading-snug text-ink">{alt.summary}</p>
+                  <p className="mt-1.5 text-[0.75rem] text-ink-soft">{alt.mood}</p>
+                  <p className="mt-3 inline-flex rounded-full bg-blush px-2.5 py-1 text-[0.6875rem] font-semibold text-rose-deep">
                     아이템 {alt.changedItems}개 변경
                   </p>
                 </div>
@@ -289,7 +289,7 @@ export default function ResultView({ id }: { id: string }) {
           {result.wardrobeSuggestion && (
             <section className="animate-fade-up rounded-card border border-linen bg-ivory p-6 shadow-soft" style={{ animationDelay: "320ms" }}>
               <p className="text-sm font-bold text-ink">👗 {result.wardrobeSuggestion.message}</p>
-              <p className="mt-1.5 text-[13px] text-ink-soft">
+              <p className="mt-1.5 text-[0.8125rem] text-ink-soft">
                 옷장에 등록된 <b className="font-semibold text-ink">{result.wardrobeSuggestion.itemName}</b>
                 {`(${result.wardrobeSuggestion.slot})`}로 바꾸면 지금 추천과 거의 같은 효과를 낼 수 있어요.
               </p>
@@ -300,7 +300,7 @@ export default function ResultView({ id }: { id: string }) {
                   setSwapped(true);
                   toast("내 옷장 아이템으로 대체했어요. 예상 적합도가 반영됐어요.");
                 }}
-                className={`mt-4 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[13px] font-semibold transition-all duration-200 ${
+                className={`mt-4 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-[0.8125rem] font-semibold transition-all duration-200 ${
                   swapped
                     ? "bg-sage/15 text-sage"
                     : "bg-ink text-white hover:bg-ink/85 active:scale-[0.98]"

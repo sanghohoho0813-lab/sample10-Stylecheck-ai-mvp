@@ -60,7 +60,7 @@ export default function AnalysisLoading({ image, onDone }: { image: string; onDo
           return (
             <li
               key={text}
-              className={`flex items-center gap-2.5 rounded-2xl px-4 py-2.5 text-[13px] transition-all duration-300 ${
+              className={`flex items-center gap-2.5 rounded-2xl px-4 py-2.5 text-[0.8125rem] transition-all duration-300 ${
                 current ? "animate-fade-up bg-white font-semibold text-ink border border-linen shadow-soft" : "text-ink-faint"
               }`}
             >

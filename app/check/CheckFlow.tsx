@@ -122,28 +122,52 @@ export default function CheckFlow() {
     <div className="mx-auto max-w-2xl px-5 pb-16 pt-8 md:px-8 md:pt-12">
       {/* Stepper */}
       {step !== "loading" && (
-        <ol className="mb-8 flex items-center justify-center gap-0" aria-label="분석 단계">
-          {STEP_LABELS.map((label, i) => {
-            const done = i < stepIndex;
-            const current = i === stepIndex;
-            return (
-              <li key={label} className="flex items-center">
-                {i > 0 && <span className={`h-px w-8 md:w-12 ${i <= stepIndex ? "bg-rose" : "bg-linen"}`} aria-hidden />}
+        <>
+          {/* Compact on phones — four full chips do not fit at this type scale */}
+          <div className="mb-7 sm:hidden" aria-label="분석 단계">
+            <div className="flex items-center justify-between">
+              <span className="text-[0.75rem] font-semibold text-rose-deep">
+                {stepIndex + 1}. {STEP_LABELS[stepIndex]}
+              </span>
+              <span className="text-[0.6875rem] font-medium text-ink-faint">
+                {stepIndex + 1} / {STEP_LABELS.length}
+              </span>
+            </div>
+            <div className="mt-2 flex gap-1.5">
+              {STEP_LABELS.map((label, i) => (
                 <span
-                  className={`mx-1.5 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors duration-200 ${
-                    current
-                      ? "bg-rose text-white shadow-rose/50 shadow-sm"
-                      : done
-                        ? "bg-blush text-rose-deep"
-                        : "bg-white text-ink-faint border border-linen"
+                  key={label}
+                  className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${
+                    i <= stepIndex ? "bg-rose" : "bg-blush-deep"
                   }`}
-                >
-                  {i + 1}. {label}
-                </span>
-              </li>
-            );
-          })}
-        </ol>
+                />
+              ))}
+            </div>
+          </div>
+
+          <ol className="mb-8 hidden items-center justify-center gap-0 sm:flex" aria-label="분석 단계">
+            {STEP_LABELS.map((label, i) => {
+              const done = i < stepIndex;
+              const current = i === stepIndex;
+              return (
+                <li key={label} className="flex items-center">
+                  {i > 0 && <span className={`h-px w-6 md:w-12 ${i <= stepIndex ? "bg-rose" : "bg-linen"}`} aria-hidden />}
+                  <span
+                    className={`mx-1.5 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[0.6875rem] font-semibold transition-colors duration-200 md:text-xs ${
+                      current
+                        ? "bg-rose text-white shadow-rose/50 shadow-sm"
+                        : done
+                          ? "bg-blush text-rose-deep"
+                          : "bg-white text-ink-faint border border-linen"
+                    }`}
+                  >
+                    {i + 1}. {label}
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
+        </>
       )}
 
       {step === "upload" && (
@@ -172,12 +196,12 @@ export default function CheckFlow() {
 
       {/* Footer controls */}
       {step !== "loading" && (
-        <div className="mt-10 flex items-center gap-3">
+        <div className="mt-10 flex flex-col-reverse gap-3 sm:flex-row sm:items-center">
           {step !== "upload" && (
             <button
               type="button"
               onClick={goBack}
-              className="inline-flex items-center gap-1.5 rounded-full border border-linen bg-white px-5 py-3.5 text-sm font-semibold text-ink-soft transition-colors hover:bg-blush/60"
+              className="inline-flex items-center justify-center gap-1.5 rounded-full border border-linen bg-white px-5 py-3.5 text-sm font-semibold text-ink-soft transition-colors hover:bg-blush/60"
             >
               <ArrowLeft className="h-4 w-4" />
               이전
@@ -186,12 +210,15 @@ export default function CheckFlow() {
           <button
             type="button"
             onClick={goNext}
-            className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-rose px-6 py-3.5 text-[15px] font-semibold text-white shadow-rose transition-all duration-200 hover:bg-rose-deep active:scale-[0.98]"
+            className="inline-flex min-w-0 flex-1 items-center justify-center gap-2 rounded-full bg-rose px-4 py-3.5 text-[0.9375rem] font-semibold text-white shadow-rose transition-all duration-200 hover:bg-rose-deep active:scale-[0.98] sm:px-6"
           >
             {step === "conditions" ? (
               <>
-                <Sparkles className="h-4.5 w-4.5" />
-                {occasionLabel ? `${occasionLabel} 코디 판정하기` : "AI 코디 판정하기"}
+                <Sparkles className="h-4.5 w-4.5 shrink-0" />
+                <span className="truncate">
+                  {occasionLabel && <span className="hidden sm:inline">{occasionLabel} </span>}
+                  코디 판정하기
+                </span>
               </>
             ) : (
               <>
