@@ -14,7 +14,7 @@ export default function Header() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-40 border-b border-linen/80 bg-ivory/90 backdrop-blur-md md:top-10">
+    <header className="sticky top-0 z-40 border-b border-linen/80 bg-ivory/90 backdrop-blur-md md:top-14">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 md:h-16 md:px-8">
         <Link href="/" className="flex shrink-0 items-center gap-2">
           <span className="font-display text-[1.2rem] font-semibold tracking-tight text-ink sm:text-[1.35rem]">

@@ -1,6 +1,6 @@
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowRight, Camera, MapPin, Sparkles, ShieldCheck, Heart } from "lucide-react";
+import LabLogo from "@/components/LabLogo";
 import { DEMO_SAMPLES } from "@/lib/demo-samples";
 import { OCCASIONS, OCCASION_MAP } from "@/lib/occasions";
 
@@ -202,18 +202,10 @@ export default function HomePage() {
               업로드한 사진은 코디 분석을 위해서만 사용됩니다.
             </p>
           </div>
-          <div className="flex max-w-full flex-wrap items-center justify-center gap-2.5 rounded-2xl border border-linen bg-white px-4 py-3">
-            <Image
-              src="/mirae-ai-lab-logo.jpg"
-              alt="미래에이아이랩 로고"
-              width={110}
-              height={33}
-              className="h-6 w-auto rounded sm:h-7"
-            />
-            <span className="text-left text-[0.6875rem] leading-tight text-ink-soft">
-              미래에이아이랩
-              <br />
-              MVP 샘플 프로젝트
+          <div className="flex max-w-full flex-col items-center gap-3 rounded-2xl border border-linen bg-white px-6 py-5 sm:items-start">
+            <LabLogo className="h-9 w-auto sm:h-10" />
+            <span className="text-center text-[0.75rem] leading-relaxed text-ink-soft sm:text-left">
+              <b className="font-semibold text-ink">미래에이아이랩</b>이 만든 MVP 샘플 프로젝트
             </span>
           </div>
         </div>

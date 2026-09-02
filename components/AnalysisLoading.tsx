@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Check } from "lucide-react";
+import LabLogo from "./LabLogo";
 
 const STAGES = [
   "전체적인 스타일 균형을 확인하고 있어요.",
@@ -44,6 +45,11 @@ export default function AnalysisLoading({ image, onDone }: { image: string; onDo
       </div>
 
       <h2 className="mt-8 font-display text-xl font-semibold text-ink md:text-2xl">AI가 코디를 확인하고 있어요</h2>
+
+      <div className="mt-3 flex items-center gap-2 rounded-full border border-linen bg-white px-4 py-2 shadow-soft">
+        <LabLogo className="h-6 w-auto" />
+        <span className="text-[0.6875rem] font-medium text-ink-soft">AI 스타일 엔진</span>
+      </div>
 
       <div className="mt-5 h-1.5 w-56 overflow-hidden rounded-full bg-blush-deep/70">
         <div

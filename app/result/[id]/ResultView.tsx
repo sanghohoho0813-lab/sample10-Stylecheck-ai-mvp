@@ -16,6 +16,7 @@ import {
   ThumbsUp,
   Wand2,
 } from "lucide-react";
+import LabLogo from "@/components/LabLogo";
 import ScoreRing from "@/components/ScoreRing";
 import ScoreBreakdown from "@/components/ScoreBreakdown";
 import { useToast } from "@/components/Toast";
@@ -109,7 +110,7 @@ export default function ResultView({ id }: { id: string }) {
     <div className="mx-auto max-w-6xl px-5 pb-20 pt-8 md:px-8 md:pt-12">
       <div className="md:grid md:grid-cols-[38%_1fr] md:gap-8 xl:gap-10">
         {/* Left: outfit image (sticky on desktop) */}
-        <div className="min-w-0 md:sticky md:top-[7.5rem] md:self-start">
+        <div className="min-w-0 md:sticky md:top-[8.5rem] md:self-start">
           <div className="animate-fade-up relative mx-auto max-w-xs overflow-hidden rounded-photo border border-linen bg-white p-2.5 shadow-lift md:max-w-none">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={result.image} alt="분석한 코디 사진" className="aspect-[3/4] w-full rounded-[1.35rem] object-cover" />
@@ -340,6 +341,11 @@ export default function ResultView({ id }: { id: string }) {
               <RefreshCw className="h-4 w-4 text-rose" />
               다른 코디 확인하기
             </button>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-center gap-2 pt-2 text-center">
+            <LabLogo className="h-7 w-auto" />
+            <span className="text-[0.6875rem] text-ink-faint">AI 스타일 엔진으로 분석했어요</span>
           </div>
         </div>
       </div>

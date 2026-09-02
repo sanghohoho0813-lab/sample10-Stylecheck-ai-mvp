@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowRight, Clock3, Heart, Settings2, Shirt } from "lucide-react";
+import LabLogo from "@/components/LabLogo";
 import { listAnalyses } from "@/lib/storage";
 import { MOODS } from "@/lib/occasions";
 import { useToast } from "@/components/Toast";
@@ -57,13 +57,7 @@ export default function MyPage() {
           <h1 className="font-display text-xl font-semibold text-ink">데모 사용자</h1>
           <p className="mt-0.5 text-[0.8125rem] text-ink-soft">StyleCheck AI 체험 계정이에요.</p>
         </div>
-        <Image
-          src="/mirae-ai-lab-logo.jpg"
-          alt="미래에이아이랩 로고"
-          width={90}
-          height={27}
-          className="hidden h-6 w-auto rounded sm:block"
-        />
+        <LabLogo className="hidden h-8 w-auto sm:block" />
       </section>
 
       {/* Stats */}
