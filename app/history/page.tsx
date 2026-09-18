@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Heart, Trash2 } from "lucide-react";
+import SampleBridgeCTA from "@/components/SampleBridgeCTA";
 import { deleteAnalysis, listAnalyses, toggleFavorite } from "@/lib/storage";
 import { OCCASION_MAP } from "@/lib/occasions";
 import { formatShortDate } from "@/lib/utils";
@@ -34,7 +35,8 @@ export default function HistoryPage() {
   };
 
   return (
-    <div className="mx-auto max-w-4xl px-5 pb-16 pt-10 md:px-8 md:pt-14">
+    <>
+      <div className="mx-auto max-w-4xl px-5 pb-10 pt-10 md:px-8 md:pt-14">
       <div className="flex items-end justify-between">
         <div>
           <h1 className="font-display text-3xl font-semibold text-ink md:text-4xl">스타일 기록</h1>
@@ -135,6 +137,9 @@ export default function HistoryPage() {
           })}
         </div>
       )}
-    </div>
+      </div>
+
+      <SampleBridgeCTA maxWidthClass="max-w-4xl" />
+    </>
   );
 }

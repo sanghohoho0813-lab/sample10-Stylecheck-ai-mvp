@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Camera, MapPin, Sparkles, ShieldCheck, Heart } from "lucide-react";
 import LabLogo from "@/components/LabLogo";
+import SampleBridgeCTA from "@/components/SampleBridgeCTA";
 import { DEMO_SAMPLES } from "@/lib/demo-samples";
 import { OCCASIONS, OCCASION_MAP } from "@/lib/occasions";
 
@@ -188,6 +189,9 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+
+      {/* 미래AI랩 브릿지 CTA */}
+      <SampleBridgeCTA maxWidthClass="max-w-6xl" />
 
       {/* Footer */}
       <footer className="border-t border-linen bg-ivory">

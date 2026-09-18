@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Check, Info } from "lucide-react";
+import SampleBridgeCTA from "@/components/SampleBridgeCTA";
 import { OCCASION_MAP } from "@/lib/occasions";
 import type { OccasionId } from "@/lib/types";
 
@@ -53,7 +54,8 @@ const GUIDES: { id: OccasionId; points: string[]; avoid: string[] }[] = [
 
 export default function GuidePage() {
   return (
-    <div className="mx-auto max-w-4xl px-5 pb-16 pt-10 md:px-8 md:pt-14">
+    <>
+      <div className="mx-auto max-w-4xl px-5 pb-10 pt-10 md:px-8 md:pt-14">
       <h1 className="font-display text-3xl font-semibold text-ink md:text-4xl">상황별 스타일 가이드</h1>
       <p className="mt-3 max-w-xl text-sm leading-relaxed text-ink-soft">
         자리마다 어울리는 격식과 무드의 기준을 정리했어요. 문화와 모임 분위기에 따라 기준은 달라질 수 있으니,
@@ -113,6 +115,9 @@ export default function GuidePage() {
         이 가이드는 일반적인 기준을 안내할 뿐, 정답은 아니에요. 지역·문화·모임의 성격에 따라 어울리는 스타일은
         얼마든지 달라질 수 있어요.
       </p>
-    </div>
+      </div>
+
+      <SampleBridgeCTA maxWidthClass="max-w-4xl" />
+    </>
   );
 }

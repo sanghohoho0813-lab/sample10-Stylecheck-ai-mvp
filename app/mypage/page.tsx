@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Clock3, Heart, Settings2, Shirt } from "lucide-react";
 import LabLogo from "@/components/LabLogo";
+import SampleBridgeCTA from "@/components/SampleBridgeCTA";
 import { listAnalyses } from "@/lib/storage";
 import { MOODS } from "@/lib/occasions";
 import { useToast } from "@/components/Toast";
@@ -49,7 +50,8 @@ export default function MyPage() {
   const avg = items.length ? Math.round(items.reduce((s, a) => s + a.overallScore, 0) / items.length) : null;
 
   return (
-    <div className="mx-auto max-w-4xl px-5 pb-16 pt-10 md:px-8 md:pt-14">
+    <>
+      <div className="mx-auto max-w-4xl px-5 pb-10 pt-10 md:px-8 md:pt-14">
       {/* Profile */}
       <section className="flex items-center gap-4 rounded-card border border-linen bg-white p-6 shadow-soft">
         <span className="flex h-14 w-14 items-center justify-center rounded-full bg-blush text-2xl">🙂</span>
@@ -183,6 +185,9 @@ export default function MyPage() {
           분석을 위해서만 사용됩니다.
         </p>
       </section>
-    </div>
+      </div>
+
+      <SampleBridgeCTA maxWidthClass="max-w-4xl" />
+    </>
   );
 }

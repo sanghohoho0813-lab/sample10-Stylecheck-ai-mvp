@@ -17,6 +17,7 @@ import {
   Wand2,
 } from "lucide-react";
 import LabLogo from "@/components/LabLogo";
+import SampleBridgeCTA from "@/components/SampleBridgeCTA";
 import ScoreRing from "@/components/ScoreRing";
 import ScoreBreakdown from "@/components/ScoreBreakdown";
 import { useToast } from "@/components/Toast";
@@ -107,7 +108,8 @@ export default function ResultView({ id }: { id: string }) {
   ].filter(Boolean) as string[];
 
   return (
-    <div className="mx-auto max-w-6xl px-5 pb-20 pt-8 md:px-8 md:pt-12">
+    <>
+      <div className="mx-auto max-w-6xl px-5 pb-12 pt-8 md:px-8 md:pt-12">
       <div className="md:grid md:grid-cols-[38%_1fr] md:gap-8 xl:gap-10">
         {/* Left: outfit image (sticky on desktop) */}
         <div className="min-w-0 md:sticky md:top-[8.5rem] md:self-start">
@@ -349,7 +351,10 @@ export default function ResultView({ id }: { id: string }) {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+
+      <SampleBridgeCTA maxWidthClass="max-w-6xl" />
+    </>
   );
 }
 
