@@ -3,28 +3,15 @@
 import { useEffect, useState } from "react";
 
 const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
-
-function format(now: Date) {
-  const y = now.getFullYear();
-  const mo = now.getMonth() + 1;
-  const d = now.getDate();
-  const weekday = WEEKDAYS[now.getDay()];
-  const h24 = now.getHours();
-  const meridiem = h24 < 12 ? "오전" : "오후";
-  const h = h24 % 12 === 0 ? 12 : h24 % 12;
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return {
-    date: `${y}년 ${mo}월 ${d}일`,
-    weekday: `${weekday}요일`,
-    time: `${meridiem} ${pad(h)}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`,
-  };
-}
+const pad = (n: number) => String(n).padStart(2, "0");
 
 /**
- * Live date / weekday / clock ticking to the second.
- * Renders nothing until mounted so server and client markup always match.
+ * Live date / weekday / time to the second — secondary information, so it is
+ * set small and muted. Phones get a compact form that fits on one line with
+ * the brand mark. Renders a fixed-width placeholder until mounted so server
+ * and client markup always match.
  */
-export default function LiveClock({ tone = "light" }: { tone?: "light" | "dark" }) {
+export default function LiveClock() {
   const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
@@ -33,30 +20,22 @@ export default function LiveClock({ tone = "light" }: { tone?: "light" | "dark" 
     return () => clearInterval(id);
   }, []);
 
-  const dim = tone === "dark" ? "text-white/60" : "text-ink-faint";
-  const strong = tone === "dark" ? "text-white" : "text-ink";
-  const accent = tone === "dark" ? "text-rose-soft" : "text-rose-deep";
-
   if (!now) {
-    return (
-      <div className="flex items-center gap-2" aria-hidden>
-        <span className={`h-3.5 w-40 animate-pulse-soft rounded-full ${tone === "dark" ? "bg-white/20" : "bg-linen"}`} />
-      </div>
-    );
+    return <span className="inline-block h-4 w-32 rounded-full bg-linen/70" aria-hidden />;
   }
 
-  const { date, weekday, time } = format(now);
+  const wd = WEEKDAYS[now.getDay()];
+  const h24 = now.getHours();
+  const time = `${pad(h24)}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  const full = `${now.getFullYear()}년 ${now.getMonth() + 1}월 ${now.getDate()}일 ${wd}요일`;
 
   return (
-    <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5 sm:gap-x-2.5" role="status" aria-live="off">
-      <span className={`whitespace-nowrap text-[0.5625rem] font-medium sm:text-[0.75rem] ${dim}`}>{date}</span>
-      <span className={`whitespace-nowrap text-[0.5625rem] font-semibold sm:text-[0.75rem] ${accent}`}>{weekday}</span>
-      <span
-        className={`whitespace-nowrap font-display text-[0.75rem] font-semibold tabular-nums sm:text-[1.1rem] ${strong}`}
-        suppressHydrationWarning
-      >
-        {time}
+    <time dateTime={now.toISOString()} className="whitespace-nowrap text-meta tabular-nums text-ink-faint">
+      <span className="sm:hidden">
+        {now.getMonth() + 1}.{now.getDate()} ({wd})
       </span>
-    </div>
+      <span className="hidden sm:inline">{full}</span>
+      <span className="ml-2 font-medium text-ink-soft">{time}</span>
+    </time>
   );
 }

@@ -1,20 +1,21 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Camera, ImagePlus, RefreshCw, Trash2, Sparkles } from "lucide-react";
+import { Camera, ImagePlus, RefreshCw, Trash2 } from "lucide-react";
 import { DEMO_SAMPLES } from "@/lib/demo-samples";
 import { compressImage, isAcceptedImage } from "@/lib/utils";
 
 interface Props {
   image: string | null;
   isSample: boolean;
+  sampleName?: string;
   onImage: (dataUrl: string) => void;
   onSample: (sampleId: string) => void;
   onClear: () => void;
   error: string | null;
 }
 
-export default function OutfitUploader({ image, isSample, onImage, onSample, onClear, error }: Props) {
+export default function OutfitUploader({ image, isSample, sampleName, onImage, onSample, onClear, error }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -30,8 +31,7 @@ export default function OutfitUploader({ image, isSample, onImage, onSample, onC
     setFileError(null);
     setLoading(true);
     try {
-      const dataUrl = await compressImage(file);
-      onImage(dataUrl);
+      onImage(await compressImage(file));
     } catch {
       setFileError("사진을 불러오지 못했어요. 다른 사진으로 시도해주세요.");
     } finally {
@@ -39,62 +39,60 @@ export default function OutfitUploader({ image, isSample, onImage, onSample, onC
     }
   }
 
+  const message = fileError ?? error;
+
   return (
     <div className="animate-fade-up">
-      <h2 className="font-display text-[1.6rem] font-semibold leading-snug text-ink md:text-3xl">
-        오늘 입을 코디 사진을
-        <br className="md:hidden" /> 올려주세요
-      </h2>
-      <p className="mt-2 text-sm text-ink-soft">전신이 잘 보이는 사진일수록 확인하기 좋아요.</p>
+      <h1 className="font-display text-section font-semibold text-ink md:text-page">오늘 입을 코디를 보여주세요</h1>
+      <p className="mt-2 text-body text-ink-soft">전신이 보이는 사진일수록 정확하게 확인할 수 있어요.</p>
 
-      <input
-        ref={fileRef}
-        type="file"
-        accept="image/jpeg,image/jpg,image/png,image/webp"
-        className="hidden"
-        onChange={(e) => {
-          handleFile(e.target.files?.[0]);
-          e.target.value = "";
-        }}
-      />
-      <input
-        ref={cameraRef}
-        type="file"
-        accept="image/jpeg,image/jpg,image/png,image/webp"
-        capture="environment"
-        className="hidden"
-        onChange={(e) => {
-          handleFile(e.target.files?.[0]);
-          e.target.value = "";
-        }}
-      />
+      {(["file", "camera"] as const).map((kind) => (
+        <input
+          key={kind}
+          ref={kind === "file" ? fileRef : cameraRef}
+          type="file"
+          accept="image/jpeg,image/jpg,image/png,image/webp"
+          capture={kind === "camera" ? "environment" : undefined}
+          className="hidden"
+          aria-hidden
+          tabIndex={-1}
+          onChange={(e) => {
+            handleFile(e.target.files?.[0]);
+            e.target.value = "";
+          }}
+        />
+      ))}
 
       {image ? (
-        <div className="mt-6">
-          <div className="relative mx-auto max-w-xs overflow-hidden rounded-photo border border-linen bg-white p-2.5 shadow-soft">
+        <div className="mt-7">
+          <div className="relative mx-auto w-full max-w-[17rem]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={image} alt="업로드한 코디 사진 미리보기" className="aspect-[3/4] w-full rounded-[1.3rem] object-cover" />
+            <img
+              src={image}
+              alt="선택한 코디 사진"
+              className="aspect-[3/4] w-full rounded-lg object-cover shadow-raised"
+            />
             {isSample && (
-              <span className="absolute left-5 top-5 rounded-full bg-ink/75 px-2.5 py-1 text-[0.6875rem] font-semibold text-white backdrop-blur">
-                샘플 코디
+              <span className="absolute left-3 top-3 rounded-full bg-ink/75 px-2.5 py-1 text-caption font-semibold text-white backdrop-blur">
+                샘플{sampleName ? ` · ${sampleName}` : ""}
               </span>
             )}
           </div>
-          <div className="mt-4 flex justify-center gap-2.5">
+          <div className="mt-4 flex justify-center gap-2">
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
-              className="inline-flex items-center gap-1.5 rounded-full border border-linen bg-white px-4 py-2.5 text-[0.8125rem] font-semibold text-ink transition-colors hover:bg-blush/60"
+              className="inline-flex h-10 items-center gap-1.5 rounded-full border border-linen bg-white px-4 text-body-sm font-semibold text-ink transition-colors hover:bg-blush/60"
             >
-              <RefreshCw className="h-3.5 w-3.5" />
-              다시 선택
+              <RefreshCw className="h-4 w-4" />
+              다른 사진
             </button>
             <button
               type="button"
               onClick={onClear}
-              className="inline-flex items-center gap-1.5 rounded-full border border-linen bg-white px-4 py-2.5 text-[0.8125rem] font-semibold text-ink-soft transition-colors hover:bg-blush/60 hover:text-rose-deep"
+              className="inline-flex h-10 items-center gap-1.5 rounded-full border border-linen bg-white px-4 text-body-sm font-semibold text-ink-soft transition-colors hover:bg-blush/60"
             >
-              <Trash2 className="h-3.5 w-3.5" />
+              <Trash2 className="h-4 w-4" />
               삭제
             </button>
           </div>
@@ -102,12 +100,9 @@ export default function OutfitUploader({ image, isSample, onImage, onSample, onC
       ) : (
         <>
           {/* Desktop drop zone */}
-          <div
-            role="button"
-            tabIndex={0}
-            aria-label="코디 사진 업로드"
+          <button
+            type="button"
             onClick={() => fileRef.current?.click()}
-            onKeyDown={(e) => e.key === "Enter" && fileRef.current?.click()}
             onDragOver={(e) => {
               e.preventDefault();
               setDragging(true);
@@ -118,23 +113,21 @@ export default function OutfitUploader({ image, isSample, onImage, onSample, onC
               setDragging(false);
               handleFile(e.dataTransfer.files?.[0]);
             }}
-            className={`mt-6 hidden cursor-pointer flex-col items-center justify-center rounded-photo border-2 border-dashed py-16 transition-all duration-200 md:flex ${
-              dragging ? "border-rose bg-blush/70 scale-[1.01]" : "border-rose-soft bg-white hover:bg-blush/40"
+            className={`mt-7 hidden w-full flex-col items-center justify-center rounded-lg border-2 border-dashed py-14 transition-colors duration-200 md:flex ${
+              dragging ? "border-rose bg-blush/70" : "border-rose-soft bg-white hover:bg-blush/40"
             }`}
           >
-            <span className="flex h-16 w-16 items-center justify-center rounded-full bg-blush">
-              <ImagePlus className="h-7 w-7 text-rose" />
-            </span>
-            <p className="mt-4 text-[0.9375rem] font-semibold text-ink">사진을 끌어다 놓거나 클릭해서 선택</p>
-            <p className="mt-1 text-[0.8125rem] text-ink-faint">JPG · PNG · WEBP</p>
-          </div>
+            <ImagePlus className="h-8 w-8 text-rose" strokeWidth={1.6} />
+            <span className="mt-4 text-lead font-semibold text-ink">사진을 끌어다 놓거나 클릭해서 선택</span>
+            <span className="mt-1 text-meta text-ink-faint">JPG · PNG · WEBP</span>
+          </button>
 
-          {/* Mobile: camera-flow buttons */}
-          <div className="mt-6 flex flex-col gap-3 md:hidden">
+          {/* Phones: camera first */}
+          <div className="mt-7 grid gap-3 md:hidden">
             <button
               type="button"
               onClick={() => cameraRef.current?.click()}
-              className="flex items-center justify-center gap-2.5 rounded-card bg-rose py-4 text-[0.9375rem] font-semibold text-white shadow-rose transition-transform active:scale-[0.98]"
+              className="flex h-14 items-center justify-center gap-2.5 rounded-md bg-rose text-body font-semibold text-white transition-colors active:bg-rose-deep"
             >
               <Camera className="h-5 w-5" />
               사진 촬영
@@ -142,7 +135,7 @@ export default function OutfitUploader({ image, isSample, onImage, onSample, onC
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
-              className="flex items-center justify-center gap-2.5 rounded-card border border-linen bg-white py-4 text-[0.9375rem] font-semibold text-ink transition-transform active:scale-[0.98]"
+              className="flex h-14 items-center justify-center gap-2.5 rounded-md border border-linen bg-white text-body font-semibold text-ink"
             >
               <ImagePlus className="h-5 w-5 text-rose" />
               앨범에서 선택
@@ -151,39 +144,43 @@ export default function OutfitUploader({ image, isSample, onImage, onSample, onC
         </>
       )}
 
-      {loading && <p className="mt-3 text-center text-[0.8125rem] text-ink-soft animate-pulse-soft">사진을 준비하고 있어요…</p>}
-      {(fileError || error) && (
-        <p className="mt-3 rounded-2xl bg-rose-soft/60 px-4 py-2.5 text-center text-[0.8125rem] font-medium text-rose-deep">
-          {fileError ?? error}
+      {loading && <p className="mt-3 text-center text-body-sm text-ink-soft">사진을 준비하고 있어요…</p>}
+      {message && (
+        <p role="alert" className="mt-4 rounded-sm bg-blush px-4 py-3 text-center text-body-sm font-medium text-rose-deep">
+          {message}
         </p>
       )}
 
-      {/* Sample strip */}
       {!image && (
-        <div className="mt-8">
-          <p className="flex items-center gap-1.5 text-[0.8125rem] font-semibold text-ink-soft">
-            <Sparkles className="h-3.5 w-3.5 text-rose" />
+        <section className="mt-10" aria-labelledby="sample-strip">
+          <h2 id="sample-strip" className="text-body-sm font-semibold text-ink">
             사진이 없다면 샘플 코디로 체험해보세요
-          </p>
-          <div className="no-scrollbar -mx-5 mt-3 flex gap-3 overflow-x-auto px-5 pb-1 md:mx-0 md:px-0">
+          </h2>
+          <div className="no-scrollbar -mx-5 mt-3 flex gap-3 overflow-x-auto px-5 pb-1 md:mx-0 md:grid md:grid-cols-8 md:gap-2.5 md:px-0">
             {DEMO_SAMPLES.map((s) => (
               <button
                 key={s.id}
                 type="button"
                 onClick={() => onSample(s.id)}
-                className="w-24 shrink-0 overflow-hidden rounded-2xl border border-linen bg-white text-left shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:border-rose-soft"
+                className="group w-24 shrink-0 text-left md:w-auto"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={s.image} alt={`${s.name} 샘플`} loading="lazy" className="aspect-[3/4] w-full object-cover" />
-                <p className="truncate px-2 py-1.5 text-[0.6875rem] font-medium text-ink-soft">{s.name}</p>
+                <img
+                  src={s.image}
+                  alt=""
+                  loading="lazy"
+                  className="aspect-[3/4] w-full rounded-sm object-cover ring-rose transition group-hover:ring-2"
+                />
+                <span className="mt-1.5 block truncate text-caption text-ink-soft">{s.name}</span>
               </button>
             ))}
           </div>
-        </div>
+        </section>
       )}
 
-      <p className="mt-6 text-center text-[0.6875rem] leading-relaxed text-ink-faint">
-        업로드한 사진은 코디 분석을 위해 사용되며, 기록 저장은 이 기기 안에서만 이루어져요.
+      <p className="mt-8 text-caption text-ink-faint">
+        데모 버전은 사진을 실제로 인식하지 않고, 선택한 상황·조건을 바탕으로 규칙 기반 예시 결과를 보여줘요. 사진은 이
+        기기 안에서만 보관돼요.
       </p>
     </div>
   );

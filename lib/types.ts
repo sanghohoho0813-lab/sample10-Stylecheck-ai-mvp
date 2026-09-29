@@ -17,7 +17,6 @@ export type Season = "spring" | "summer" | "autumn" | "winter";
 export interface Occasion {
   id: OccasionId;
   label: string;
-  emoji: string;
   description: string;
   weights: ScoreWeights;
 }
@@ -54,6 +53,8 @@ export interface FeedbackItem {
 }
 
 export interface PrimaryRecommendation {
+  /** Outfit slot the change targets (상의 / 신발 / 아우터 …). */
+  slot: string;
   from: string;
   to: string;
   reason: string;
@@ -102,6 +103,11 @@ export interface AnalysisResult {
   alternatives: AlternativeLook[];
   wardrobeSuggestion: WardrobeSuggestion | null;
   favorite: boolean;
+  /**
+   * When the user committed to the primary recommendation ("추천대로 바꿔 입기").
+   * This is the flow's completion event and is reflected in history and stats.
+   */
+  appliedAt?: string | null;
 }
 
 export interface DemoSample {

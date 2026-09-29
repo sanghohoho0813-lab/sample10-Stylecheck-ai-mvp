@@ -1,8 +1,9 @@
 "use client";
 
 import { Check } from "lucide-react";
-import { OCCASIONS } from "@/lib/occasions";
+import { OCCASIONS, OCCASION_MAP } from "@/lib/occasions";
 import type { OccasionId } from "@/lib/types";
+import { OccasionIcon, OccasionLabel } from "./OccasionIcon";
 
 interface Props {
   selected: OccasionId | null;
@@ -13,24 +14,23 @@ interface Props {
 export default function OccasionGrid({ selected, onSelect, error }: Props) {
   return (
     <div className="animate-fade-up">
-      <h2 className="font-display text-[1.6rem] font-semibold leading-snug text-ink md:text-3xl">
-        어디에 입고 가시나요?
-      </h2>
-      <p className="mt-2 text-sm text-ink-soft">상황에 따라 격식과 스타일 기준이 달라져요.</p>
+      <h1 className="font-display text-section font-semibold text-ink md:text-page">어디에 입고 가시나요?</h1>
+      <p className="mt-2 text-body text-ink-soft">자리마다 적절한 격식과 분위기가 달라요.</p>
 
-      <div className="mt-6 grid grid-cols-3 gap-2.5 md:grid-cols-4 md:gap-3.5">
+      <div role="radiogroup" aria-label="상황 선택" className="mt-7 grid grid-cols-3 gap-2 md:grid-cols-4 md:gap-3">
         {OCCASIONS.map((o) => {
           const active = selected === o.id;
           return (
             <button
               key={o.id}
               type="button"
+              role="radio"
+              aria-checked={active}
               onClick={() => onSelect(o.id)}
-              aria-pressed={active}
-              className={`relative flex flex-col items-center justify-center gap-1.5 rounded-card border py-4.5 transition-all duration-200 md:py-6 ${
+              className={`relative flex min-h-24 flex-col items-center justify-center gap-2 rounded-md border px-2 py-4 text-center transition-colors duration-150 ${
                 active
-                  ? "border-rose bg-blush shadow-rose/40 shadow-md scale-[1.02]"
-                  : "border-linen bg-white hover:border-rose-soft hover:bg-blush/40"
+                  ? "border-rose bg-blush text-rose-deep"
+                  : "border-linen bg-white text-ink hover:border-rose-soft"
               }`}
             >
               {active && (
@@ -38,22 +38,20 @@ export default function OccasionGrid({ selected, onSelect, error }: Props) {
                   <Check className="h-3 w-3 text-white" strokeWidth={3} />
                 </span>
               )}
-              <span className="text-2xl md:text-[1.7rem]">{o.emoji}</span>
-              <span className={`text-[0.8125rem] font-semibold md:text-sm ${active ? "text-rose-deep" : "text-ink"}`}>
-                {o.label}
+              <OccasionIcon id={o.id} className={`h-6 w-6 ${active ? "text-rose-deep" : "text-ink-soft"}`} />
+              <span className="text-body-sm font-semibold leading-snug">
+                <OccasionLabel label={o.label} />
               </span>
             </button>
           );
         })}
       </div>
 
-      {selected && (
-        <p className="mt-4 animate-fade-in rounded-2xl bg-white px-4 py-3 text-center text-[0.8125rem] text-ink-soft border border-linen">
-          {OCCASIONS.find((o) => o.id === selected)?.description}
-        </p>
-      )}
+      <p className="mt-4 min-h-6 text-center text-body-sm text-ink-soft" aria-live="polite">
+        {selected ? OCCASION_MAP[selected].description : ""}
+      </p>
       {error && (
-        <p className="mt-3 rounded-2xl bg-rose-soft/60 px-4 py-2.5 text-center text-[0.8125rem] font-medium text-rose-deep">
+        <p role="alert" className="mt-2 rounded-sm bg-blush px-4 py-3 text-center text-body-sm font-medium text-rose-deep">
           {error}
         </p>
       )}

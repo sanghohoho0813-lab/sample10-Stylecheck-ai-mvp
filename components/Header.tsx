@@ -2,58 +2,64 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { X } from "lucide-react";
 
+// "코디 확인" is the primary action, so it lives in the button — not repeated as a nav link.
 const NAV = [
-  { href: "/check", label: "코디 확인" },
   { href: "/guide", label: "스타일 가이드" },
   { href: "/history", label: "기록" },
   { href: "/mypage", label: "마이페이지" },
 ];
 
 export default function Header() {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "/";
+  const inFlow = pathname.startsWith("/check");
 
   return (
-    <header className="sticky top-0 z-40 border-b border-linen/80 bg-ivory/90 backdrop-blur-md md:top-14">
+    <header className="sticky top-0 z-40 border-b border-linen/80 bg-ivory/90 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 md:h-16 md:px-8">
-        <Link href="/" className="flex shrink-0 items-center gap-2">
-          <span className="font-display text-[1.2rem] font-semibold tracking-tight text-ink sm:text-[1.35rem]">
-            StyleCheck <em className="not-italic text-rose">AI</em>
-          </span>
+        <Link href="/" className="shrink-0 font-display text-title font-semibold tracking-tight text-ink">
+          StyleCheck <em className="not-italic text-rose">AI</em>
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex">
+        <nav className="hidden items-center gap-1 md:flex" aria-label="주요 메뉴">
           {NAV.map((item) => {
-            const active = pathname?.startsWith(item.href);
+            const active = pathname.startsWith(item.href);
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`rounded-full px-4 py-2 text-sm transition-colors duration-200 ${
-                  active
-                    ? "bg-blush font-semibold text-rose-deep"
-                    : "font-medium text-ink-soft hover:bg-blush/60 hover:text-ink"
+                aria-current={active ? "page" : undefined}
+                className={`rounded-full px-4 py-2 text-body-sm transition-colors duration-200 ${
+                  active ? "font-semibold text-rose-deep" : "font-medium text-ink-soft hover:text-ink"
                 }`}
               >
                 {item.label}
               </Link>
             );
           })}
-          <Link
-            href="/check"
-            className="ml-2 rounded-full bg-rose px-4 py-2 text-sm font-semibold text-white shadow-rose transition-all duration-200 hover:bg-rose-deep"
-          >
-            코디 확인하기
-          </Link>
+          {/* Already inside the check flow — don't offer to start it again */}
+          {!inFlow && (
+            <Link
+              href="/check"
+              className="ml-3 inline-flex h-10 items-center rounded-full bg-rose px-5 text-body-sm font-semibold text-white transition-colors duration-200 hover:bg-rose-deep"
+            >
+              코디 확인하기
+            </Link>
+          )}
         </nav>
 
-        {/* mobile quick action */}
-        <Link
-          href="/check"
-          className="whitespace-nowrap rounded-full bg-rose px-3.5 py-1.5 text-[0.75rem] font-semibold text-white shadow-rose md:hidden"
-        >
-          코디 확인
-        </Link>
+        {/* Phones: the bottom tab bar carries navigation; inside the check flow
+            the only header action is a way out. */}
+        {inFlow && (
+          <Link
+            href="/"
+            aria-label="코디 확인 닫기"
+            className="-mr-2 flex h-10 w-10 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-blush md:hidden"
+          >
+            <X className="h-5 w-5" />
+          </Link>
+        )}
       </div>
     </header>
   );

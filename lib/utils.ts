@@ -1,11 +1,20 @@
+const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
+
+/** 9월 29일 (월) */
 export function formatDate(iso: string): string {
   const d = new Date(iso);
-  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
+  return `${d.getMonth() + 1}월 ${d.getDate()}일 (${WEEKDAYS[d.getDay()]})`;
 }
 
-export function formatShortDate(iso: string): string {
+/** 오늘 / 어제 / 3일 전 / 9월 2일 — for lists where recency matters more than the date */
+export function formatRelativeDay(iso: string, now = new Date()): string {
   const d = new Date(iso);
-  return `${d.getMonth() + 1}/${d.getDate()}`;
+  const startOf = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+  const days = Math.round((startOf(now) - startOf(d)) / 86400000);
+  if (days <= 0) return "오늘";
+  if (days === 1) return "어제";
+  if (days < 7) return `${days}일 전`;
+  return `${d.getMonth() + 1}월 ${d.getDate()}일`;
 }
 
 const ACCEPTED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
@@ -43,4 +52,12 @@ export function compressImage(file: File): Promise<string> {
     };
     reader.readAsDataURL(file);
   });
+}
+
+/** "으로"/"로" — 받침이 없거나 ㄹ 받침이면 "로" (블랙 로퍼로, 블랙 스트레이트팁으로). */
+export function withEuro(word: string): string {
+  const last = word.trim().charCodeAt(word.trim().length - 1);
+  if (last < 0xac00 || last > 0xd7a3) return `${word}로`;
+  const jong = (last - 0xac00) % 28;
+  return `${word}${jong === 0 || jong === 8 ? "로" : "으로"}`;
 }

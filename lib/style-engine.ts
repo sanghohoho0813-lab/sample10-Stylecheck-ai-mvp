@@ -11,6 +11,7 @@ import type {
   ScoreSet,
   WardrobeSuggestion,
 } from "./types";
+import { findWardrobeItem } from "./wardrobe";
 
 /**
  * Demo Style Analysis Engine
@@ -26,6 +27,10 @@ import type {
  *
  * When AI_API_KEY (NEXT_PUBLIC_AI_API_KEY) is configured, runStyleAnalysis
  * can be swapped to call the real API while keeping the same result shape.
+ *
+ * Honesty note: uploads are NOT image-recognised. Their scores come from a
+ * deterministic hash of the photo + chosen situation, so the same input
+ * always returns the same result. The UI labels results as demo analysis.
  */
 
 export const HAS_AI_API = Boolean(process.env.NEXT_PUBLIC_AI_API_KEY);
@@ -142,38 +147,49 @@ const IMPROVEMENT_POOL: Record<keyof ScoreSet, FeedbackItem[]> = {
 };
 
 interface RecTemplate {
+  slot: string;
   from: string;
   to: string;
   reason: string;
 }
 
+/**
+ * Upload fallback, keyed by the weakest dimension. Phrased without claiming
+ * to know which garments are in the photo (uploads are not recognised).
+ */
 const REC_BY_DIMENSION: Record<keyof ScoreSet, RecTemplate> = {
   detail: {
-    from: "화이트 스니커즈",
+    slot: "신발",
+    from: "지금 신발",
     to: "블랙 로퍼",
     reason: "신발만 정돈된 디자인으로 바꿔도 전체 격식 밸런스가 눈에 띄게 올라가요.",
   },
   formality: {
-    from: "캐주얼 아우터",
+    slot: "아우터",
+    from: "상의 단독 착용",
     to: "미니멀 재킷",
     reason: "재킷 하나만 더해도 자리에 맞는 단정한 무드가 완성돼요.",
   },
   color: {
-    from: "포인트 컬러 2개",
+    slot: "상의",
+    from: "포인트 컬러 여러 개",
     to: "포인트 컬러 1개",
     reason: "컬러를 하나로 모으면 시선이 정리되어 훨씬 세련되어 보여요.",
   },
   silhouette: {
-    from: "루즈한 상·하의",
-    to: "상의 정리 + 와이드 하의",
+    slot: "하의",
+    from: "상·하의 모두 여유 있는 핏",
+    to: "한쪽만 여유 있는 핏",
     reason: "한쪽에만 볼륨을 주면 비율이 살아나 실루엣이 안정돼요.",
   },
   occasion: {
-    from: "캐주얼 포인트 아이템",
+    slot: "액세서리",
+    from: "튀는 포인트 아이템",
     to: "차분한 베이식 아이템",
     reason: "튀는 아이템 하나만 바꾸면 장소 분위기와 자연스럽게 어울려요.",
   },
   seasonal: {
+    slot: "상의",
     from: "시즌 오프 소재",
     to: "계절감 있는 소재",
     reason: "계절에 맞는 소재로 바꾸면 룩 전체가 훨씬 신선해 보여요.",
@@ -185,6 +201,14 @@ function summaryLine(overall: number, occasionLabel: string): string {
   if (overall >= 80) return `${occasionLabel}에 전반적으로 잘 어울리는 코디예요. 작은 디테일만 다듬으면 완벽해요.`;
   if (overall >= 70) return `${occasionLabel}에 무난하게 어울리는 코디예요. 한두 가지만 바꾸면 훨씬 좋아져요.`;
   return `${occasionLabel} 기준으로 몇 가지를 조정하면 좋겠어요. 아래 추천을 확인해보세요.`;
+}
+
+/** Headline verdict for a score band — shared by the result and history views. */
+export function verdictFor(score: number): string {
+  if (score >= 90) return "이대로 나가도 좋아요";
+  if (score >= 85) return "아주 잘 어울리는 코디예요";
+  if (score >= 75) return "전반적으로 잘 어울려요";
+  return "조금만 다듬으면 좋아져요";
 }
 
 function sortDimensions(scores: ScoreSet): (keyof ScoreSet)[] {
@@ -211,16 +235,14 @@ function buildPrimaryRecommendation(
   sample: DemoSample | undefined
 ): PrimaryRecommendation {
   const weakest = sortDimensions(scores).at(-1)!;
-  const shoeItem = sample?.items.find((i) => i.slot === "신발");
-  const fallback = REC_BY_DIMENSION[weakest];
   // Demo samples carry copy written against their actual photo; uploads fall
   // back to the weakest-dimension template.
-  const t = sample?.recommendation ?? {
-    ...fallback,
-    from: weakest === "detail" && shoeItem ? shoeItem.name : fallback.from,
-  };
+  const t: RecTemplate = sample
+    ? { slot: sample.wardrobe.slot, ...sample.recommendation }
+    : REC_BY_DIMENSION[weakest];
   const gain = Math.min(97 - overall, 5 + Math.round((97 - scores[weakest]) / 8));
   return {
+    slot: t.slot,
     from: t.from,
     to: t.to,
     reason: t.reason,
@@ -229,30 +251,19 @@ function buildPrimaryRecommendation(
   };
 }
 
-const DEFAULT_SLOTS = ["상의", "하의", "아우터", "신발", "가방", "액세서리"];
+/** Uploads are not recognised, so their rows describe outfit areas, not garments. */
+const UPLOAD_SLOTS = ["상의", "하의", "신발", "액세서리"];
 
 const ITEM_COMMENTS = {
   good: ["지금 상황에 잘 맞는 선택이에요.", "전체 룩과 자연스럽게 어우러져요.", "톤과 무드가 잘 맞아요."],
-  adjust: ["조금만 정돈하면 더 좋아질 아이템이에요.", "전체 격식보다 살짝 캐주얼하게 느껴질 수 있어요."],
-  recommend: ["다른 옵션으로 바꾸면 적합도가 올라갈 수 있어요.", "아래 추천 아이템으로 교체를 고려해보세요."],
+  adjust: ["조금만 정돈하면 더 좋아질 부분이에요.", "전체 격식보다 살짝 캐주얼하게 느껴질 수 있어요."],
+  recommend: ["위 추천대로 바꾸면 적합도가 올라가요.", "한 가지만 바꾼다면 이 부분이에요."],
 };
 
-function buildItemAnalysis(seed: number, scores: ScoreSet, sample?: DemoSample): OutfitItemAnalysis[] {
+function buildItemAnalysis(seed: number, rec: PrimaryRecommendation, sample?: DemoSample): OutfitItemAnalysis[] {
   const rand = mulberry32(seed + 7);
-  const items = sample?.items ?? DEFAULT_SLOTS.map((slot) => ({ slot, name: `${slot} 아이템` }));
-
-  const weakest = sortDimensions(scores).at(-1)!;
-  // For samples the focus slot is the one their recommendation targets;
-  // for uploads it is derived from the weakest dimension.
-  const focusSlot =
-    sample?.wardrobe.slot ??
-    (weakest === "detail" || weakest === "formality"
-      ? "신발"
-      : weakest === "color"
-        ? "상의"
-        : weakest === "silhouette"
-          ? "하의"
-          : "액세서리");
+  const items = sample?.items ?? UPLOAD_SLOTS.map((slot) => ({ slot, name: slot }));
+  const focusSlot = rec.slot;
 
   const analysed: OutfitItemAnalysis[] = items.map((item) => {
     let status: OutfitItemAnalysis["status"] = "good";
@@ -265,12 +276,12 @@ function buildItemAnalysis(seed: number, scores: ScoreSet, sample?: DemoSample):
 
   // The recommendation may target a slot the look does not include yet —
   // surface it as an item to add rather than dropping the suggestion.
-  if (sample && !items.some((i) => i.slot === focusSlot)) {
+  if (!items.some((i) => i.slot === focusSlot)) {
     analysed.push({
       slot: focusSlot,
-      name: "지금은 없어요",
+      name: "추가하면 좋아요",
       status: "recommend",
-      comment: `${sample.recommendation.to}처럼 하나만 더해도 완성도가 올라가요.`,
+      comment: `${rec.to}처럼 하나만 더해도 완성도가 올라가요.`,
     });
   }
 
@@ -279,23 +290,32 @@ function buildItemAnalysis(seed: number, scores: ScoreSet, sample?: DemoSample):
 
 /** Alternatives keep the current outfit and change as little as possible. */
 export function generateAlternatives(overall: number, primary: PrimaryRecommendation): AlternativeLook[] {
+  const jacketAlready = primary.to.includes("재킷") || primary.slot === "아우터";
   return [
     {
-      name: "Option A",
-      summary: `현재 코디 유지 + ${primary.to}로 변경`,
+      name: "A안",
+      summary: `지금 코디 유지 + ${primary.to}`,
       mood: "단정하고 정돈된 무드",
       fitScore: primary.scoreAfter,
       changedItems: 1,
     },
+    jacketAlready
+      ? {
+          name: "B안",
+          summary: "전체 톤을 한 가지 계열로 정리",
+          mood: "차분하고 세련된 무드",
+          fitScore: Math.min(96, overall + 4),
+          changedItems: 1,
+        }
+      : {
+          name: "B안",
+          summary: "미니멀 재킷을 레이어링",
+          mood: "격식 있는 세미포멀 무드",
+          fitScore: Math.min(96, overall + 4),
+          changedItems: 1,
+        },
     {
-      name: "Option B",
-      summary: "미니멀 재킷을 레이어링",
-      mood: "격식 있는 세미포멀 무드",
-      fitScore: Math.min(96, overall + 4),
-      changedItems: 1,
-    },
-    {
-      name: "Option C",
+      name: "C안",
       summary: "액세서리 최소화 + 톤 정리",
       mood: "차분하고 자연스러운 무드",
       fitScore: Math.min(95, overall + 2),
@@ -304,11 +324,17 @@ export function generateAlternatives(overall: number, primary: PrimaryRecommenda
   ];
 }
 
-const WARDROBE_DEMO: WardrobeSuggestion[] = [
-  { itemName: "블랙 로퍼", slot: "신발", message: "내 옷장에 비슷한 신발이 있어요." },
-  { itemName: "미니멀 재킷", slot: "아우터", message: "내 옷장의 재킷으로 바로 바꿀 수 있어요." },
-  { itemName: "실버 미니 워치", slot: "액세서리", message: "내 옷장의 워치와 잘 어울려요." },
-];
+/** Wardrobe hint — only when the recommended item actually exists in the demo wardrobe. */
+function wardrobeFor(rec: PrimaryRecommendation, sample?: DemoSample): WardrobeSuggestion | null {
+  if (sample) return sample.wardrobe;
+  const item = findWardrobeItem(rec.to);
+  return item ? { itemName: item.name, slot: item.slot, message: "내 옷장에 같은 아이템이 있어요." } : null;
+}
+
+/** Score the day's outfit is recorded at — the projected score once the user applies the fix. */
+export function effectiveScore(result: Pick<AnalysisResult, "overallScore" | "primaryRecommendation" | "appliedAt">): number {
+  return result.appliedAt ? result.primaryRecommendation.scoreAfter : result.overallScore;
+}
 
 export interface AnalysisInput {
   imageKey: string;
@@ -330,9 +356,9 @@ export function runStyleAnalysis(input: AnalysisInput): Omit<AnalysisResult, "id
   const occasionLabel = OCCASION_MAP[occasion].label;
   const { positives, improvements } = generateStyleFeedback(scores, seed);
   const primaryRecommendation = buildPrimaryRecommendation(scores, overall, sample);
-  const items = buildItemAnalysis(seed, scores, sample);
+  const items = buildItemAnalysis(seed, primaryRecommendation, sample);
   const alternatives = generateAlternatives(overall, primaryRecommendation);
-  const wardrobeSuggestion = sample?.wardrobe ?? WARDROBE_DEMO[seed % WARDROBE_DEMO.length];
+  const wardrobeSuggestion = wardrobeFor(primaryRecommendation, sample);
 
   return {
     image,
@@ -349,5 +375,6 @@ export function runStyleAnalysis(input: AnalysisInput): Omit<AnalysisResult, "id
     items,
     alternatives,
     wardrobeSuggestion,
+    appliedAt: null,
   };
 }
