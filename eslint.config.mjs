@@ -6,7 +6,8 @@ const compat = new FlatCompat({ baseDirectory: dirname(fileURLToPath(import.meta
 
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
-  { ignores: [".next/**", "node_modules/**", "next-env.d.ts"] },
+  // public/ holds static assets, incl. the shared 미래AI랩 history-nav script kept identical across demos
+  { ignores: [".next/**", "node_modules/**", "next-env.d.ts", "public/**"] },
 ];
 
 export default eslintConfig;
