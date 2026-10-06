@@ -179,6 +179,8 @@ export default function OutfitUploader({
                   alt=""
                   sizes="96px"
                   className="w-full rounded-sm ring-rose transition group-hover:ring-2"
+                  // Above the fold (all eight on desktop) and the largest paint on this screen
+                  priority
                 />
                 <span className="mt-1.5 block truncate text-caption text-ink-soft">{s.name}</span>
               </button>

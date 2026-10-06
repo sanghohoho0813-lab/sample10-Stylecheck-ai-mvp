@@ -104,9 +104,10 @@ export default function HistoryView() {
         )}
 
         {items === null ? (
-          <div className="mt-6 grid gap-3 sm:grid-cols-2" aria-busy="true">
-            <div className="skeleton h-36 rounded-md" />
-            <div className="skeleton h-36 rounded-md" />
+          <div className="mt-6 grid min-h-[100svh] content-start gap-3 sm:grid-cols-2" aria-busy="true">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="skeleton h-[8.5rem] rounded-md" />
+            ))}
           </div>
         ) : visible.length === 0 ? (
           <div className="mt-16 flex flex-col items-center text-center">
@@ -195,7 +196,8 @@ export default function HistoryView() {
         )}
       </div>
 
-      <SampleBridgeCTA maxWidthClass="max-w-4xl" />
+      {/* Only once records are in, so loading never pushes it around */}
+      {items !== null && <SampleBridgeCTA maxWidthClass="max-w-4xl" />}
     </>
   );
 }

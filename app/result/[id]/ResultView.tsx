@@ -57,12 +57,29 @@ export default function ResultView({ id, share }: { id: string; share?: string }
 
   if (!loaded) {
     return (
-      <div className="mx-auto max-w-6xl px-5 pt-8 md:px-8 md:pt-10" aria-busy="true">
-        <div className="md:grid md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:gap-12">
+      // Mirrors the result layout and holds the footer below the fold, so the
+      // page does not jump when the record arrives from storage.
+      <div key="loading" className="mx-auto min-h-[100svh] max-w-6xl px-5 pb-10 pt-6 md:px-8 md:pt-10" aria-busy="true">
+        <div className="md:grid md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:gap-12 lg:gap-16">
           <div className="skeleton hidden aspect-[3/4] rounded-lg md:block" />
-          <div className="space-y-4">
-            <div className="skeleton h-32 rounded-md" />
-            <div className="skeleton h-56 rounded-md" />
+          <div>
+            <div className="flex items-center gap-5 md:gap-8">
+              <div className="skeleton aspect-[3/4] w-24 rounded-sm md:hidden" />
+              <div className="skeleton h-[7.5rem] w-[7.5rem] rounded-full" />
+              <div className="hidden flex-1 space-y-3 md:block">
+                <div className="skeleton h-4 w-40 rounded-full" />
+                <div className="skeleton h-9 w-72 rounded-full" />
+              </div>
+            </div>
+            <div className="mt-5 space-y-3 md:hidden">
+              <div className="skeleton h-4 w-40 rounded-full" />
+              <div className="skeleton h-8 w-64 rounded-full" />
+            </div>
+            <div className="mt-8 space-y-3">
+              <div className="skeleton h-5 w-56 rounded-full" />
+              <div className="skeleton h-5 w-48 rounded-full" />
+            </div>
+            <div className="skeleton mt-7 h-64 rounded-md" />
           </div>
         </div>
       </div>
@@ -71,7 +88,9 @@ export default function ResultView({ id, share }: { id: string; share?: string }
 
   if (!result) {
     return (
-      <div className="mx-auto max-w-md px-5 pb-20 pt-20 text-center">
+      // Same reserved height as the loading state — the footer does not jump up.
+      // Its own key: a new box, not the skeleton's box resized (which reads as a layout shift).
+      <div key="missing" className="mx-auto min-h-[100svh] max-w-md px-5 pb-20 pt-20 text-center">
         <h1 className="font-display text-section font-semibold text-ink">결과를 찾을 수 없어요</h1>
         <p className="mt-3 text-body text-ink-soft">
           {share
@@ -172,6 +191,7 @@ export default function ResultView({ id, share }: { id: string; share?: string }
                 alt={photoAlt}
                 sizes="(min-width: 1280px) 430px, 38vw"
                 className="w-full rounded-lg"
+                priority
               />
               {result.isSample && (
                 <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-caption font-semibold text-ink-soft">
@@ -187,7 +207,7 @@ export default function ResultView({ id, share }: { id: string; share?: string }
             {/* ── ANSWER ──────────────────────────────────────────────── */}
             <section aria-labelledby="verdict" className="animate-fade-up">
               <div className="grid grid-cols-[auto_1fr] items-center gap-x-5 gap-y-5 md:gap-x-8">
-                <LookImage src={result.image} alt={photoAlt} sizes="96px" className="w-24 rounded-sm md:hidden" />
+                <LookImage src={result.image} alt={photoAlt} sizes="96px" className="w-24 rounded-sm md:hidden" priority />
                 <ScoreRing score={result.overallScore} size={120} />
                 <div className="col-span-2 md:col-span-1 md:col-start-2 md:row-start-1">
                   <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-meta font-semibold text-rose-deep">
