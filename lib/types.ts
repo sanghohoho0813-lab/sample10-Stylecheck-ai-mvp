@@ -79,6 +79,14 @@ export interface AlternativeLook {
   changedItems: number;
 }
 
+/** How one of the user's conditions (계절·만나는 사람·장소·원하는 느낌) moved the verdict. */
+export interface ConditionNote {
+  tone: "good" | "adjust";
+  text: string;
+  /** Points this condition added to / removed from the overall score. */
+  impact: number;
+}
+
 export interface WardrobeSuggestion {
   itemName: string;
   slot: string;
@@ -91,6 +99,8 @@ export interface AnalysisResult {
   image: string; // data URL
   isSample: boolean;
   sampleId?: string;
+  /** Deterministic engine input — lets a shared link rebuild the same result on another device. */
+  imageKey?: string;
   occasion: OccasionId;
   conditions: AnalysisConditions;
   overallScore: number;
@@ -102,6 +112,8 @@ export interface AnalysisResult {
   items: OutfitItemAnalysis[];
   alternatives: AlternativeLook[];
   wardrobeSuggestion: WardrobeSuggestion | null;
+  /** Condition effects, most actionable first. Absent on records made before conditions were scored. */
+  conditionNotes?: ConditionNote[];
   favorite: boolean;
   /**
    * When the user committed to the primary recommendation ("추천대로 바꿔 입기").
@@ -118,6 +130,8 @@ export interface DemoSample {
   /** Public path of the look photo (3:4). */
   image: string;
   baseScores: ScoreSet;
+  /** Seasons the look is dressed for — other seasons lower 계절 적합성. */
+  seasons: Season[];
   items: { slot: string; name: string }[];
   /** Sample-specific "한 가지만 바꾼다면" copy matched to the photo. */
   recommendation: { from: string; to: string; reason: string };

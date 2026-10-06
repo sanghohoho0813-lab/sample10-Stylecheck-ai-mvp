@@ -54,21 +54,16 @@ export default function MyPageView() {
   };
 
   const list = items ?? [];
-  const stats = [
-    { label: "확인한 코디", value: list.length, unit: "회" },
-    { label: "저장한 코디", value: list.filter((a) => a.favorite).length, unit: "개" },
-    { label: "추천 적용", value: list.filter((a) => a.appliedAt).length, unit: "회" },
+  // Each count opens the matching history filter — one place for both the number and the way in.
+  const stats: { label: string; value: number; unit: string; href?: string }[] = [
+    { label: "확인한 코디", value: list.length, unit: "회", href: "/history" },
+    { label: "저장한 코디", value: list.filter((a) => a.favorite).length, unit: "개", href: "/history?filter=favorite" },
+    { label: "추천 적용", value: list.filter((a) => a.appliedAt).length, unit: "회", href: "/history?filter=applied" },
     {
       label: "평균 적합도",
       value: list.length ? Math.round(list.reduce((s, a) => s + a.overallScore, 0) / list.length) : 0,
       unit: "점",
     },
-  ];
-
-  const links = [
-    { href: "/history", label: "분석 기록", count: stats[0].value },
-    { href: "/history?filter=favorite", label: "저장한 코디", count: stats[1].value },
-    { href: "/history?filter=applied", label: "추천을 적용한 코디", count: stats[2].value },
   ];
 
   return (
@@ -85,30 +80,35 @@ export default function MyPageView() {
           </div>
         </div>
 
-        <dl className="mt-7 grid grid-cols-4 divide-x divide-linen border-y border-linen py-5">
-          {stats.map((s) => (
-            <div key={s.label} className="flex flex-col-reverse px-1 text-center">
-              <dt className="mt-1 text-caption text-ink-faint">{s.label}</dt>
-              <dd className="whitespace-nowrap font-display text-title font-semibold tabular-nums text-ink">
-                {items ? s.value : "–"}
-                {items && <span className="ml-0.5 font-body text-meta font-normal text-ink-faint">{s.unit}</span>}
-              </dd>
-            </div>
-          ))}
-        </dl>
-
-        <ul className="mt-6 divide-y divide-linen">
-          {links.map((l) => (
-            <li key={l.href}>
-              <Link href={l.href} className="flex h-14 items-center justify-between text-body font-semibold text-ink">
-                {l.label}
-                <span className="flex items-center gap-1 text-meta font-medium tabular-nums text-ink-faint">
-                  {items ? `${l.count}` : ""}
-                  <ChevronRight className="h-4 w-4" />
+        <ul
+          aria-label="내 기록 요약"
+          className="mt-7 grid grid-cols-2 gap-px overflow-hidden rounded-md border border-linen bg-linen sm:grid-cols-4"
+        >
+          {stats.map((s) => {
+            const body = (
+              <>
+                <span className="flex items-center justify-between gap-1 text-meta text-ink-soft">
+                  {s.label}
+                  {s.href && <ChevronRight className="h-4 w-4 text-ink-faint" aria-hidden />}
                 </span>
-              </Link>
-            </li>
-          ))}
+                <span className="mt-1 block whitespace-nowrap font-display text-section font-semibold tabular-nums text-ink">
+                  {items ? s.value : "–"}
+                  {items && <span className="ml-0.5 font-body text-body-sm font-normal text-ink-faint">{s.unit}</span>}
+                </span>
+              </>
+            );
+            return (
+              <li key={s.label} className="bg-white">
+                {s.href ? (
+                  <Link href={s.href} className="block h-full px-4 py-4 transition-colors duration-150 hover:bg-blush/50">
+                    {body}
+                  </Link>
+                ) : (
+                  <div className="px-4 py-4">{body}</div>
+                )}
+              </li>
+            );
+          })}
         </ul>
 
         {/* ── Wardrobe ────────────────────────────────────────────────── */}
@@ -128,7 +128,7 @@ export default function MyPageView() {
                   style={{ backgroundColor: w.color }}
                   aria-hidden
                 />
-                <p className="mt-2 truncate text-body-sm font-semibold text-ink">{w.name}</p>
+                <p className="mt-2 text-body-sm font-semibold leading-snug text-ink">{w.name}</p>
                 <p className="text-caption text-ink-faint">{w.slot}</p>
               </li>
             ))}
@@ -153,9 +153,7 @@ export default function MyPageView() {
                   type="button"
                   onClick={() => togglePref(m)}
                   aria-pressed={on}
-                  className={`inline-flex h-10 items-center gap-1.5 rounded-full border px-4 text-body-sm font-medium transition-colors duration-150 ${
-                    on ? "border-rose bg-rose text-white" : "border-linen bg-white text-ink-soft hover:border-rose-soft"
-                  }`}
+                  className={`chip ${on ? "chip-on" : "chip-off"}`}
                 >
                   {m}
                   {index === 0 && <span className="text-caption text-white/80">기본</span>}
@@ -190,7 +188,7 @@ export default function MyPageView() {
                 toast(next ? "사진을 기록에 함께 저장해요" : "앞으로 사진은 저장하지 않아요", "info");
               }}
               className={`relative h-7 w-12 shrink-0 rounded-full transition-colors duration-200 ${
-                savePhotos ? "bg-rose" : "bg-linen"
+                savePhotos ? "bg-rose-deep" : "bg-ink-faint/40"
               }`}
             >
               <span
@@ -209,18 +207,14 @@ export default function MyPageView() {
             <button
               type="button"
               onClick={onReset}
-              className={`inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full border px-4 text-body-sm font-semibold transition-colors duration-150 ${
-                confirmReset
-                  ? "border-danger bg-danger text-white"
-                  : "border-linen bg-white text-ink-soft hover:text-ink"
-              }`}
+              className={`btn btn-xs ${confirmReset ? "bg-danger text-white" : "btn-secondary text-ink-soft"}`}
             >
               <RotateCcw className="h-4 w-4" />
               {confirmReset ? "한 번 더 눌러 초기화" : "초기화"}
             </button>
           </div>
 
-          <p className="mt-6 text-caption text-ink-faint">
+          <p className="mt-6 text-meta text-ink-faint">
             StyleCheck AI는 얼굴·체형 등 외모를 평가하지 않고 착장과 상황의 적합성만 확인해요. 모든 데이터는 이 기기의
             브라우저에만 저장돼요.
           </p>

@@ -8,10 +8,7 @@ export default function NotFound() {
       <h1 className="mt-3 font-display text-section font-semibold text-ink">페이지를 찾을 수 없어요</h1>
       <p className="mt-3 text-body text-ink-soft">주소가 바뀌었거나 삭제된 페이지예요.</p>
       <div className="mt-8 flex flex-col items-center gap-3">
-        <Link
-          href="/check"
-          className="inline-flex h-12 items-center gap-2 rounded-full bg-rose px-6 text-body font-semibold text-white transition-colors hover:bg-rose-deep"
-        >
+        <Link href="/check" className="btn btn-md btn-primary">
           코디 확인하기
           <ArrowRight className="h-4 w-4" />
         </Link>

@@ -23,9 +23,12 @@ export function isAcceptedImage(file: File): boolean {
   return ACCEPTED_TYPES.includes(file.type.toLowerCase());
 }
 
+/** Phone photos are 2–12MB; anything far beyond that is not an outfit photo. */
+export const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
+
 /**
- * Reads an image file and returns a resized JPEG data URL (max 900px wide)
- * so uploaded photos preview instantly and fit in localStorage history.
+ * Reads an image file and returns a resized JPEG data URL (fits 800×1100)
+ * so uploaded photos preview instantly and many fit in localStorage history.
  */
 export function compressImage(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -35,18 +38,17 @@ export function compressImage(file: File): Promise<string> {
       const img = new Image();
       img.onerror = () => reject(new Error("decode-failed"));
       img.onload = () => {
-        const maxW = 900;
-        const scale = Math.min(1, maxW / img.width);
+        const scale = Math.min(1, 800 / img.width, 1100 / img.height);
         const canvas = document.createElement("canvas");
-        canvas.width = Math.round(img.width * scale);
-        canvas.height = Math.round(img.height * scale);
+        canvas.width = Math.max(1, Math.round(img.width * scale));
+        canvas.height = Math.max(1, Math.round(img.height * scale));
         const ctx = canvas.getContext("2d");
         if (!ctx) {
-          resolve(reader.result as string);
+          reject(new Error("canvas-unavailable"));
           return;
         }
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL("image/jpeg", 0.82));
+        resolve(canvas.toDataURL("image/jpeg", 0.8));
       };
       img.src = reader.result as string;
     };
@@ -54,10 +56,20 @@ export function compressImage(file: File): Promise<string> {
   });
 }
 
+function finalConsonant(word: string): number | null {
+  const last = word.trim().charCodeAt(word.trim().length - 1);
+  if (last < 0xac00 || last > 0xd7a3) return null;
+  return (last - 0xac00) % 28;
+}
+
+/** "와"/"과" — 친구와, 가족과. */
+export function withGwa(word: string): string {
+  const jong = finalConsonant(word);
+  return `${word}${jong === null || jong === 0 ? "와" : "과"}`;
+}
+
 /** "으로"/"로" — 받침이 없거나 ㄹ 받침이면 "로" (블랙 로퍼로, 블랙 스트레이트팁으로). */
 export function withEuro(word: string): string {
-  const last = word.trim().charCodeAt(word.trim().length - 1);
-  if (last < 0xac00 || last > 0xd7a3) return `${word}로`;
-  const jong = (last - 0xac00) % 28;
-  return `${word}${jong === 0 || jong === 8 ? "로" : "으로"}`;
+  const jong = finalConsonant(word);
+  return `${word}${jong === null || jong === 0 || jong === 8 ? "로" : "으로"}`;
 }

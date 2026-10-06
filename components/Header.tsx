@@ -42,7 +42,7 @@ export default function Header() {
           {!inFlow && (
             <Link
               href="/check"
-              className="ml-3 inline-flex h-10 items-center rounded-full bg-rose px-5 text-body-sm font-semibold text-white transition-colors duration-200 hover:bg-rose-deep"
+              className="btn btn-xs btn-primary ml-3 px-5"
             >
               코디 확인하기
             </Link>

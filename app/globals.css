@@ -31,14 +31,15 @@
   --color-linen: #efe3e1;
   --color-ink: #3f3134;
   --color-ink-soft: #6a585c;
-  --color-ink-faint: #9a8789;
-  --color-rose: #cf6680;
-  --color-rose-deep: #b3526a;
+  --color-ink-faint: #7d6a6d; /* ≥4.5:1 on cream — still readable at 13–14px */
+  --color-rose: #cf6680; /* decorative: rings, icons, focus, bars */
+  --color-rose-deep: #b04a64; /* accent text + primary fills (white text 5.2:1) */
+  --color-rose-ink: #963d54; /* pressed / hover for primary fills */
   --color-rose-soft: #f2d3da;
   /* status */
-  --color-sage: #6f9a6b; /* good / success */
-  --color-gold: #b08a45; /* adjust / warning */
-  --color-danger: #c0453f; /* destructive */
+  --color-sage: #557f51; /* good / success */
+  --color-gold: #8f6d2c; /* adjust / warning */
+  --color-danger: #b83c36; /* destructive */
 
   --font-display: "Playfair Display", "Noto Serif KR", serif;
   --font-body: "Pretendard Variable", Pretendard, "Noto Sans KR", -apple-system,
@@ -81,7 +82,7 @@
   --shadow-subtle: 0 1px 2px rgba(63, 49, 52, 0.04), 0 6px 20px -12px rgba(63, 49, 52, 0.14);
   --shadow-raised: 0 16px 40px -18px rgba(63, 49, 52, 0.24);
   --shadow-overlay: 0 20px 48px -16px rgba(40, 28, 31, 0.38);
-  --shadow-cta: 0 10px 24px -12px rgba(179, 82, 106, 0.6);
+  --shadow-cta: 0 10px 24px -14px rgba(150, 61, 84, 0.55);
 
   /* ── Motion — short, purposeful ───────────────────────────────────────── */
   --animate-fade-up: fade-up 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -158,6 +159,48 @@ body {
 
 .font-display {
   font-family: var(--font-display);
+}
+
+/* ── Components ────────────────────────────────────────────────────────────
+   One button and one chip vocabulary for every screen. Heights: lg 52 (page
+   primary) · md 48 (flow / card primary) · sm 44 (secondary rows) · xs 40
+   (inline). Utilities on the element still win, e.g. `btn btn-md w-full`. */
+@layer components {
+  .btn {
+    @apply inline-flex shrink-0 select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-colors duration-200;
+  }
+  .btn-lg {
+    @apply h-13 px-7 text-body;
+  }
+  .btn-md {
+    @apply h-12 px-6 text-body;
+  }
+  .btn-sm {
+    @apply h-11 px-5 text-body-sm;
+  }
+  .btn-xs {
+    @apply h-10 px-4 text-body-sm;
+  }
+  .btn-primary {
+    @apply bg-rose-deep text-white hover:bg-rose-ink active:bg-rose-ink;
+  }
+  .btn-secondary {
+    @apply border border-linen bg-white text-ink hover:border-rose-soft hover:bg-blush/50;
+  }
+  .btn-quiet {
+    @apply text-ink-soft hover:bg-blush/70 hover:text-ink;
+  }
+
+  /* Selectable pill (multiple / single choice inputs) */
+  .chip {
+    @apply inline-flex h-10 items-center gap-1.5 whitespace-nowrap rounded-full border px-4 text-body-sm font-medium transition-colors duration-150;
+  }
+  .chip-off {
+    @apply border-linen bg-white text-ink-soft hover:border-rose-soft hover:text-ink;
+  }
+  .chip-on {
+    @apply border-rose-deep bg-rose-deep text-white;
+  }
 }
 
 .no-scrollbar::-webkit-scrollbar {

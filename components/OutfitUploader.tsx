@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { Camera, ImagePlus, RefreshCw, Trash2 } from "lucide-react";
 import { DEMO_SAMPLES } from "@/lib/demo-samples";
-import { compressImage, isAcceptedImage } from "@/lib/utils";
+import { compressImage, isAcceptedImage, MAX_UPLOAD_BYTES } from "@/lib/utils";
 
 interface Props {
   image: string | null;
@@ -26,6 +26,10 @@ export default function OutfitUploader({ image, isSample, sampleName, onImage, o
     if (!file) return;
     if (!isAcceptedImage(file)) {
       setFileError("JPG, PNG, WEBP 형식의 사진만 올릴 수 있어요.");
+      return;
+    }
+    if (file.size > MAX_UPLOAD_BYTES) {
+      setFileError("25MB 이하의 사진을 올려주세요.");
       return;
     }
     setFileError(null);
@@ -79,19 +83,11 @@ export default function OutfitUploader({ image, isSample, sampleName, onImage, o
             )}
           </div>
           <div className="mt-4 flex justify-center gap-2">
-            <button
-              type="button"
-              onClick={() => fileRef.current?.click()}
-              className="inline-flex h-10 items-center gap-1.5 rounded-full border border-linen bg-white px-4 text-body-sm font-semibold text-ink transition-colors hover:bg-blush/60"
-            >
+            <button type="button" onClick={() => fileRef.current?.click()} className="btn btn-xs btn-secondary">
               <RefreshCw className="h-4 w-4" />
               다른 사진
             </button>
-            <button
-              type="button"
-              onClick={onClear}
-              className="inline-flex h-10 items-center gap-1.5 rounded-full border border-linen bg-white px-4 text-body-sm font-semibold text-ink-soft transition-colors hover:bg-blush/60"
-            >
+            <button type="button" onClick={onClear} className="btn btn-xs btn-quiet">
               <Trash2 className="h-4 w-4" />
               삭제
             </button>
@@ -119,25 +115,17 @@ export default function OutfitUploader({ image, isSample, sampleName, onImage, o
           >
             <ImagePlus className="h-8 w-8 text-rose" strokeWidth={1.6} />
             <span className="mt-4 text-lead font-semibold text-ink">사진을 끌어다 놓거나 클릭해서 선택</span>
-            <span className="mt-1 text-meta text-ink-faint">JPG · PNG · WEBP</span>
+            <span className="mt-1 text-meta text-ink-faint">JPG · PNG · WEBP · 25MB 이하</span>
           </button>
 
           {/* Phones: camera first */}
           <div className="mt-7 grid gap-3 md:hidden">
-            <button
-              type="button"
-              onClick={() => cameraRef.current?.click()}
-              className="flex h-14 items-center justify-center gap-2.5 rounded-md bg-rose text-body font-semibold text-white transition-colors active:bg-rose-deep"
-            >
+            <button type="button" onClick={() => cameraRef.current?.click()} className="btn btn-lg btn-primary w-full">
               <Camera className="h-5 w-5" />
               사진 촬영
             </button>
-            <button
-              type="button"
-              onClick={() => fileRef.current?.click()}
-              className="flex h-14 items-center justify-center gap-2.5 rounded-md border border-linen bg-white text-body font-semibold text-ink"
-            >
-              <ImagePlus className="h-5 w-5 text-rose" />
+            <button type="button" onClick={() => fileRef.current?.click()} className="btn btn-lg btn-secondary w-full">
+              <ImagePlus className="h-5 w-5 text-rose-deep" />
               앨범에서 선택
             </button>
           </div>
@@ -178,10 +166,7 @@ export default function OutfitUploader({ image, isSample, sampleName, onImage, o
         </section>
       )}
 
-      <p className="mt-8 text-caption text-ink-faint">
-        데모 버전은 사진을 실제로 인식하지 않고, 선택한 상황·조건을 바탕으로 규칙 기반 예시 결과를 보여줘요. 사진은 이
-        기기 안에서만 보관돼요.
-      </p>
+      <p className="mt-8 text-meta text-ink-faint">데모 버전은 사진을 실제로 인식하지 않아요. 사진은 이 기기에만 보관돼요.</p>
     </div>
   );
 }

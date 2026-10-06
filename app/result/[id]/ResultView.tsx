@@ -3,11 +3,22 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, BookOpen, Check, ChevronDown, Heart, RefreshCw, Share2, Shirt } from "lucide-react";
+import {
+  ArrowRight,
+  BookOpen,
+  Check,
+  ChevronDown,
+  Heart,
+  RefreshCw,
+  Share2,
+  Shirt,
+  SlidersHorizontal,
+} from "lucide-react";
 import SampleBridgeCTA from "@/components/SampleBridgeCTA";
 import ScoreRing from "@/components/ScoreRing";
 import ScoreBreakdown from "@/components/ScoreBreakdown";
 import { useToast } from "@/components/Toast";
+import { resultFromShare, shareUrl } from "@/lib/share";
 import { getAnalysis, setRecommendationApplied, toggleFavorite } from "@/lib/storage";
 import { OCCASION_MAP, SEASONS } from "@/lib/occasions";
 import { verdictFor } from "@/lib/style-engine";
@@ -20,21 +31,28 @@ const STATUS_META: Record<ItemStatus, { label: string; cls: string }> = {
   recommend: { label: "바꾸면 좋아요", cls: "text-rose-deep" },
 };
 
-export default function ResultView({ id }: { id: string }) {
+const signed = (n: number) => (n > 0 ? `+${n}` : `−${Math.abs(n)}`);
+
+export default function ResultView({ id, share }: { id: string; share?: string }) {
   const router = useRouter();
   const toast = useToast();
   const [result, setResult] = useState<AnalysisResult | null>(null);
+  /** Opened from a friend's share link — read-only, nothing is stored. */
+  const [shared, setShared] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
 
   useEffect(() => {
-    setResult(getAnalysis(id));
+    const own = getAnalysis(id);
+    const fromLink = !own && share ? resultFromShare(share, id) : null;
+    setResult(own ?? fromLink);
+    setShared(Boolean(fromLink));
     setLoaded(true);
     // Land on the answer, not under the sticky header, and open the detail
     // section by default where there is room for it.
     window.scrollTo({ top: 0 });
     setDetailsOpen(window.matchMedia("(min-width: 768px)").matches);
-  }, [id]);
+  }, [id, share]);
 
   if (!loaded) {
     return (
@@ -55,14 +73,13 @@ export default function ResultView({ id }: { id: string }) {
       <div className="mx-auto max-w-md px-5 pb-20 pt-20 text-center">
         <h1 className="font-display text-section font-semibold text-ink">결과를 찾을 수 없어요</h1>
         <p className="mt-3 text-body text-ink-soft">
-          기록이 삭제되었거나 다른 기기에서 확인한 결과일 수 있어요. 결과는 확인한 기기에만 저장돼요.
+          {share
+            ? "공유 링크가 잘렸거나 올바르지 않아요. 보낸 사람에게 링크를 다시 받아주세요."
+            : "기록이 삭제되었거나 다른 기기에서 확인한 결과일 수 있어요. 결과는 확인한 기기에만 저장돼요."}
         </p>
         <div className="mt-8 flex flex-col items-center gap-3">
-          <Link
-            href="/check"
-            className="inline-flex h-12 items-center gap-2 rounded-full bg-rose px-6 text-body font-semibold text-white"
-          >
-            새로 코디 확인하기
+          <Link href="/check" className="btn btn-md btn-primary">
+            코디 확인하기
             <ArrowRight className="h-4 w-4" />
           </Link>
           <Link href="/history" className="text-body-sm font-semibold text-ink-soft underline underline-offset-4">
@@ -76,11 +93,14 @@ export default function ResultView({ id }: { id: string }) {
   const occ = OCCASION_MAP[result.occasion];
   const rec = result.primaryRecommendation;
   const applied = Boolean(result.appliedAt);
-  const gain = rec.scoreAfter - rec.scoreBefore;
   const verdict = verdictFor(result.overallScore);
   const keyGood = result.positives[0];
   const keyFix = result.improvements[0];
+  const notes = result.conditionNotes ?? [];
+  const keyNote = notes[0];
   const wardrobe = result.wardrobeSuggestion;
+  // The first alternative is the primary recommendation itself — list only the others.
+  const otherWays = result.alternatives.slice(1);
 
   const onFavorite = () => {
     const nowFav = toggleFavorite(result.id);
@@ -103,18 +123,19 @@ export default function ResultView({ id }: { id: string }) {
   };
 
   const onShare = async () => {
-    const text = `[StyleCheck AI] ${occ.label} 코디 적합도 ${result.overallScore}점 — ${verdict}. 한 가지만 바꾼다면: ${rec.from} → ${rec.to}`;
+    const url = shareUrl(result, window.location.origin);
+    const text = `[StyleCheck AI] ${occ.label} 코디 적합도 ${result.overallScore}점 — ${verdict}. 이 코디 어때 보여?`;
     try {
       if (navigator.share) {
-        await navigator.share({ title: "StyleCheck AI 코디 판정", text, url: window.location.href });
+        await navigator.share({ title: "StyleCheck AI 코디 판정", text, url });
         return;
       }
       throw new Error("no-share");
     } catch (e) {
       if ((e as Error).name === "AbortError") return;
       try {
-        await navigator.clipboard.writeText(`${text}\n${window.location.href}`);
-        toast("결과 링크를 복사했어요");
+        await navigator.clipboard.writeText(`${text}\n${url}`);
+        toast("공유 링크를 복사했어요. 사진은 공유되지 않아요");
       } catch {
         toast("이 브라우저에서는 공유를 지원하지 않아요", "info");
       }
@@ -125,16 +146,26 @@ export default function ResultView({ id }: { id: string }) {
   const conditionChips = [result.conditions.companion, result.conditions.place, result.conditions.mood, seasonLabel].filter(
     Boolean
   ) as string[];
+  const photoAlt = shared ? "공유된 코디" : "확인한 코디 사진";
 
   return (
     <>
       <div className="mx-auto max-w-6xl px-5 pb-10 pt-6 md:px-8 md:pt-10">
+        {shared && (
+          <p className="mb-6 flex items-center gap-2.5 rounded-sm bg-white px-4 py-3 text-body-sm text-ink-soft shadow-subtle">
+            <Share2 className="h-4 w-4 shrink-0 text-rose-deep" />
+            <span>
+              <b className="font-semibold text-ink">친구가 공유한 코디 판정</b>이에요. 사진은 공유되지 않아요.
+            </span>
+          </p>
+        )}
+
         <div className="md:grid md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] md:gap-12 lg:gap-16">
           {/* ── Photo (desktop) ─────────────────────────────────────────── */}
           <aside className="hidden md:sticky md:top-24 md:block md:self-start">
             <div className="relative">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={result.image} alt="확인한 코디 사진" className="aspect-[3/4] w-full rounded-lg object-cover" />
+              <img src={result.image} alt={photoAlt} className="aspect-[3/4] w-full rounded-lg object-cover" />
               {result.isSample && (
                 <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-caption font-semibold text-ink-soft">
                   샘플 코디
@@ -142,9 +173,7 @@ export default function ResultView({ id }: { id: string }) {
               )}
             </div>
             <p className="mt-4 text-meta text-ink-faint">{formatDate(result.createdAt)}</p>
-            {conditionChips.length > 0 && (
-              <p className="mt-1 text-meta text-ink-soft">{conditionChips.join(" · ")}</p>
-            )}
+            {conditionChips.length > 0 && <p className="mt-1 text-meta text-ink-soft">{conditionChips.join(" · ")}</p>}
           </aside>
 
           <div className="min-w-0">
@@ -152,11 +181,7 @@ export default function ResultView({ id }: { id: string }) {
             <section aria-labelledby="verdict" className="animate-fade-up">
               <div className="grid grid-cols-[auto_1fr] items-center gap-x-5 gap-y-5 md:gap-x-8">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={result.image}
-                  alt="확인한 코디 사진"
-                  className="aspect-[3/4] w-24 rounded-sm object-cover md:hidden"
-                />
+                <img src={result.image} alt={photoAlt} className="aspect-[3/4] w-24 rounded-sm object-cover md:hidden" />
                 <ScoreRing score={result.overallScore} size={120} />
                 <div className="col-span-2 md:col-span-1 md:col-start-2 md:row-start-1">
                   <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-meta font-semibold text-rose-deep">
@@ -185,6 +210,15 @@ export default function ResultView({ id }: { id: string }) {
                   <span className="mt-[0.45rem] h-2 w-2 shrink-0 rounded-full bg-gold" aria-hidden />
                   {keyFix.title}
                 </li>
+                {keyNote && (
+                  <li className="flex items-start gap-3 text-body text-ink">
+                    <SlidersHorizontal className="mt-1 h-4 w-4 shrink-0 text-ink-faint" />
+                    <span>
+                      {keyNote.text}
+                      <span className="sr-only"> (조건 반영 {signed(keyNote.impact)}점)</span>
+                    </span>
+                  </li>
+                )}
               </ul>
             </section>
 
@@ -193,10 +227,19 @@ export default function ResultView({ id }: { id: string }) {
               aria-labelledby="next-action"
               className="mt-7 animate-fade-up rounded-md border border-rose-soft bg-blush p-5 md:p-6"
             >
-              <h2 id="next-action" className="text-meta font-semibold text-rose-deep">
-                한 가지만 바꾼다면
-              </h2>
-              <p className="mt-3 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-lead font-semibold">
+              <div className="flex items-baseline justify-between gap-3">
+                <h2 id="next-action" className="text-meta font-semibold text-rose-deep">
+                  한 가지만 바꾼다면
+                </h2>
+                <p className="whitespace-nowrap text-meta tabular-nums text-ink-soft">
+                  {rec.scoreBefore}
+                  <span className="mx-1 text-ink-faint" aria-label="에서">
+                    →
+                  </span>
+                  <b className="font-display text-title font-semibold text-rose-deep">{rec.scoreAfter}</b>점
+                </p>
+              </div>
+              <p className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-lead font-semibold">
                 <span className="text-ink-faint line-through decoration-ink-faint/40">{rec.from}</span>
                 <ArrowRight className="h-4 w-4 shrink-0 text-rose" aria-label="에서" />
                 <span className="text-ink">{rec.to}</span>
@@ -204,22 +247,22 @@ export default function ResultView({ id }: { id: string }) {
               <p className="mt-2 text-body-sm text-ink-soft">{rec.reason}</p>
               {wardrobe && (
                 <p className="mt-3 flex items-center gap-2 text-meta text-ink-soft">
-                  <Shirt className="h-4 w-4 shrink-0 text-rose" />
+                  <Shirt className="h-4 w-4 shrink-0 text-rose-deep" />
                   <span>
-                    내 옷장의 <b className="font-semibold text-ink">{withEuro(wardrobe.itemName)}</b> 바로 바꿀 수 있어요
+                    {shared ? "옷장의 " : "내 옷장의 "}
+                    <b className="font-semibold text-ink">{withEuro(wardrobe.itemName)}</b> 바로 바꿀 수 있어요
                   </span>
                 </p>
               )}
 
-              <div className="mt-4 flex items-baseline gap-2 border-t border-rose-soft pt-4">
-                <span className="text-meta text-ink-soft">예상 적합도</span>
-                <span className="text-body tabular-nums text-ink-faint">{rec.scoreBefore}</span>
-                <ArrowRight className="h-3.5 w-3.5 self-center text-ink-faint" aria-label="에서" />
-                <span className="font-display text-title font-semibold tabular-nums text-rose-deep">{rec.scoreAfter}</span>
-                <span className="ml-auto whitespace-nowrap text-meta font-semibold text-rose-deep">+{gain}점</span>
-              </div>
-
-              {applied ? (
+              {shared ? (
+                applied && (
+                  <p className="mt-5 flex items-center gap-2 rounded-sm bg-white px-4 py-3 text-body-sm font-semibold text-ink">
+                    <Check className="h-4 w-4 shrink-0 text-sage" strokeWidth={2.5} />
+                    추천대로 바꿔 입기로 했대요
+                  </p>
+                )
+              ) : applied ? (
                 <div className="mt-5 flex items-center justify-between gap-3 rounded-sm bg-white px-4 py-3" role="status">
                   <p className="flex items-center gap-2 text-body-sm font-semibold text-ink">
                     <Check className="h-4 w-4 shrink-0 text-sage" strokeWidth={2.5} />
@@ -234,164 +277,178 @@ export default function ResultView({ id }: { id: string }) {
                   </button>
                 </div>
               ) : (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => onApply(true)}
-                    className="mt-5 h-12 w-full rounded-full bg-rose text-body font-semibold text-white transition-colors duration-200 hover:bg-rose-deep"
-                  >
-                    추천대로 바꿔 입기
-                  </button>
-                  <p className="mt-2 text-center text-caption text-ink-faint">
-                    결정하면 오늘 코디가 {rec.scoreAfter}점으로 기록에 남아요
-                  </p>
-                </>
+                <button type="button" onClick={() => onApply(true)} className="btn btn-md btn-primary mt-5 w-full">
+                  추천대로 바꿔 입기
+                </button>
               )}
             </section>
 
-            <div className="mt-4 flex gap-2">
-              <button
-                type="button"
-                onClick={onFavorite}
-                aria-pressed={result.favorite}
-                className={`inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-full border text-body-sm font-semibold transition-colors duration-200 ${
-                  result.favorite
-                    ? "border-rose-soft bg-white text-rose-deep"
-                    : "border-linen bg-white text-ink hover:bg-blush/60"
-                }`}
-              >
-                <Heart className={`h-4 w-4 ${result.favorite ? "animate-heart-pop fill-rose text-rose" : "text-ink-soft"}`} />
-                {result.favorite ? "저장됨" : "저장"}
-              </button>
-              <button
-                type="button"
-                onClick={onShare}
-                className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-full border border-linen bg-white text-body-sm font-semibold text-ink transition-colors hover:bg-blush/60"
-              >
-                <Share2 className="h-4 w-4 text-ink-soft" />
-                친구에게 물어보기
-              </button>
-            </div>
-
-            {/* ── EVIDENCE ────────────────────────────────────────────── */}
-            <section aria-labelledby="evidence" className="mt-14 border-t border-linen pt-8">
-              <h2 id="evidence" className="font-display text-title font-semibold text-ink">
-                판정 근거
-              </h2>
-              <div className="mt-6 grid gap-8 lg:grid-cols-2">
-                <div>
-                  <h3 className="text-meta font-semibold text-sage">잘 맞는 점</h3>
-                  <ul className="mt-3 space-y-4">
-                    {result.positives.map((p) => (
-                      <li key={p.title}>
-                        <p className="text-body font-semibold text-ink">{p.title}</p>
-                        <p className="mt-1 text-body-sm text-ink-soft">{p.body}</p>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <h3 className="text-meta font-semibold text-gold">바꾸면 좋은 점</h3>
-                  <ul className="mt-3 space-y-4">
-                    {result.improvements.map((p) => (
-                      <li key={p.title}>
-                        <p className="text-body font-semibold text-ink">{p.title}</p>
-                        <p className="mt-1 text-body-sm text-ink-soft">{p.body}</p>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+            {shared ? (
+              <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                <Link href="/check" className="btn btn-md btn-primary sm:flex-1">
+                  내 코디도 확인하기
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+                {result.sampleId && (
+                  <Link href={`/check?sample=${result.sampleId}`} className="btn btn-md btn-secondary sm:flex-1">
+                    같은 샘플로 해보기
+                  </Link>
+                )}
               </div>
-            </section>
+            ) : (
+              <div className="mt-4 flex gap-2">
+                <button
+                  type="button"
+                  onClick={onFavorite}
+                  aria-pressed={result.favorite}
+                  className={`btn btn-sm btn-secondary flex-1 ${result.favorite ? "border-rose-soft text-rose-deep" : ""}`}
+                >
+                  <Heart
+                    className={`h-4 w-4 ${result.favorite ? "animate-heart-pop fill-rose text-rose" : "text-ink-soft"}`}
+                  />
+                  {result.favorite ? "저장됨" : "저장"}
+                </button>
+                <button type="button" onClick={onShare} className="btn btn-sm btn-secondary flex-1">
+                  <Share2 className="h-4 w-4 text-ink-soft" />
+                  친구에게 물어보기
+                </button>
+              </div>
+            )}
 
-            {/* ── ALTERNATIVES ────────────────────────────────────────── */}
-            <section aria-labelledby="alternatives" className="mt-12 border-t border-linen pt-8">
-              <h2 id="alternatives" className="font-display text-title font-semibold text-ink">
-                대안 코디
-              </h2>
-              <p className="mt-1 text-body-sm text-ink-soft">지금 입은 옷을 최대한 살리는 방향으로 골랐어요.</p>
-              <ul className="mt-4 divide-y divide-linen">
-                {result.alternatives.map((alt, i) => (
-                  <li key={alt.name} className="flex items-center gap-4 py-4">
-                    <span className="w-9 shrink-0 font-display text-body font-semibold text-rose-deep">{alt.name}</span>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-body font-semibold text-ink">
-                        {alt.summary}
-                        {i === 0 && <span className="ml-2 text-caption font-semibold text-rose-deep">추천</span>}
-                      </p>
-                      <p className="mt-0.5 text-meta text-ink-soft">
-                        {alt.mood} · 아이템 {alt.changedItems}개 변경
-                      </p>
-                    </div>
-                    <span className="shrink-0 whitespace-nowrap font-display text-title font-semibold tabular-nums text-ink">
-                      {alt.fitScore}
-                      <span className="ml-0.5 font-body text-caption font-normal text-ink-faint">점</span>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </section>
+            {/* ── OTHER WAYS ──────────────────────────────────────────── */}
+            {otherWays.length > 0 && (
+              <section aria-labelledby="alternatives" className="mt-12 border-t border-linen pt-8">
+                <h2 id="alternatives" className="font-display text-title font-semibold text-ink">
+                  다른 방법도 있어요
+                </h2>
+                <ul className="mt-3 divide-y divide-linen">
+                  {otherWays.map((alt) => (
+                    <li key={alt.name} className="flex items-center gap-4 py-4">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-body font-semibold text-ink">{alt.summary}</p>
+                        <p className="mt-0.5 text-meta text-ink-soft">
+                          {alt.mood} · 아이템 {alt.changedItems}개 변경
+                        </p>
+                      </div>
+                      <span className="shrink-0 whitespace-nowrap font-display text-title font-semibold tabular-nums text-ink">
+                        {alt.fitScore}
+                        <span className="ml-0.5 font-body text-meta font-normal text-ink-faint">점</span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
 
             {/* ── DETAIL (progressive disclosure) ─────────────────────── */}
-            <section className="mt-12 border-t border-linen pt-2">
+            <section className="mt-8 border-t border-linen">
               <button
                 type="button"
                 onClick={() => setDetailsOpen((o) => !o)}
                 aria-expanded={detailsOpen}
                 aria-controls="detail-panel"
-                className="flex w-full items-center justify-between py-5 text-left"
+                className="flex w-full items-center justify-between gap-4 py-5 text-left"
               >
-                <span className="font-display text-title font-semibold text-ink">상세 분석</span>
+                <span className="font-display text-title font-semibold text-ink">자세히 보기</span>
                 <span className="flex items-center gap-1.5 text-meta font-semibold text-ink-soft">
-                  세부 점수 · 아이템별
+                  <span className="hidden sm:inline">판정 근거 · 세부 점수 · 아이템별</span>
+                  <span className="sm:hidden">{detailsOpen ? "접기" : "펼치기"}</span>
                   <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${detailsOpen ? "rotate-180" : ""}`} />
                 </span>
               </button>
               {detailsOpen && (
-                <div id="detail-panel" className="animate-fade-in pb-2">
-                  <ScoreBreakdown scores={result.scores} />
-                  <ul className="mt-8 divide-y divide-linen border-t border-linen">
-                    {result.items.map((item) => {
-                      const meta = STATUS_META[item.status];
-                      const nameIsSlot = item.name === item.slot;
-                      return (
-                        <li key={item.slot} className="flex items-start gap-4 py-4">
-                          <span className="w-16 shrink-0 pt-0.5 text-meta text-ink-faint">{item.slot}</span>
-                          <div className="min-w-0 flex-1">
-                            <p className="text-body-sm font-semibold text-ink">{nameIsSlot ? item.comment : item.name}</p>
-                            {!nameIsSlot && <p className="mt-0.5 text-meta text-ink-soft">{item.comment}</p>}
-                          </div>
-                          <span className={`shrink-0 whitespace-nowrap pt-0.5 text-meta font-semibold ${meta.cls}`}>
-                            {meta.label}
-                          </span>
-                        </li>
-                      );
-                    })}
-                  </ul>
+                <div id="detail-panel" className="animate-fade-in space-y-10 pb-4">
+                  <div className="grid gap-8 lg:grid-cols-2">
+                    <div>
+                      <h3 className="text-meta font-semibold text-sage">잘 맞는 점</h3>
+                      <ul className="mt-3 space-y-4">
+                        {result.positives.map((p) => (
+                          <li key={p.title}>
+                            <p className="text-body font-semibold text-ink">{p.title}</p>
+                            <p className="mt-1 text-body-sm text-ink-soft">{p.body}</p>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div>
+                      <h3 className="text-meta font-semibold text-gold">바꾸면 좋은 점</h3>
+                      <ul className="mt-3 space-y-4">
+                        {result.improvements.map((p) => (
+                          <li key={p.title}>
+                            <p className="text-body font-semibold text-ink">{p.title}</p>
+                            <p className="mt-1 text-body-sm text-ink-soft">{p.body}</p>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+
+                  {notes.length > 0 && (
+                    <div>
+                      <h3 className="text-meta font-semibold text-ink-soft">고른 조건이 바꾼 점수</h3>
+                      <ul className="mt-3 divide-y divide-linen border-y border-linen">
+                        {notes.map((n) => (
+                          <li key={n.text} className="flex items-start justify-between gap-4 py-3">
+                            <span className="text-body-sm text-ink">{n.text}</span>
+                            <span
+                              className={`shrink-0 whitespace-nowrap text-body-sm font-semibold tabular-nums ${
+                                n.impact > 0 ? "text-sage" : "text-rose-deep"
+                              }`}
+                            >
+                              {signed(n.impact)}점
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  <div>
+                    <h3 className="mb-4 text-meta font-semibold text-ink-soft">세부 점수</h3>
+                    <ScoreBreakdown scores={result.scores} />
+                  </div>
+
+                  <div>
+                    <h3 className="text-meta font-semibold text-ink-soft">아이템별</h3>
+                    <ul className="mt-2 divide-y divide-linen border-t border-linen">
+                      {result.items.map((item) => {
+                        const meta = STATUS_META[item.status];
+                        const nameIsSlot = item.name === item.slot;
+                        return (
+                          <li key={item.slot} className="flex items-start gap-4 py-4">
+                            <span className="w-16 shrink-0 pt-0.5 text-meta text-ink-faint">{item.slot}</span>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-body-sm font-semibold text-ink">{nameIsSlot ? item.comment : item.name}</p>
+                              {!nameIsSlot && <p className="mt-0.5 text-meta text-ink-soft">{item.comment}</p>}
+                            </div>
+                            <span className={`shrink-0 whitespace-nowrap pt-0.5 text-meta font-semibold ${meta.cls}`}>
+                              {meta.label}
+                            </span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
                 </div>
               )}
             </section>
 
             {/* ── NEXT STEPS ──────────────────────────────────────────── */}
-            <div className="mt-8 flex flex-col gap-2 border-t border-linen pt-8 sm:flex-row">
-              <Link
-                href={`/guide#${result.occasion}`}
-                className="inline-flex h-11 items-center sm:flex-1 justify-center gap-2 rounded-full border border-linen bg-white text-body-sm font-semibold text-ink transition-colors hover:bg-blush/60"
-              >
+            <div className="flex flex-col gap-2 border-t border-linen pt-8 sm:flex-row">
+              <Link href={`/guide#${result.occasion}`} className="btn btn-sm btn-secondary sm:flex-1">
                 <BookOpen className="h-4 w-4 text-ink-soft" />
                 {occ.label} 스타일 가이드
               </Link>
-              <Link
-                href="/check"
-                className="inline-flex h-11 items-center sm:flex-1 justify-center gap-2 rounded-full border border-linen bg-white text-body-sm font-semibold text-ink transition-colors hover:bg-blush/60"
-              >
-                <RefreshCw className="h-4 w-4 text-ink-soft" />
-                다른 코디 확인하기
-              </Link>
+              {!shared && (
+                <Link href="/check" className="btn btn-sm btn-secondary sm:flex-1">
+                  <RefreshCw className="h-4 w-4 text-ink-soft" />
+                  다른 코디 확인하기
+                </Link>
+              )}
             </div>
 
-            <p className="mt-8 text-caption text-ink-faint">
-              이 결과는 규칙 기반 데모 엔진이 만든 예시예요. 사진을 실제로 인식하지 않으며, 이미지 인식 AI를 연동하면 같은
+            <p className="mt-8 text-meta text-ink-faint">
+              규칙 기반 데모 엔진이 만든 예시 결과예요. 사진을 실제로 인식하지 않으며, 이미지 인식 AI를 연동하면 같은
               화면 구조로 실제 분석 결과를 보여줘요.
             </p>
           </div>

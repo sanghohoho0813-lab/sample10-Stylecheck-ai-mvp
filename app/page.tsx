@@ -4,7 +4,7 @@ import SampleBridgeCTA from "@/components/SampleBridgeCTA";
 import { OccasionLabel } from "@/components/OccasionIcon";
 import { DEMO_SAMPLES } from "@/lib/demo-samples";
 import { OCCASIONS, OCCASION_MAP } from "@/lib/occasions";
-import { evaluateOccasionFit, runStyleAnalysis } from "@/lib/style-engine";
+import { evaluateOccasionFit, runStyleAnalysis, verdictFor } from "@/lib/style-engine";
 
 const HERO_SAMPLE = DEMO_SAMPLES[0];
 // Run the real engine so the preview shows exactly what the result page will.
@@ -17,6 +17,7 @@ const HERO_RESULT = runStyleAnalysis({
 });
 const HERO_SCORE = HERO_RESULT.overallScore;
 const HERO_AFTER = HERO_RESULT.primaryRecommendation.scoreAfter;
+const HERO_SLOT = HERO_RESULT.primaryRecommendation.slot;
 
 const STEPS = [
   { title: "코디 사진 올리기", body: "오늘 입을 옷을 찍거나 앨범에서 골라요. 전신이 보일수록 좋아요." },
@@ -43,19 +44,19 @@ export default function HomePage() {
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/check"
-                className="inline-flex h-13 items-center justify-center gap-2 rounded-full bg-rose px-7 text-body font-semibold text-white transition-colors duration-200 hover:bg-rose-deep"
+                className="btn btn-lg btn-primary"
               >
                 코디 확인하기
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 href={`/check?sample=${HERO_SAMPLE.id}`}
-                className="inline-flex h-13 items-center justify-center rounded-full border border-linen bg-white px-7 text-body font-semibold text-ink transition-colors duration-200 hover:border-rose-soft"
+                className="btn btn-lg btn-secondary"
               >
                 샘플로 체험하기
               </Link>
             </div>
-            <p className="mt-5 text-meta text-ink-faint">외모가 아니라 착장과 상황의 궁합만 확인해요.</p>
+            <p className="mt-5 text-meta text-ink-faint">외모가 아니라 옷차림과 자리의 궁합만 확인해요.</p>
           </div>
 
           {/* Product preview — built from the real wedding sample */}
@@ -79,7 +80,9 @@ export default function HomePage() {
                   {HERO_SCORE}
                   <span className="ml-0.5 font-body text-body-sm font-normal text-ink-faint">/100</span>
                 </p>
-                <p className="mt-2 text-body-sm text-ink-soft">전반적으로 잘 어울려요. 신발만 바꾸면 더 좋아요.</p>
+                <p className="mt-2 text-body-sm text-ink-soft">
+                  {verdictFor(HERO_SCORE)}. {HERO_SLOT}만 바꾸면 더 좋아요.
+                </p>
               </div>
             </div>
             <div className="mt-4 rounded-sm bg-blush px-4 py-3">
@@ -158,7 +161,7 @@ export default function HomePage() {
             <Link
               key={o.id}
               href={`/check?occasion=${o.id}`}
-              className="inline-flex h-10 items-center rounded-full border border-linen bg-white px-4 text-body-sm font-medium text-ink transition-colors duration-200 hover:border-rose-soft hover:text-rose-deep"
+              className="chip chip-off text-ink hover:text-rose-deep"
             >
               <OccasionLabel label={o.label} />
             </Link>

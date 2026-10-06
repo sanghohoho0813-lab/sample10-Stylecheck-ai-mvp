@@ -12,6 +12,7 @@ export const DEMO_SAMPLES: DemoSample[] = [
     outfit: "Navy Jacket · White Shirt · Beige Pants",
     image: "/looks/wedding-navy.webp",
     baseScores: { occasion: 84, formality: 85, color: 88, silhouette: 82, seasonal: 94, detail: 71 },
+    seasons: ["spring", "autumn"],
     items: [
       { slot: "아우터", name: "네이비 재킷" },
       { slot: "상의", name: "화이트 셔츠" },
@@ -32,6 +33,7 @@ export const DEMO_SAMPLES: DemoSample[] = [
     outfit: "Black Jacket · White Shirt · Black Slacks",
     image: "/looks/interview-black.webp",
     baseScores: { occasion: 90, formality: 94, color: 89, silhouette: 90, seasonal: 88, detail: 86 },
+    seasons: ["spring", "autumn", "winter"],
     items: [
       { slot: "아우터", name: "블랙 재킷" },
       { slot: "상의", name: "화이트 셔츠" },
@@ -52,6 +54,7 @@ export const DEMO_SAMPLES: DemoSample[] = [
     outfit: "Lavender Knit · Light Denim",
     image: "/looks/blind-date-knit.webp",
     baseScores: { occasion: 88, formality: 78, color: 90, silhouette: 87, seasonal: 90, detail: 82 },
+    seasons: ["spring", "autumn", "winter"],
     items: [
       { slot: "상의", name: "라벤더 케이블 니트" },
       { slot: "하의", name: "라이트 데님" },
@@ -71,6 +74,7 @@ export const DEMO_SAMPLES: DemoSample[] = [
     outfit: "Cream Tweed Jacket · Dark Pants",
     image: "/looks/family-cream.webp",
     baseScores: { occasion: 89, formality: 88, color: 87, silhouette: 84, seasonal: 86, detail: 83 },
+    seasons: ["spring", "autumn", "winter"],
     items: [
       { slot: "아우터", name: "크림 트위드 재킷" },
       { slot: "상의", name: "아이보리 블라우스" },
@@ -91,6 +95,7 @@ export const DEMO_SAMPLES: DemoSample[] = [
     outfit: "Oxford Shirt · Charcoal Slacks",
     image: "/looks/first-day-oxford.webp",
     baseScores: { occasion: 86, formality: 84, color: 85, silhouette: 85, seasonal: 87, detail: 80 },
+    seasons: ["spring", "summer", "autumn"],
     items: [
       { slot: "상의", name: "라이트블루 옥스포드 셔츠" },
       { slot: "하의", name: "차콜 슬랙스" },
@@ -110,6 +115,7 @@ export const DEMO_SAMPLES: DemoSample[] = [
     outfit: "Pink Cardigan · Ivory Wide Pants",
     image: "/looks/date-feminine.webp",
     baseScores: { occasion: 90, formality: 82, color: 85, silhouette: 84, seasonal: 85, detail: 86 },
+    seasons: ["spring", "autumn"],
     items: [
       { slot: "상의", name: "핑크 가디건" },
       { slot: "하의", name: "아이보리 와이드 팬츠" },
@@ -129,6 +135,7 @@ export const DEMO_SAMPLES: DemoSample[] = [
     outfit: "Charcoal Blazer · Black Turtleneck",
     image: "/looks/restaurant-charcoal.webp",
     baseScores: { occasion: 87, formality: 89, color: 84, silhouette: 88, seasonal: 82, detail: 85 },
+    seasons: ["autumn", "winter"],
     items: [
       { slot: "아우터", name: "차콜 블레이저" },
       { slot: "상의", name: "블랙 터틀넥" },
@@ -149,6 +156,7 @@ export const DEMO_SAMPLES: DemoSample[] = [
     outfit: "Sage Sweatshirt · Wide Denim",
     image: "/looks/friends-casual.webp",
     baseScores: { occasion: 91, formality: 70, color: 86, silhouette: 84, seasonal: 88, detail: 78 },
+    seasons: ["spring", "autumn", "winter"],
     items: [
       { slot: "상의", name: "세이지 스웨트셔츠" },
       { slot: "하의", name: "와이드 데님" },

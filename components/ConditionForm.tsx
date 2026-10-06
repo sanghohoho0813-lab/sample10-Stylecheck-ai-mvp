@@ -38,11 +38,7 @@ function ChipRow<T extends string>({
               type="button"
               onClick={() => onSelect(active ? null : opt)}
               aria-pressed={active}
-              className={`h-10 rounded-full border px-4 text-body-sm font-medium transition-colors duration-150 ${
-                active
-                  ? "border-rose bg-rose text-white"
-                  : "border-linen bg-white text-ink-soft hover:border-rose-soft hover:text-ink"
-              }`}
+              className={`chip ${active ? "chip-on" : "chip-off"}`}
             >
               {opt}
             </button>
@@ -60,7 +56,7 @@ export default function ConditionForm({ conditions, onChange, moodFromPrefs }: P
     <div className="animate-fade-up space-y-8">
       <div>
         <h1 className="font-display text-section font-semibold text-ink md:text-page">조금 더 알려주세요</h1>
-        <p className="mt-2 text-body text-ink-soft">선택할수록 판정이 정확해져요. 건너뛰어도 괜찮아요.</p>
+        <p className="mt-2 text-body text-ink-soft">고를수록 판정에 반영돼요. 건너뛰어도 괜찮아요.</p>
       </div>
 
       <ChipRow label="누구를 만나나요?" options={COMPANIONS} value={conditions.companion} onSelect={(v) => set({ companion: v })} />
@@ -94,22 +90,6 @@ export default function ConditionForm({ conditions, onChange, moodFromPrefs }: P
           })}
         </div>
       </fieldset>
-
-      <div>
-        <label htmlFor="extra-note" className="text-body-sm font-semibold text-ink">
-          추가 정보 <span className="font-normal text-ink-faint">(선택)</span>
-        </label>
-        <textarea
-          id="extra-note"
-          value={conditions.note}
-          maxLength={100}
-          onChange={(e) => set({ note: e.target.value })}
-          placeholder="예) 저녁 시간, 실내에서 가볍게 모이는 자리"
-          rows={2}
-          className="mt-3 w-full resize-none rounded-sm border border-linen bg-white px-4 py-3 text-body text-ink placeholder:text-ink-faint focus:border-rose focus:outline-none"
-        />
-        <p className="mt-1 text-right text-caption tabular-nums text-ink-faint">{conditions.note.length}/100</p>
-      </div>
     </div>
   );
 }

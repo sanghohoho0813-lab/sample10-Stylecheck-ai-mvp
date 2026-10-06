@@ -20,10 +20,12 @@ create table if not exists style_analyses (
   season text,
   note text,
   image_url text,
+  image_key text, -- deterministic engine input; lets a share link rebuild the result
   is_sample boolean default false,
   overall_score int not null,
   summary text,
   favorite boolean default false,
+  applied_at timestamptz, -- "추천대로 바꿔 입기" completion event
   created_at timestamptz default now()
 );
 
@@ -37,11 +39,12 @@ create table if not exists analysis_scores (
 create table if not exists recommendations (
   id bigint generated always as identity primary key,
   analysis_id text references style_analyses(id) on delete cascade,
-  kind text not null, -- primary | alternative | positive | improvement
+  kind text not null, -- primary | alternative | positive | improvement | condition
   title text,
   body text,
   score_before int,
-  score_after int
+  score_after int,
+  impact int -- condition notes: points added to / removed from the overall score
 );
 
 create table if not exists wardrobe_items (

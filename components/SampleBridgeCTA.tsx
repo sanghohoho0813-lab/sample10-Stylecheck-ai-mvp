@@ -65,7 +65,7 @@ export default function SampleBridgeCTA({
             href={consultHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="group relative inline-flex h-13 w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-rose px-7 text-body font-semibold text-white shadow-cta transition-[transform,background-color] duration-200 hover:-translate-y-0.5 hover:bg-rose-deep sm:w-auto"
+            className="group relative inline-flex h-13 w-full items-center justify-center gap-2 overflow-hidden rounded-full bg-rose-deep px-7 text-body font-semibold text-white shadow-cta transition-[transform,background-color] duration-200 hover:-translate-y-0.5 hover:bg-rose-ink sm:w-auto"
           >
             {/* One slow, faint light sweep every 6s — the only motion in this section */}
             <span

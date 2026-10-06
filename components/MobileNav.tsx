@@ -34,7 +34,7 @@ export default function MobileNav() {
               className="flex min-w-0 flex-1 flex-col items-center justify-center gap-1"
             >
               {primary ? (
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-rose text-white">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-rose-deep text-white">
                   <Icon className="h-[1.1rem] w-[1.1rem]" strokeWidth={2} />
                 </span>
               ) : (

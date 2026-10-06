@@ -1,17 +1,20 @@
-import { OCCASION_MAP } from "./occasions";
+import { OCCASION_MAP, SEASONS } from "./occasions";
 import type {
   AlternativeLook,
   AnalysisConditions,
   AnalysisResult,
+  ConditionNote,
   DemoSample,
   FeedbackItem,
   OccasionId,
   OutfitItemAnalysis,
   PrimaryRecommendation,
   ScoreSet,
+  Season,
   WardrobeSuggestion,
 } from "./types";
 import { findWardrobeItem } from "./wardrobe";
+import { withGwa } from "./utils";
 
 /**
  * Demo Style Analysis Engine
@@ -71,6 +74,136 @@ export function analyzeOutfitImage(imageKey: string, occasion: OccasionId, sampl
     seasonal: clamp(base + 4 + jitter()),
     detail: clamp(base - 6 + jitter(), 52, 92),
   };
+}
+
+/* ── Conditions ──────────────────────────────────────────────────────────
+   The 조건 step is not decoration: each answer moves a dimension score by a
+   small, explainable amount, and the reason is returned as a ConditionNote
+   so the result can say which choice changed what. */
+
+/** How dressed-up the company / place expects you to be (-1 casual … +1 formal). */
+const COMPANION_FORMALITY: Record<string, number> = {
+  상사: 1,
+  거래처: 1,
+  가족: 0.5,
+  "처음 만나는 사람": 0.5,
+  직장동료: 0,
+  연인: -0.5,
+  친구: -1,
+};
+const PLACE_FORMALITY: Record<string, number> = {
+  호텔: 1,
+  예식장: 1,
+  회사: 0.5,
+  행사장: 0.5,
+  식당: 0,
+  카페: -0.5,
+  야외: -1,
+};
+/** Formality score that best expresses each desired mood. */
+const MOOD_FORMALITY: Record<string, number> = {
+  "격식 있는": 92,
+  단정한: 88,
+  세련된: 86,
+  자연스러운: 80,
+  "개성 있는": 80,
+  편안한: 74,
+};
+
+const SEASON_ORDER: Season[] = ["spring", "summer", "autumn", "winter"];
+/** 0 = coldest. Spring and autumn dress alike. */
+const SEASON_WARMTH: Record<Season, number> = { winter: 0, spring: 1, autumn: 1, summer: 2 };
+const seasonLabel = (s: Season) => SEASONS.find((x) => x.id === s)?.label ?? s;
+
+function seasonDistance(a: Season, b: Season): number {
+  const d = Math.abs(SEASON_ORDER.indexOf(a) - SEASON_ORDER.indexOf(b));
+  return Math.min(d, 4 - d);
+}
+
+/** "호텔에서 상사와 만나는 자리" — names exactly what the user picked. */
+function settingPhrase(companion: string | null, place: string | null): string {
+  const meet = companion ? `${withGwa(companion)} 만나는 자리` : null;
+  if (place && meet) return `${place}에서 ${meet}`;
+  if (meet) return meet;
+  return `${place}에 가는 자리`;
+}
+
+export function applyConditions(
+  raw: ScoreSet,
+  conditions: AnalysisConditions,
+  sample?: DemoSample
+): { scores: ScoreSet; notes: ConditionNote[]; delta: number } {
+  const scores = { ...raw };
+  const adjust: ConditionNote[] = [];
+  const good: ConditionNote[] = [];
+  const formality = raw.formality;
+
+  // Season — only for looks whose garments are known (uploads are not recognised).
+  if (sample) {
+    const chosen = conditions.season;
+    const distance = Math.min(...sample.seasons.map((s) => seasonDistance(chosen, s)));
+    if (distance > 0) {
+      scores.seasonal -= distance * 8;
+      const warmths = sample.seasons.map((s) => SEASON_WARMTH[s]);
+      const label = seasonLabel(chosen);
+      const text =
+        SEASON_WARMTH[chosen] > Math.max(...warmths)
+          ? `${label}에 입기엔 조금 ${chosen === "summer" ? "더워" : "무거워"} 보여요`
+          : SEASON_WARMTH[chosen] < Math.min(...warmths)
+            ? `${label}에 입기엔 조금 가벼워 보여요`
+            : `${label} 분위기와는 조금 거리가 있어요`;
+      adjust.push({ tone: "adjust", text, impact: -3 * distance });
+    }
+  }
+
+  // Who you meet and where — how formal the setting expects you to be.
+  const { companion, place } = conditions;
+  const expectation =
+    (companion ? COMPANION_FORMALITY[companion] ?? 0 : 0) + (place ? PLACE_FORMALITY[place] ?? 0 : 0);
+  const setting = settingPhrase(companion, place);
+  if (expectation >= 1) {
+    if (formality < 86) {
+      scores.formality -= Math.round(expectation * 4);
+      adjust.push({
+        tone: "adjust",
+        text: `${setting}라 격식을 한 단계 높게 봤어요`,
+        impact: -(Math.round(expectation * 2) + 1),
+      });
+    } else {
+      scores.occasion += 2;
+      good.push({ tone: "good", text: `${setting}에 맞는 격식이에요`, impact: 1 });
+    }
+  } else if (expectation <= -1) {
+    if (formality >= 90) {
+      scores.occasion -= 3;
+      adjust.push({ tone: "adjust", text: `${setting}에는 조금 격식 있어 보일 수 있어요`, impact: -3 });
+    } else if (formality < 85) {
+      scores.occasion += 2;
+      good.push({ tone: "good", text: `${setting}에 편안하게 잘 어울려요`, impact: 1 });
+    }
+  }
+
+  // The feel the user asked for.
+  const mood = conditions.mood;
+  if (mood && MOOD_FORMALITY[mood] !== undefined) {
+    const diff = formality - MOOD_FORMALITY[mood];
+    if (Math.abs(diff) <= 6) {
+      scores.occasion += 1;
+      good.push({ tone: "good", text: `원하는 ‘${mood}’ 느낌과 잘 맞아요`, impact: 1 });
+    } else if (diff > 8) {
+      scores.silhouette -= 3;
+      adjust.push({ tone: "adjust", text: `원하는 ‘${mood}’ 느낌보다 조금 격식 있어 보여요`, impact: -2 });
+    } else if (diff < -8) {
+      scores.formality -= 3;
+      adjust.push({ tone: "adjust", text: `원하는 ‘${mood}’ 느낌보다 조금 캐주얼해 보여요`, impact: -2 });
+    }
+  }
+
+  (Object.keys(scores) as (keyof ScoreSet)[]).forEach((k) => {
+    scores[k] = clamp(scores[k], 50, 97);
+  });
+  const notes = [...adjust, ...good];
+  return { scores, notes, delta: notes.reduce((sum, n) => sum + n.impact, 0) };
 }
 
 /** Weighted overall score for the selected occasion. */
@@ -351,8 +484,11 @@ export function runStyleAnalysis(input: AnalysisInput): Omit<AnalysisResult, "id
     imageKey + occasion + (conditions.companion ?? "") + (conditions.place ?? "") + (conditions.mood ?? "");
   const seed = hashString(seedStr);
 
-  const scores = analyzeOutfitImage(imageKey, occasion, sample);
-  const overall = evaluateOccasionFit(scores, occasion);
+  const raw = analyzeOutfitImage(imageKey, occasion, sample);
+  const { scores, notes, delta } = applyConditions(raw, conditions, sample);
+  // The look's own fit for the occasion, then each condition moves the total
+  // by exactly the amount its note reports (the breakdown shows where).
+  const overall = clamp(evaluateOccasionFit(raw, occasion) + delta, 50, 97);
   const occasionLabel = OCCASION_MAP[occasion].label;
   const { positives, improvements } = generateStyleFeedback(scores, seed);
   const primaryRecommendation = buildPrimaryRecommendation(scores, overall, sample);
@@ -364,6 +500,7 @@ export function runStyleAnalysis(input: AnalysisInput): Omit<AnalysisResult, "id
     image,
     isSample: Boolean(sample),
     sampleId: sample?.id,
+    imageKey,
     occasion,
     conditions,
     overallScore: overall,
@@ -375,6 +512,7 @@ export function runStyleAnalysis(input: AnalysisInput): Omit<AnalysisResult, "id
     items,
     alternatives,
     wardrobeSuggestion,
+    conditionNotes: notes,
     appliedAt: null,
   };
 }

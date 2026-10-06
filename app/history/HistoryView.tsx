@@ -109,7 +109,7 @@ export default function HistoryView() {
             <p className="mt-2 text-body-sm text-ink-soft">{active.empty.body}</p>
             <Link
               href="/check"
-              className="mt-7 inline-flex h-12 items-center gap-2 rounded-full bg-rose px-6 text-body font-semibold text-white transition-colors hover:bg-rose-deep"
+              className="btn btn-md btn-primary mt-7"
             >
               오늘 코디 확인하기
               <ArrowRight className="h-4 w-4" />
