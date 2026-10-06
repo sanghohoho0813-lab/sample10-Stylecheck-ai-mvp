@@ -74,6 +74,11 @@ export function shareUrl(r: AnalysisResult, origin: string): string {
   return `${origin}/result/${encodeURIComponent(r.id)}?share=${encodeShare(r)}`;
 }
 
+function toScoreSet(d: number[]): ScoreSet {
+  const [occasion, formality, color, silhouette, seasonal, detail] = d;
+  return { occasion, formality, color, silhouette, seasonal, detail };
+}
+
 const isScore = (n: unknown): n is number => typeof n === "number" && Number.isFinite(n) && n >= 0 && n <= 100;
 
 function decode(code: string): SharePayload | null {
@@ -117,7 +122,7 @@ export function resultFromShare(code: string, id: string): AnalysisResult | null
     createdAt,
     favorite: false,
     overallScore: overall,
-    scores: Object.fromEntries(DIMENSIONS.map((k, i) => [k, p.d[i]])) as unknown as ScoreSet,
+    scores: toScoreSet(p.d),
     primaryRecommendation,
     alternatives: generateAlternatives(overall, primaryRecommendation),
     appliedAt: p.a ? createdAt : null,

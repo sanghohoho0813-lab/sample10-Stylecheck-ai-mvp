@@ -55,7 +55,7 @@ export default function ConditionForm({ conditions, onChange, moodFromPrefs }: P
   return (
     <div className="animate-fade-up space-y-8">
       <div>
-        <h1 className="font-display text-section font-semibold text-ink md:text-page">조금 더 알려주세요</h1>
+        <h1 id="step-title" tabIndex={-1} className="outline-none font-display text-section font-semibold text-ink md:text-page">조금 더 알려주세요</h1>
         <p className="mt-2 text-body text-ink-soft">고를수록 판정에 반영돼요. 건너뛰어도 괜찮아요.</p>
       </div>
 

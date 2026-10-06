@@ -14,6 +14,7 @@ import { PHOTO_PLACEHOLDER } from "@/lib/placeholder";
 import { runStyleAnalysis } from "@/lib/style-engine";
 import { getDraft, getPreferredMoods, getSavePhotos, makeId, saveAnalysis, setDraft } from "@/lib/storage";
 import type { AnalysisConditions, OccasionId } from "@/lib/types";
+import LookImage from "@/components/LookImage";
 
 type Step = "upload" | "occasion" | "conditions" | "loading";
 
@@ -144,10 +145,19 @@ export default function CheckFlow() {
     setDraft({ image, sampleId, occasion, conditions, moodFromPrefs });
   }, [ready, image, sampleId, occasion, conditions, moodFromPrefs]);
 
-  // Each step is its own screen — start it from the top.
+  // Each step is its own screen — start it from the top, and move keyboard /
+  // screen-reader focus to its heading so the change is announced (not on the
+  // first screen, where focus belongs to the page).
+  const firstStep = useRef(true);
   useEffect(() => {
     window.scrollTo({ top: 0 });
-  }, [step]);
+    if (!ready) return;
+    if (firstStep.current) {
+      firstStep.current = false;
+      return;
+    }
+    document.getElementById("step-title")?.focus({ preventScroll: true });
+  }, [step, ready]);
 
   const advance = (next: Step) => {
     trail.current = [...trail.current, next];
@@ -346,8 +356,7 @@ export default function CheckFlow() {
       {/* What is being judged — visible on every step after the photo */}
       {(step === "occasion" || step === "conditions") && image && (
         <div className="mb-7 flex items-center gap-3 rounded-md bg-white py-2 pl-2 pr-2 shadow-subtle">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={image} alt="" className="aspect-[3/4] w-11 shrink-0 rounded-sm object-cover" />
+          <LookImage src={image} alt="" sizes="44px" className="w-11 shrink-0 rounded-sm" />
           <div className="min-w-0 flex-1">
             {step === "conditions" && occasion ? (
               <>

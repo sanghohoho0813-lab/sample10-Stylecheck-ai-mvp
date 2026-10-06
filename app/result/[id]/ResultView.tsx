@@ -24,6 +24,7 @@ import { OCCASION_MAP, SEASONS } from "@/lib/occasions";
 import { verdictFor } from "@/lib/style-engine";
 import { formatDate, withEuro } from "@/lib/utils";
 import type { AnalysisResult, ItemStatus } from "@/lib/types";
+import LookImage from "@/components/LookImage";
 
 const STATUS_META: Record<ItemStatus, { label: string; cls: string }> = {
   good: { label: "잘 맞음", cls: "text-sage" },
@@ -166,8 +167,12 @@ export default function ResultView({ id, share }: { id: string; share?: string }
           {/* ── Photo (desktop) ─────────────────────────────────────────── */}
           <aside className="hidden md:sticky md:top-24 md:block md:self-start">
             <div className="relative">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={result.image} alt={photoAlt} className="aspect-[3/4] w-full rounded-lg object-cover" />
+              <LookImage
+                src={result.image}
+                alt={photoAlt}
+                sizes="(min-width: 1280px) 430px, 38vw"
+                className="w-full rounded-lg"
+              />
               {result.isSample && (
                 <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-caption font-semibold text-ink-soft">
                   샘플 코디
@@ -182,8 +187,7 @@ export default function ResultView({ id, share }: { id: string; share?: string }
             {/* ── ANSWER ──────────────────────────────────────────────── */}
             <section aria-labelledby="verdict" className="animate-fade-up">
               <div className="grid grid-cols-[auto_1fr] items-center gap-x-5 gap-y-5 md:gap-x-8">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={result.image} alt={photoAlt} className="aspect-[3/4] w-24 rounded-sm object-cover md:hidden" />
+                <LookImage src={result.image} alt={photoAlt} sizes="96px" className="w-24 rounded-sm md:hidden" />
                 <ScoreRing score={result.overallScore} size={120} />
                 <div className="col-span-2 md:col-span-1 md:col-start-2 md:row-start-1">
                   <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-meta font-semibold text-rose-deep">

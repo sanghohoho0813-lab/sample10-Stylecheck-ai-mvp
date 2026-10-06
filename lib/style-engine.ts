@@ -24,19 +24,19 @@ import { withGwa } from "./utils";
  * future AI integration:
  *
  *   analyzeOutfitImage()    → per-dimension raw scores
+ *   applyConditions()       → explainable adjustments for 조건 (ConditionNote[])
  *   evaluateOccasionFit()   → weighted overall score for the occasion
- *   generateStyleFeedback() → positives / improvements / summary
+ *   generateStyleFeedback() → positives / improvements
  *   generateAlternatives()  → alternative looks
  *
- * When AI_API_KEY (NEXT_PUBLIC_AI_API_KEY) is configured, runStyleAnalysis
- * can be swapped to call the real API while keeping the same result shape.
+ * A real Vision/LLM backend replaces analyzeOutfitImage (and optionally the
+ * feedback step) behind runStyleAnalysis; the result shape — and therefore
+ * every screen, the history store and share links — stays the same.
  *
  * Honesty note: uploads are NOT image-recognised. Their scores come from a
  * deterministic hash of the photo + chosen situation, so the same input
  * always returns the same result. The UI labels results as demo analysis.
  */
-
-export const HAS_AI_API = Boolean(process.env.NEXT_PUBLIC_AI_API_KEY);
 
 function hashString(str: string): number {
   let h = 2166136261;
@@ -466,11 +466,6 @@ function wardrobeFor(rec: PrimaryRecommendation, sample?: DemoSample): WardrobeS
   if (sample) return sample.wardrobe;
   const item = findWardrobeItem(rec.to);
   return item ? { itemName: item.name, slot: item.slot, message: "내 옷장에 같은 아이템이 있어요." } : null;
-}
-
-/** Score the day's outfit is recorded at — the projected score once the user applies the fix. */
-export function effectiveScore(result: Pick<AnalysisResult, "overallScore" | "primaryRecommendation" | "appliedAt">): number {
-  return result.appliedAt ? result.primaryRecommendation.scoreAfter : result.overallScore;
 }
 
 export interface AnalysisInput {

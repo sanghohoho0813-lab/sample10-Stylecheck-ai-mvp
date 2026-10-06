@@ -5,6 +5,7 @@ import { OccasionLabel } from "@/components/OccasionIcon";
 import { DEMO_SAMPLES } from "@/lib/demo-samples";
 import { OCCASIONS, OCCASION_MAP } from "@/lib/occasions";
 import { evaluateOccasionFit, runStyleAnalysis, verdictFor } from "@/lib/style-engine";
+import LookImage from "@/components/LookImage";
 
 const HERO_SAMPLE = DEMO_SAMPLES[0];
 // Run the real engine so the preview shows exactly what the result page will.
@@ -66,12 +67,12 @@ export default function HomePage() {
             aria-label="결혼식 하객 룩 샘플로 체험하기"
           >
             <div className="flex gap-4">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <LookImage
                 src={HERO_SAMPLE.image}
                 alt="결혼식 하객 룩 샘플 코디"
-                className="aspect-[3/4] w-[42%] rounded-md object-cover"
-                fetchPriority="high"
+                sizes="(min-width: 1024px) 168px, 40vw"
+                className="w-[42%] rounded-md"
+                priority
               />
               <div className="flex min-w-0 flex-1 flex-col justify-center">
                 <p className="text-caption font-semibold text-ink-faint">샘플 결과</p>
@@ -109,17 +110,16 @@ export default function HomePage() {
           </div>
         </div>
         <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-7 sm:grid-cols-3 lg:grid-cols-4 lg:gap-x-6">
-          {DEMO_SAMPLES.map((s, i) => {
+          {DEMO_SAMPLES.map((s) => {
             const score = evaluateOccasionFit(s.baseScores, s.occasion);
             return (
               <Link key={s.id} href={`/check?sample=${s.id}`} className="group block">
                 <div className="overflow-hidden rounded-md bg-blush">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <LookImage
                     src={s.image}
                     alt={`${s.name} — ${s.outfit}`}
-                    loading={i < 4 ? "eager" : "lazy"}
-                    className="aspect-[3/4] w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                    sizes="(min-width: 1024px) 270px, (min-width: 640px) 33vw, 50vw"
+                    className="w-full transition-transform duration-300 group-hover:scale-[1.03]"
                   />
                 </div>
                 <p className="mt-3 text-body-sm font-semibold text-ink">{s.name}</p>

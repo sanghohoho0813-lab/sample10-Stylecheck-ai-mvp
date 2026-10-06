@@ -12,6 +12,7 @@ import { OCCASION_MAP } from "@/lib/occasions";
 import { verdictFor } from "@/lib/style-engine";
 import { formatRelativeDay, withEuro } from "@/lib/utils";
 import type { AnalysisResult } from "@/lib/types";
+import LookImage from "@/components/LookImage";
 
 type Filter = "all" | "favorite" | "applied";
 
@@ -146,8 +147,7 @@ export default function HistoryView() {
                     className="absolute inset-0 z-0 rounded-md"
                     aria-label={`${formatRelativeDay(a.createdAt)} ${occ.label} 판정 결과 보기`}
                   />
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={a.image} alt="" className="aspect-[3/4] w-20 shrink-0 rounded-sm object-cover" />
+                  <LookImage src={a.image} alt="" sizes="80px" className="w-20 shrink-0 rounded-sm" />
                   <div className="min-w-0 flex-1 py-0.5">
                     <p className="text-meta text-ink-faint">
                       {formatRelativeDay(a.createdAt)} · <span className="font-semibold text-rose-deep">{occ.label}</span>

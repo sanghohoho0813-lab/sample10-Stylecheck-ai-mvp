@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Check } from "lucide-react";
+import LookImage from "./LookImage";
 
 const STAGES = [
   "전체적인 스타일 균형을 보고 있어요",
@@ -29,8 +30,7 @@ export default function AnalysisLoading({ image, onDone }: { image: string; onDo
   return (
     <div className="flex animate-fade-in flex-col items-center pt-2 text-center" aria-busy="true">
       <div className="relative w-40 overflow-hidden rounded-lg md:w-48">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={image} alt="확인 중인 코디 사진" className="aspect-[3/4] w-full object-cover" />
+        <LookImage src={image} alt="확인 중인 코디 사진" sizes="192px" className="w-full" priority />
         {/* A single scan line — the only motion that says "reading the photo" */}
         <div
           className="pointer-events-none absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-white/0 via-white/35 to-white/0"
@@ -42,7 +42,7 @@ export default function AnalysisLoading({ image, onDone }: { image: string; onDo
         />
       </div>
 
-      <h1 className="mt-8 font-display text-title font-semibold text-ink md:text-section">코디를 확인하고 있어요</h1>
+      <h1 id="step-title" tabIndex={-1} className="outline-none mt-8 font-display text-title font-semibold text-ink md:text-section">코디를 확인하고 있어요</h1>
 
       <div
         className="mt-5 h-1 w-48 overflow-hidden rounded-full bg-blush-deep"

@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { Camera, ImagePlus, RefreshCw, Trash2 } from "lucide-react";
 import { DEMO_SAMPLES } from "@/lib/demo-samples";
 import { compressImage, isAcceptedImage, MAX_UPLOAD_BYTES } from "@/lib/utils";
+import LookImage from "./LookImage";
 
 interface Props {
   image: string | null;
@@ -58,7 +59,7 @@ export default function OutfitUploader({
 
   return (
     <div className="animate-fade-up">
-      <h1 className="font-display text-section font-semibold text-ink md:text-page">오늘 입을 코디를 보여주세요</h1>
+      <h1 id="step-title" tabIndex={-1} className="outline-none font-display text-section font-semibold text-ink md:text-page">오늘 입을 코디를 보여주세요</h1>
       <p className="mt-2 text-body text-ink-soft">
         {occasionLabel ? (
           <>
@@ -90,11 +91,12 @@ export default function OutfitUploader({
       {image ? (
         <div className="mt-7">
           <div className="relative mx-auto w-full max-w-[17rem]">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <LookImage
               src={image}
               alt="선택한 코디 사진"
-              className="aspect-[3/4] w-full rounded-lg object-cover shadow-raised"
+              sizes="272px"
+              className="w-full rounded-lg shadow-raised"
+              priority
             />
             {isSample && (
               <span className="absolute left-3 top-3 rounded-full bg-ink/75 px-2.5 py-1 text-caption font-semibold text-white backdrop-blur">
@@ -172,12 +174,11 @@ export default function OutfitUploader({
                 onClick={() => onSample(s.id)}
                 className="group w-24 shrink-0 text-left md:w-auto"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <LookImage
                   src={s.image}
                   alt=""
-                  loading="lazy"
-                  className="aspect-[3/4] w-full rounded-sm object-cover ring-rose transition group-hover:ring-2"
+                  sizes="96px"
+                  className="w-full rounded-sm ring-rose transition group-hover:ring-2"
                 />
                 <span className="mt-1.5 block truncate text-caption text-ink-soft">{s.name}</span>
               </button>
