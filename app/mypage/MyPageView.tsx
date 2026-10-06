@@ -15,6 +15,12 @@ import {
 } from "@/lib/storage";
 import { MOODS } from "@/lib/occasions";
 import { WARDROBE } from "@/lib/wardrobe";
+
+// Top-to-toe order, then extras
+const SLOT_ORDER = ["아우터", "상의", "하의", "신발", "가방", "액세서리"];
+const WARDROBE_SLOTS = [...new Set(WARDROBE.map((w) => w.slot))].sort(
+  (a, b) => (SLOT_ORDER.indexOf(a) + 99) % 99 - (SLOT_ORDER.indexOf(b) + 99) % 99
+);
 import type { AnalysisResult } from "@/lib/types";
 
 export default function MyPageView() {
@@ -55,13 +61,14 @@ export default function MyPageView() {
 
   const list = items ?? [];
   // Each count opens the matching history filter — one place for both the number and the way in.
-  const stats: { label: string; value: number; unit: string; href?: string }[] = [
+  const stats: { label: string; value: number | null; unit: string; href?: string }[] = [
     { label: "확인한 코디", value: list.length, unit: "회", href: "/history" },
     { label: "저장한 코디", value: list.filter((a) => a.favorite).length, unit: "개", href: "/history?filter=favorite" },
     { label: "추천 적용", value: list.filter((a) => a.appliedAt).length, unit: "회", href: "/history?filter=applied" },
     {
       label: "평균 적합도",
-      value: list.length ? Math.round(list.reduce((s, a) => s + a.overallScore, 0) / list.length) : 0,
+      // No records → no average (a "0점" would read as a terrible score)
+      value: list.length ? Math.round(list.reduce((s, a) => s + a.overallScore, 0) / list.length) : null,
       unit: "점",
     },
   ];
@@ -92,8 +99,10 @@ export default function MyPageView() {
                   {s.href && <ChevronRight className="h-4 w-4 text-ink-faint" aria-hidden />}
                 </span>
                 <span className="mt-1 block whitespace-nowrap font-display text-section font-semibold tabular-nums text-ink">
-                  {items ? s.value : "–"}
-                  {items && <span className="ml-0.5 font-body text-body-sm font-normal text-ink-faint">{s.unit}</span>}
+                  {items && s.value !== null ? s.value : "–"}
+                  {items && s.value !== null && (
+                    <span className="ml-0.5 font-body text-body-sm font-normal text-ink-faint">{s.unit}</span>
+                  )}
                 </span>
               </>
             );
@@ -120,19 +129,26 @@ export default function MyPageView() {
             <span className="text-caption text-ink-faint">데모 · {WARDROBE.length}개</span>
           </div>
           <p className="mt-1 text-body-sm text-ink-soft">추천한 아이템이 옷장에 있으면 결과 화면에서 알려드려요.</p>
-          <ul className="no-scrollbar -mx-5 mt-4 flex gap-3 overflow-x-auto px-5 pb-1 md:mx-0 md:grid md:grid-cols-5 md:px-0">
-            {WARDROBE.map((w) => (
-              <li key={w.id} className="w-28 shrink-0 md:w-auto">
-                <span
-                  className="block h-16 rounded-sm border border-linen"
-                  style={{ backgroundColor: w.color }}
-                  aria-hidden
-                />
-                <p className="mt-2 text-body-sm font-semibold leading-snug text-ink">{w.name}</p>
-                <p className="text-caption text-ink-faint">{w.slot}</p>
-              </li>
+          {/* Read at a glance: grouped by slot, a colour dot instead of big swatches */}
+          <dl className="mt-4 divide-y divide-linen border-y border-linen">
+            {WARDROBE_SLOTS.map((slot) => (
+              <div key={slot} className="flex gap-4 py-3">
+                <dt className="w-16 shrink-0 pt-1.5 text-meta text-ink-faint">{slot}</dt>
+                <dd className="flex min-w-0 flex-1 flex-wrap gap-x-4 gap-y-1.5">
+                  {WARDROBE.filter((w) => w.slot === slot).map((w) => (
+                    <span key={w.id} className="inline-flex items-center gap-2 py-0.5 text-body-sm text-ink">
+                      <span
+                        className="h-3.5 w-3.5 shrink-0 rounded-full border border-ink/10"
+                        style={{ backgroundColor: w.color }}
+                        aria-hidden
+                      />
+                      {w.name}
+                    </span>
+                  ))}
+                </dd>
+              </div>
             ))}
-          </ul>
+          </dl>
         </section>
 
         {/* ── Preferred style ─────────────────────────────────────────── */}

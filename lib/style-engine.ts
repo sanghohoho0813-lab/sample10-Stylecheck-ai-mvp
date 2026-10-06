@@ -424,6 +424,10 @@ function buildItemAnalysis(seed: number, rec: PrimaryRecommendation, sample?: De
 /** Alternatives keep the current outfit and change as little as possible. */
 export function generateAlternatives(overall: number, primary: PrimaryRecommendation): AlternativeLook[] {
   const jacketAlready = primary.to.includes("재킷") || primary.slot === "아우터";
+  // Other ways always rank below the recommended one — otherwise the
+  // recommendation would look like the wrong pick.
+  const otherScore = (lift: number) =>
+    Math.max(overall + 1, Math.min(overall + lift, primary.scoreAfter - (lift >= 4 ? 1 : 2), 96));
   return [
     {
       name: "A안",
@@ -437,21 +441,21 @@ export function generateAlternatives(overall: number, primary: PrimaryRecommenda
           name: "B안",
           summary: "전체 톤을 한 가지 계열로 정리",
           mood: "차분하고 세련된 무드",
-          fitScore: Math.min(96, overall + 4),
+          fitScore: otherScore(4),
           changedItems: 1,
         }
       : {
           name: "B안",
           summary: "미니멀 재킷을 레이어링",
           mood: "격식 있는 세미포멀 무드",
-          fitScore: Math.min(96, overall + 4),
+          fitScore: otherScore(4),
           changedItems: 1,
         },
     {
       name: "C안",
       summary: "액세서리 최소화 + 톤 정리",
       mood: "차분하고 자연스러운 무드",
-      fitScore: Math.min(95, overall + 2),
+      fitScore: otherScore(2),
       changedItems: 2,
     },
   ];

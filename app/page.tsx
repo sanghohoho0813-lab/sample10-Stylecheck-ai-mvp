@@ -30,10 +30,10 @@ export default function HomePage() {
     <div>
       {/* ── Hero ─────────────────────────────────────────────────────── */}
       <section className="bg-blush/50">
-        <div className="mx-auto grid max-w-6xl gap-10 px-5 pb-14 pt-10 md:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] md:items-center md:gap-16 md:px-8 md:pb-20 md:pt-16">
+        <div className="mx-auto grid max-w-6xl gap-10 px-5 pb-14 pt-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)] lg:items-center lg:gap-16 md:px-8 md:pb-20 md:pt-16">
           <div className="animate-fade-up">
             <p className="text-meta font-semibold text-rose-deep">상황별 코디 적합도 체크</p>
-            <h1 className="mt-3 font-display text-display font-semibold tracking-tight text-ink md:text-hero">
+            <h1 className="mt-3 font-display text-display font-semibold tracking-tight text-ink lg:text-hero">
               오늘 이 옷,
               <br />
               괜찮을까요?
@@ -62,7 +62,7 @@ export default function HomePage() {
           {/* Product preview — built from the real wedding sample */}
           <Link
             href={`/check?sample=${HERO_SAMPLE.id}`}
-            className="group block animate-fade-up rounded-lg bg-white p-4 shadow-raised"
+            className="group block w-full max-w-md animate-fade-up rounded-lg bg-white p-4 shadow-raised lg:max-w-none"
             aria-label="결혼식 하객 룩 샘플로 체험하기"
           >
             <div className="flex gap-4">

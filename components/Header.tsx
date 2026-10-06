@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { X } from "lucide-react";
 
 // "코디 확인" is the primary action, so it lives in the button — not repeated as a nav link.
@@ -13,7 +13,18 @@ const NAV = [
 
 export default function Header() {
   const pathname = usePathname() ?? "/";
+  const router = useRouter();
   const inFlow = pathname.startsWith("/check");
+
+  // Leave the flow to wherever it was started from (기록, 가이드, 홈 …): pop the
+  // flow's own step entries when a page exists before them, otherwise go home.
+  const closeFlow = () => {
+    const state = window.history.state ?? {};
+    const steps = Array.isArray(state.scTrail) ? state.scTrail.length : 1;
+    const position = typeof state.__miraePos === "number" ? state.__miraePos : 0;
+    if (position >= steps) window.history.go(-steps);
+    else router.push("/");
+  };
 
   return (
     <header className="sticky top-0 z-40 border-b border-linen/80 bg-ivory/90 backdrop-blur-md">
@@ -52,13 +63,14 @@ export default function Header() {
         {/* Phones: the bottom tab bar carries navigation; inside the check flow
             the only header action is a way out. */}
         {inFlow && (
-          <Link
-            href="/"
+          <button
+            type="button"
+            onClick={closeFlow}
             aria-label="코디 확인 닫기"
             className="-mr-2 flex h-10 w-10 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-blush md:hidden"
           >
             <X className="h-5 w-5" />
-          </Link>
+          </button>
         )}
       </div>
     </header>

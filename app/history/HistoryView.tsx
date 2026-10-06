@@ -4,12 +4,13 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowRight, Heart, Trash2 } from "lucide-react";
+import { DEMO_SAMPLES } from "@/lib/demo-samples";
 import SampleBridgeCTA from "@/components/SampleBridgeCTA";
 import { useToast } from "@/components/Toast";
 import { deleteAnalysis, listAnalyses, restoreAnalysis, toggleFavorite } from "@/lib/storage";
 import { OCCASION_MAP } from "@/lib/occasions";
 import { verdictFor } from "@/lib/style-engine";
-import { formatRelativeDay } from "@/lib/utils";
+import { formatRelativeDay, withEuro } from "@/lib/utils";
 import type { AnalysisResult } from "@/lib/types";
 
 type Filter = "all" | "favorite" | "applied";
@@ -69,6 +70,7 @@ export default function HistoryView() {
 
   const visible = (items ?? []).filter((a) => matches(a, filter));
   const active = FILTERS.find((f) => f.id === filter)!;
+  const total = items?.length ?? 0;
 
   return (
     <>
@@ -76,27 +78,29 @@ export default function HistoryView() {
         <h1 className="font-display text-page font-semibold text-ink">스타일 기록</h1>
         <p className="mt-2 text-body text-ink-soft">확인했던 코디와 결정한 내용을 다시 볼 수 있어요.</p>
 
-        <div role="tablist" aria-label="기록 필터" className="no-scrollbar -mx-5 mt-6 flex gap-2 overflow-x-auto px-5">
-          {FILTERS.map((f) => {
-            const count = (items ?? []).filter((a) => matches(a, f.id)).length;
-            const on = filter === f.id;
-            return (
-              <button
-                key={f.id}
-                type="button"
-                role="tab"
-                aria-selected={on}
-                onClick={() => changeFilter(f.id)}
-                className={`inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full px-4 text-body-sm font-semibold transition-colors duration-150 ${
-                  on ? "bg-ink text-white" : "border border-linen bg-white text-ink-soft hover:text-ink"
-                }`}
-              >
-                {f.label}
-                {items && <span className={`tabular-nums ${on ? "text-white/70" : "text-ink-faint"}`}>{count}</span>}
-              </button>
-            );
-          })}
-        </div>
+        {(items === null || total > 0) && (
+          <div role="tablist" aria-label="기록 필터" className="no-scrollbar -mx-5 mt-6 flex gap-2 overflow-x-auto px-5">
+            {FILTERS.map((f) => {
+              const count = (items ?? []).filter((a) => matches(a, f.id)).length;
+              const on = filter === f.id;
+              return (
+                <button
+                  key={f.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={on}
+                  onClick={() => changeFilter(f.id)}
+                  className={`inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full px-4 text-body-sm font-semibold transition-colors duration-150 ${
+                    on ? "bg-ink text-white" : "border border-linen bg-white text-ink-soft hover:text-ink"
+                  }`}
+                >
+                  {f.label}
+                  {items && <span className={`tabular-nums ${on ? "text-white/70" : "text-ink-faint"}`}>{count}</span>}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         {items === null ? (
           <div className="mt-6 grid gap-3 sm:grid-cols-2" aria-busy="true">
@@ -107,13 +111,25 @@ export default function HistoryView() {
           <div className="mt-16 flex flex-col items-center text-center">
             <h2 className="font-display text-title font-semibold text-ink">{active.empty.title}</h2>
             <p className="mt-2 text-body-sm text-ink-soft">{active.empty.body}</p>
-            <Link
-              href="/check"
-              className="btn btn-md btn-primary mt-7"
-            >
-              오늘 코디 확인하기
-              <ArrowRight className="h-4 w-4" />
-            </Link>
+            {total > 0 ? (
+              // Records exist, just not under this filter — the useful next step is to see them.
+              <button type="button" onClick={() => changeFilter("all")} className="btn btn-md btn-secondary mt-7">
+                전체 기록 보기
+              </button>
+            ) : (
+              <div className="mt-7 flex flex-col items-center gap-3">
+                <Link href="/check" className="btn btn-md btn-primary">
+                  오늘 코디 확인하기
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link
+                  href={`/check?sample=${DEMO_SAMPLES[0].id}`}
+                  className="text-body-sm font-semibold text-ink-soft underline underline-offset-4 hover:text-ink"
+                >
+                  사진이 없다면 샘플로 체험하기
+                </Link>
+              </div>
+            )}
           </div>
         ) : (
           <ul className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -149,7 +165,7 @@ export default function HistoryView() {
                     </p>
                     <p className="mt-1 line-clamp-2 text-body-sm text-ink-soft">
                       {applied
-                        ? `${a.primaryRecommendation.from} 대신 ${a.primaryRecommendation.to}`
+                        ? `${withEuro(a.primaryRecommendation.to)} 바꿔 입기로 했어요`
                         : verdictFor(a.overallScore)}
                     </p>
                   </div>

@@ -6,13 +6,15 @@ export function formatDate(iso: string): string {
   return `${d.getMonth() + 1}월 ${d.getDate()}일 (${WEEKDAYS[d.getDay()]})`;
 }
 
-/** 오늘 / 어제 / 3일 전 / 9월 2일 — for lists where recency matters more than the date */
+/** 오늘 14:05 / 어제 09:30 / 3일 전 / 9월 2일 — for lists where recency matters more than the date */
 export function formatRelativeDay(iso: string, now = new Date()): string {
   const d = new Date(iso);
   const startOf = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
   const days = Math.round((startOf(now) - startOf(d)) / 86400000);
-  if (days <= 0) return "오늘";
-  if (days === 1) return "어제";
+  const time = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  // Same-day checks are told apart by time
+  if (days <= 0) return `오늘 ${time}`;
+  if (days === 1) return `어제 ${time}`;
   if (days < 7) return `${days}일 전`;
   return `${d.getMonth() + 1}월 ${d.getDate()}일`;
 }
@@ -47,6 +49,9 @@ export function compressImage(file: File): Promise<string> {
           reject(new Error("canvas-unavailable"));
           return;
         }
+        // JPEG has no alpha — paint transparent PNG cut-outs onto white, not black
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         resolve(canvas.toDataURL("image/jpeg", 0.8));
       };

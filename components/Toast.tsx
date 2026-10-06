@@ -45,7 +45,9 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     <ToastContext.Provider value={push}>
       {children}
       <div
-        className="pointer-events-none fixed inset-x-0 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-50 flex flex-col items-center gap-2 px-4 md:bottom-8"
+        // Phones: top of the screen — the bottom is already taken by the tab bar,
+        // the flow's action bar and the floating back/forward pill.
+        className="pointer-events-none fixed inset-x-0 top-[calc(env(safe-area-inset-top)+0.75rem)] z-[2147483001] flex flex-col items-center gap-2 px-4 md:bottom-8 md:top-auto"
         role="status"
         aria-live="polite"
       >

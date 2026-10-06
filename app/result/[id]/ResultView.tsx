@@ -94,10 +94,12 @@ export default function ResultView({ id, share }: { id: string; share?: string }
   const rec = result.primaryRecommendation;
   const applied = Boolean(result.appliedAt);
   const verdict = verdictFor(result.overallScore);
-  const keyGood = result.positives[0];
-  const keyFix = result.improvements[0];
   const notes = result.conditionNotes ?? [];
   const keyNote = notes[0];
+  // The reasons above the fix are strengths (+ how the user's conditions
+  // counted). What to change is the card right below, so a generic
+  // "바꾸면 좋은 점" line here could only repeat — or contradict — it.
+  const strengths = result.positives.slice(0, keyNote ? 1 : 2);
   const wardrobe = result.wardrobeSuggestion;
   // The first alternative is the primary recommendation itself — list only the others.
   const otherWays = result.alternatives.slice(1);
@@ -202,17 +204,17 @@ export default function ResultView({ id, share }: { id: string; share?: string }
 
               {/* ── WHY ───────────────────────────────────────────────── */}
               <ul className="mt-6 space-y-2.5 border-t border-linen pt-5" aria-label="핵심 이유">
-                <li className="flex items-start gap-3 text-body text-ink">
-                  <Check className="mt-1 h-4 w-4 shrink-0 text-sage" strokeWidth={2.5} />
-                  {keyGood.title}
-                </li>
-                <li className="flex items-start gap-3 text-body text-ink">
-                  <span className="mt-[0.45rem] h-2 w-2 shrink-0 rounded-full bg-gold" aria-hidden />
-                  {keyFix.title}
-                </li>
+                {strengths.map((p) => (
+                  <li key={p.title} className="flex items-start gap-3 text-body text-ink">
+                    <Check className="mt-1 h-4 w-4 shrink-0 text-sage" strokeWidth={2.5} />
+                    {p.title}
+                  </li>
+                ))}
                 {keyNote && (
                   <li className="flex items-start gap-3 text-body text-ink">
-                    <SlidersHorizontal className="mt-1 h-4 w-4 shrink-0 text-ink-faint" />
+                    <SlidersHorizontal
+                      className={`mt-1 h-4 w-4 shrink-0 ${keyNote.impact > 0 ? "text-sage" : "text-gold"}`}
+                    />
                     <span>
                       {keyNote.text}
                       <span className="sr-only"> (조건 반영 {signed(keyNote.impact)}점)</span>
@@ -266,7 +268,9 @@ export default function ResultView({ id, share }: { id: string; share?: string }
                 <div className="mt-5 flex items-center justify-between gap-3 rounded-sm bg-white px-4 py-3" role="status">
                   <p className="flex items-center gap-2 text-body-sm font-semibold text-ink">
                     <Check className="h-4 w-4 shrink-0 text-sage" strokeWidth={2.5} />
-                    추천대로 바꿔 입기로 했어요
+                    <span>
+                      바꿔 입기로 했어요 <span className="font-normal text-ink-soft">· {rec.scoreAfter}점</span>
+                    </span>
                   </p>
                   <button
                     type="button"
@@ -371,7 +375,7 @@ export default function ResultView({ id, share }: { id: string; share?: string }
                       </ul>
                     </div>
                     <div>
-                      <h3 className="text-meta font-semibold text-gold">바꾸면 좋은 점</h3>
+                      <h3 className="text-meta font-semibold text-gold">더 다듬어 볼 점</h3>
                       <ul className="mt-3 space-y-4">
                         {result.improvements.map((p) => (
                           <li key={p.title}>

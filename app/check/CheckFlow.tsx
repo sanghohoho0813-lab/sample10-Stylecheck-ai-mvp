@@ -179,7 +179,11 @@ export default function CheckFlow() {
     setSampleId(s.id);
     setImage(s.image);
     setOccasion((prev) => prev ?? s.occasion);
-    advance("occasion");
+    // A sample already knows its occasion — go straight to 조건, but leave 상황
+    // in history so back (or the stepper) can still change it.
+    trail.current = [...trail.current, "occasion"];
+    window.history.pushState({ ...window.history.state, scStep: "occasion", scTrail: trail.current }, "");
+    advance("conditions");
   };
 
   const goNext = () => {
@@ -378,6 +382,7 @@ export default function CheckFlow() {
             setError(null);
           }}
           onSample={applySample}
+          occasionLabel={occasion ? OCCASION_MAP[occasion].label : undefined}
           onClear={() => {
             setImage(null);
             setSampleId(null);
@@ -403,7 +408,8 @@ export default function CheckFlow() {
 
       {step === "loading" && image && <AnalysisLoading image={image} onDone={finishAnalysis} />}
 
-      {step !== "loading" && (
+      {/* No photo yet: 촬영 / 앨범 / 샘플 are the only actions — a dead "다음" would just be noise */}
+      {step !== "loading" && !(step === "upload" && !image) && (
         <>
           {/* Desktop: inline actions */}
           <div className="mt-10 hidden items-center gap-3 md:flex">{renderButtons()}</div>

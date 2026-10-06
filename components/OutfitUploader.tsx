@@ -13,9 +13,20 @@ interface Props {
   onSample: (sampleId: string) => void;
   onClear: () => void;
   error: string | null;
+  /** Set when the user arrived with a situation already chosen (가이드 · 홈 상황 칩). */
+  occasionLabel?: string;
 }
 
-export default function OutfitUploader({ image, isSample, sampleName, onImage, onSample, onClear, error }: Props) {
+export default function OutfitUploader({
+  image,
+  isSample,
+  sampleName,
+  onImage,
+  onSample,
+  onClear,
+  error,
+  occasionLabel,
+}: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
@@ -48,7 +59,16 @@ export default function OutfitUploader({ image, isSample, sampleName, onImage, o
   return (
     <div className="animate-fade-up">
       <h1 className="font-display text-section font-semibold text-ink md:text-page">오늘 입을 코디를 보여주세요</h1>
-      <p className="mt-2 text-body text-ink-soft">전신이 보이는 사진일수록 정확하게 확인할 수 있어요.</p>
+      <p className="mt-2 text-body text-ink-soft">
+        {occasionLabel ? (
+          <>
+            <b className="font-semibold text-rose-deep">{occasionLabel}</b> 기준으로 확인해요. 전신이 보이는 사진일수록
+            정확해요.
+          </>
+        ) : (
+          "전신이 보이는 사진일수록 정확하게 확인할 수 있어요."
+        )}
+      </p>
 
       {(["file", "camera"] as const).map((kind) => (
         <input
