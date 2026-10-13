@@ -2,28 +2,31 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Info } from "lucide-react";
 import OutfitUploader from "@/components/OutfitUploader";
-import OccasionGrid from "@/components/OccasionGrid";
-import ConditionForm from "@/components/ConditionForm";
+import SituationStep from "@/components/SituationStep";
 import AnalysisLoading from "@/components/AnalysisLoading";
 import { useToast } from "@/components/Toast";
 import { SAMPLE_MAP } from "@/lib/demo-samples";
-import { currentSeason, MOODS, OCCASION_MAP } from "@/lib/occasions";
+import { conditionsFor, currentSeason, MOODS, OCCASION_MAP } from "@/lib/occasions";
 import { PHOTO_PLACEHOLDER } from "@/lib/placeholder";
 import { runStyleAnalysis } from "@/lib/style-engine";
 import { getDraft, getPreferredMoods, getSavePhotos, makeId, saveAnalysis, setDraft } from "@/lib/storage";
 import type { AnalysisConditions, OccasionId } from "@/lib/types";
+import { photoTip, type PhotoInfo, type PreparedImage } from "@/lib/utils";
 import LookImage from "@/components/LookImage";
 
-type Step = "upload" | "occasion" | "conditions" | "loading";
+type Step = "upload" | "occasion" | "loading";
 
 const STEPS: { id: Exclude<Step, "loading">; label: string }[] = [
   { id: "upload", label: "사진" },
   { id: "occasion", label: "상황" },
-  { id: "conditions", label: "조건" },
 ];
-const ALL_STEPS: Step[] = ["upload", "occasion", "conditions", "loading"];
+const ALL_STEPS: Step[] = ["upload", "occasion", "loading"];
+
+/** History entries written by the earlier three-step flow ("conditions") land on 상황. */
+const asStep = (s: unknown): Step | undefined =>
+  s === "conditions" ? "occasion" : ALL_STEPS.includes(s as Step) ? (s as Step) : undefined;
 
 const freshConditions = (): AnalysisConditions => ({
   companion: null,
@@ -36,7 +39,9 @@ const freshConditions = (): AnalysisConditions => ({
 const isOccasion = (v: string | null): v is OccasionId => Boolean(v && OCCASION_MAP[v as OccasionId]);
 
 /**
- * 사진 → 상황 → 조건 → 판정.
+ * 사진 → 상황 → 판정. 상황 is the only required answer; its details are optional
+ * and shown on the same screen. A photo picked on the home page arrives here
+ * already on 상황 (?from=home).
  *
  * Each step is a browser-history entry, so the phone's back button walks back
  * one step instead of throwing the whole flow away. The draft lives in
@@ -52,6 +57,7 @@ export default function CheckFlow() {
   const [ready, setReady] = useState(false);
   const [step, setStep] = useState<Step>("upload");
   const [image, setImage] = useState<string | null>(null);
+  const [photo, setPhoto] = useState<PhotoInfo | null>(null);
   const [sampleId, setSampleId] = useState<string | null>(null);
   const [occasion, setOccasion] = useState<OccasionId | null>(null);
   const [moodFromPrefs, setMoodFromPrefs] = useState(false);
@@ -70,13 +76,15 @@ export default function CheckFlow() {
   /** A step is only reachable once the earlier steps have their input. */
   const reachable = (s: Step, img = latest.current.image, occ = latest.current.occasion): Step => {
     if (!img) return "upload";
-    if (!occ && (s === "conditions" || s === "loading")) return "occasion";
+    if (!occ && s === "loading") return "occasion";
     return s;
   };
 
-  // ── Start: deep link (?sample= / ?occasion=) › resumed draft › fresh ────
+  // ── Start: home handoff › resumed draft › deep link (?sample= / ?occasion=) › fresh
   useEffect(() => {
-    const historyStep = window.history.state?.scStep as Step | undefined;
+    // Handoffs: a photo picked on home (?from=home) or "same situation, new photo" from a result (?from=again)
+    const fromHome = params.get("from") === "home" || params.get("from") === "again";
+    const historyStep = asStep(window.history.state?.scStep) ?? (fromHome ? "occasion" : undefined);
     const draft = historyStep ? getDraft() : null;
     const sampleParam = params.get("sample");
     const occasionParam = params.get("occasion");
@@ -89,17 +97,18 @@ export default function CheckFlow() {
     if (draft && (!sampleParam || draft.sampleId === sampleParam)) {
       img = draft.image;
       occ = isOccasion(draft.occasion) ? draft.occasion : null;
+      setPhoto(draft.photo ?? null);
       setSampleId(draft.sampleId);
       setConditions({ ...freshConditions(), ...draft.conditions });
       setMoodFromPrefs(draft.moodFromPrefs);
-      next = historyStep === "loading" ? "conditions" : historyStep ?? "upload";
+      next = historyStep === "loading" ? "occasion" : historyStep ?? "upload";
       restored = true;
     } else if (sampleParam && SAMPLE_MAP[sampleParam]) {
       const s = SAMPLE_MAP[sampleParam];
       setSampleId(s.id);
       img = s.image;
       occ = s.occasion;
-      next = "conditions";
+      next = "occasion";
     } else if (isOccasion(occasionParam)) {
       occ = occasionParam;
     }
@@ -115,9 +124,16 @@ export default function CheckFlow() {
     }
 
     next = ALL_STEPS.includes(next) ? reachable(next, img, occ) : "upload";
-    const savedTrail = window.history.state?.scTrail as Step[] | undefined;
+    const savedTrail = (window.history.state?.scTrail as unknown[] | undefined)
+      ?.map(asStep)
+      .filter((x): x is Step => Boolean(x));
     trail.current = restored && Array.isArray(savedTrail) && savedTrail.length ? [...savedTrail.slice(0, -1), next] : [next];
-    window.history.replaceState({ ...window.history.state, scStep: next, scTrail: trail.current }, "");
+    // Drop ?from=home so a later refresh resumes from the draft, not the handoff
+    window.history.replaceState(
+      { ...window.history.state, scStep: next, scTrail: trail.current },
+      "",
+      fromHome ? "/check" : undefined
+    );
     setImage(img);
     setOccasion(occ);
     setStep(next);
@@ -129,11 +145,14 @@ export default function CheckFlow() {
   useEffect(() => {
     const onPop = (e: PopStateEvent) => {
       if (finishing.current) return;
-      const target = e.state?.scStep as Step | undefined;
-      if (!target || !ALL_STEPS.includes(target)) return;
-      trail.current = Array.isArray(e.state.scTrail) ? e.state.scTrail : [target];
+      const target = asStep(e.state?.scStep);
+      if (!target) return;
+      const saved: Step[] = Array.isArray(e.state.scTrail)
+        ? e.state.scTrail.map(asStep).filter((x: Step | undefined): x is Step => Boolean(x))
+        : [];
+      trail.current = saved.length ? saved : [target];
       setError(null);
-      setStep(reachable(target === "loading" ? "conditions" : target));
+      setStep(reachable(target === "loading" ? "occasion" : target));
     };
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
@@ -142,8 +161,8 @@ export default function CheckFlow() {
   // ── Keep the draft current ─────────────────────────────────────────────
   useEffect(() => {
     if (!ready || finishing.current) return;
-    setDraft({ image, sampleId, occasion, conditions, moodFromPrefs });
-  }, [ready, image, sampleId, occasion, conditions, moodFromPrefs]);
+    setDraft({ image, photo, sampleId, occasion, conditions, moodFromPrefs });
+  }, [ready, image, photo, sampleId, occasion, conditions, moodFromPrefs]);
 
   // Each step is its own screen — start it from the top, and move keyboard /
   // screen-reader focus to its heading so the change is announced (not on the
@@ -183,17 +202,29 @@ export default function CheckFlow() {
 
   const stepIndex = Math.min(ALL_STEPS.indexOf(step), STEPS.length - 1);
 
+  const chooseOccasion = (id: OccasionId) => {
+    setOccasion(id);
+    setError(null);
+    // Answers the new situation doesn't ask about would silently move the score
+    setConditions((c) => conditionsFor(id, c));
+  };
+
+  /** A photo was picked — there is nothing left to do on 사진, so move on. */
+  const takePhoto = (picked: PreparedImage) => {
+    setSampleId(null);
+    setImage(picked.dataUrl);
+    setPhoto(picked.info);
+    advance("occasion");
+  };
+
   const applySample = (id: string) => {
     const s = SAMPLE_MAP[id];
     if (!s) return;
     setSampleId(s.id);
     setImage(s.image);
-    setOccasion((prev) => prev ?? s.occasion);
-    // A sample already knows its occasion — go straight to 조건, but leave 상황
-    // in history so back (or the stepper) can still change it.
-    trail.current = [...trail.current, "occasion"];
-    window.history.pushState({ ...window.history.state, scStep: "occasion", scTrail: trail.current }, "");
-    advance("conditions");
+    setPhoto(null);
+    if (!occasion) chooseOccasion(s.occasion); // a sample knows its situation; keep one the user already chose
+    advance("occasion");
   };
 
   const goNext = () => {
@@ -201,16 +232,13 @@ export default function CheckFlow() {
       if (!image) return setError("먼저 코디 사진을 올려주세요.");
       advance("occasion");
     } else if (step === "occasion") {
-      if (!occasion) return setError("어디에 입고 갈 옷인지 알려주세요.");
-      advance("conditions");
-    } else if (step === "conditions") {
+      if (!occasion) return setError("어디에 입고 갈 옷인지 하나만 골라주세요.");
       advance("loading");
     }
   };
 
   const goBack = () => {
     if (step === "occasion") retreat("upload");
-    else if (step === "conditions") retreat("occasion");
   };
 
   const finishAnalysis = useCallback(() => {
@@ -236,7 +264,7 @@ export default function CheckFlow() {
 
     if (status === "failed") {
       toast("기록을 저장하지 못했어요. 브라우저 저장 공간을 확인해주세요.", "info");
-      retreat("conditions");
+      retreat("occasion");
       return;
     }
     if (status === "trimmed") toast("저장 공간이 부족해 오래된 기록의 사진을 정리했어요", "info");
@@ -267,13 +295,14 @@ export default function CheckFlow() {
   }
 
   // Kept short so it never truncates in the 360px sticky bar
-  const primaryLabel = step === "conditions" ? "코디 판정하기" : "다음";
+  const primaryLabel = step === "occasion" ? "코디 판정하기" : "다음";
   // Until the step's required input exists, "다음" stays visually quiet so the
   // step's own action (촬영 / 앨범 / 상황 선택) is the one primary on screen.
   // It remains pressable and explains what is missing.
   const blocked = (step === "upload" && !image) || (step === "occasion" && !occasion);
   const sample = sampleId ? SAMPLE_MAP[sampleId] : undefined;
   const photoName = sample?.name ?? "내 코디 사진";
+  const tip = sample ? null : photoTip(photo);
 
   const renderButtons = (compact = false) => (
     <>
@@ -295,7 +324,7 @@ export default function CheckFlow() {
         className={`btn btn-md min-w-0 flex-1 ${blocked ? "bg-blush-deep text-ink-faint" : "btn-primary"}`}
       >
         <span className="truncate">{primaryLabel}</span>
-        {step !== "conditions" && <ArrowRight className="h-4 w-4 shrink-0" />}
+        {step !== "occasion" && <ArrowRight className="h-4 w-4 shrink-0" />}
       </button>
     </>
   );
@@ -304,7 +333,7 @@ export default function CheckFlow() {
     <div className="mx-auto max-w-2xl px-5 pb-10 pt-6 md:px-8 md:pb-20 md:pt-12">
       {step !== "loading" && (
         <nav aria-label="코디 확인 단계" className="mb-7">
-          <ol className="grid grid-cols-3 gap-2">
+          <ol className="grid grid-cols-2 gap-2">
             {STEPS.map((s, i) => {
               const state = i < stepIndex ? "done" : i === stepIndex ? "current" : "todo";
               const body = (
@@ -353,47 +382,40 @@ export default function CheckFlow() {
         </nav>
       )}
 
-      {/* What is being judged — visible on every step after the photo */}
-      {(step === "occasion" || step === "conditions") && image && (
-        <div className="mb-7 flex items-center gap-3 rounded-md bg-white py-2 pl-2 pr-2 shadow-subtle">
-          <LookImage src={image} alt="" sizes="44px" className="w-11 shrink-0 rounded-sm" />
-          <div className="min-w-0 flex-1">
-            {step === "conditions" && occasion ? (
-              <>
-                <p className="truncate text-body-sm font-semibold text-ink">{OCCASION_MAP[occasion].label}</p>
-                <p className="truncate text-meta text-ink-faint">{photoName}</p>
-              </>
-            ) : (
-              <>
-                <p className="truncate text-body-sm font-semibold text-ink">{photoName}</p>
-                <p className="truncate text-meta text-ink-faint">이 사진으로 확인해요</p>
-              </>
-            )}
+      {/* What is being judged — the photo stays in view while choosing the situation */}
+      {step === "occasion" && image && (
+        <div className="mb-7 rounded-md bg-white p-2 shadow-subtle">
+          <div className="flex items-center gap-3">
+            <LookImage src={image} alt="" sizes="56px" className="w-14 shrink-0 rounded-sm" priority />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-body-sm font-semibold text-ink">{photoName}</p>
+              <p className="truncate text-meta text-ink-faint">{sample ? "샘플 코디로 확인해요" : "이 사진으로 확인해요"}</p>
+            </div>
+            <button type="button" onClick={() => retreat("upload")} className="btn btn-xs btn-quiet px-3">
+              사진 변경
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={() => retreat(step === "conditions" ? "occasion" : "upload")}
-            className="btn btn-xs btn-quiet px-3"
-          >
-            {step === "conditions" ? "상황 변경" : "사진 변경"}
-          </button>
+          {tip && (
+            <p className="mt-2 flex items-start gap-2 border-t border-linen px-1 pt-2 text-meta text-ink-soft">
+              <Info className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
+              {tip}
+            </p>
+          )}
         </div>
       )}
 
       {step === "upload" && (
         <OutfitUploader
           image={image}
+          photo={photo}
           isSample={Boolean(sampleId)}
           sampleName={sample?.name}
-          onImage={(dataUrl) => {
-            setSampleId(null);
-            setImage(dataUrl);
-            setError(null);
-          }}
+          onImage={takePhoto}
           onSample={applySample}
           occasionLabel={occasion ? OCCASION_MAP[occasion].label : undefined}
           onClear={() => {
             setImage(null);
+            setPhoto(null);
             setSampleId(null);
           }}
           error={error}
@@ -401,18 +423,14 @@ export default function CheckFlow() {
       )}
 
       {step === "occasion" && (
-        <OccasionGrid
-          selected={occasion}
-          onSelect={(id) => {
-            setOccasion(id);
-            setError(null);
-          }}
+        <SituationStep
+          occasion={occasion}
+          onOccasion={chooseOccasion}
+          conditions={conditions}
+          onConditions={setConditions}
+          moodFromPrefs={moodFromPrefs}
           error={error}
         />
-      )}
-
-      {step === "conditions" && (
-        <ConditionForm conditions={conditions} onChange={setConditions} moodFromPrefs={moodFromPrefs} />
       )}
 
       {step === "loading" && image && <AnalysisLoading image={image} onDone={finishAnalysis} />}

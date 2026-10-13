@@ -10,24 +10,31 @@ interface Props {
   className?: string;
 }
 
-/** Large circular score gauge with count-up animation. */
+/** Circular score gauge; counts up on first show and glides between scores after. */
 export default function ScoreRing({ score, size = 176, stroke = 10, animate = true, className = "" }: Props) {
   const [display, setDisplay] = useState(animate ? 0 : score);
   const [mounted, setMounted] = useState(!animate);
   const frame = useRef<number | null>(null);
+  // Where the count starts: 0 on first show, the previous score on a change
+  // (e.g. 89 → 96 when the fix is applied) so it moves, not restarts.
+  const shown = useRef(animate ? 0 : score);
 
   useEffect(() => {
     if (!animate) {
       setDisplay(score);
+      shown.current = score;
       return;
     }
     setMounted(true);
-    const duration = 1300;
+    const from = shown.current;
+    const duration = from === 0 ? 1300 : 700;
     const start = performance.now();
     const tick = (now: number) => {
       const p = Math.min(1, (now - start) / duration);
       const eased = 1 - Math.pow(1 - p, 3);
-      setDisplay(Math.round(score * eased));
+      const value = Math.round(from + (score - from) * eased);
+      shown.current = value;
+      setDisplay(value);
       if (p < 1) frame.current = requestAnimationFrame(tick);
     };
     frame.current = requestAnimationFrame(tick);

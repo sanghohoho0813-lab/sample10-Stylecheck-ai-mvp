@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { OCCASION_MAP } from "@/lib/occasions";
 import { resultFromShare } from "@/lib/share";
-import { verdictFor } from "@/lib/style-engine";
+import { adviceFor } from "@/lib/advice";
 import ResultView from "./ResultView";
 
 interface Props {
@@ -23,9 +23,10 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   if (!result || !share) return { title: "판정 결과", robots: { index: false } };
 
   const occasion = OCCASION_MAP[result.occasion].label;
-  const title = `${occasion} 코디 ${result.overallScore}점 — ${verdictFor(result.overallScore)}`;
-  const rec = result.primaryRecommendation;
-  const description = `한 가지만 바꾼다면: ${rec.from} → ${rec.to} (${rec.scoreAfter}점). 친구가 StyleCheck AI로 확인한 코디예요.`;
+  // What the friend reads in the chat bubble: the situation, the verdict, the one change
+  const { headline, advice } = adviceFor({ ...result, appliedAt: null });
+  const title = `${occasion} 코디 — ${headline}`;
+  const description = `${advice} 친구가 StyleCheck AI로 확인한 코디예요.`;
   const image = { url: `/og/result?share=${share}`, width: 1200, height: 630, alt: title };
   return {
     title,

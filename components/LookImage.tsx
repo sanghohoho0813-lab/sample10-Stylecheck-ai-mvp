@@ -15,7 +15,7 @@ interface Props {
  * Sample looks are static files, so they go through next/image (resized
  * variants, lazy loading, reserved space — a 44px thumbnail no longer
  * downloads the 900×1200 original). A user's own photo is a data URL that
- * never leaves the device, so it renders as a plain <img>.
+ * never leaves the device, so it renders as a plain <img>, uncropped.
  */
 export default function LookImage({ src, alt, sizes, className = "", priority = false }: Props) {
   if (src.startsWith("/")) {
@@ -31,6 +31,9 @@ export default function LookImage({ src, alt, sizes, className = "", priority = 
       />
     );
   }
+  // A person's own photo can be any shape. Cropping it to 3:4 could cut off
+  // the very shoes or bag the advice is about, so it is shown whole on a
+  // quiet backdrop instead.
   // eslint-disable-next-line @next/next/no-img-element -- on-device data URL, nothing to optimise
-  return <img src={src} alt={alt} decoding="async" className={`aspect-[3/4] object-cover ${className}`} />;
+  return <img src={src} alt={alt} decoding="async" className={`aspect-[3/4] bg-[#f1e9e6] object-contain ${className}`} />;
 }

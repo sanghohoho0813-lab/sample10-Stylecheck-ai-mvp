@@ -22,14 +22,15 @@ export async function countOf(page: Page, tab: string) {
   return Number((await locator.innerText()).replace(/[^0-9]/g, ""));
 }
 
-/** Upload → 결혼식 → 상사 · 호텔 → result. Returns the result URL. */
+export const DARK_PHOTO = path.join(__dirname, "fixtures", "dark-landscape.jpg");
+
+/** Upload → (auto) 상황 → 비즈니스 미팅 · 상사 · 호텔 → result. Returns the result URL. */
 export async function checkUploadedOutfit(page: Page) {
   await page.goto("/check");
-  await page.locator("input[type=file]").first().setInputFiles(OUTFIT);
-  await expect(page.getByAltText("선택한 코디 사진")).toBeVisible();
-  await visibleButton(page, /^다음/).click();
-  await page.getByRole("radio", { name: /결혼식/ }).click();
-  await visibleButton(page, /^다음/).click();
+  await page.locator('input[data-picker="album"]').setInputFiles(OUTFIT);
+  // Picking a photo completes 사진 — the flow moves on by itself
+  await expect(page.getByRole("radiogroup", { name: "상황 선택" })).toBeVisible();
+  await page.getByRole("radio", { name: /비즈니스/ }).click();
   await page.getByRole("button", { name: "상사", exact: true }).click();
   await page.getByRole("button", { name: "호텔", exact: true }).click();
   await visibleButton(page, "코디 판정하기").click();

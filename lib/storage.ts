@@ -3,6 +3,7 @@ import { currentSeason, OCCASION_MAP } from "./occasions";
 import { isStoredPhoto, PHOTO_PLACEHOLDER } from "./placeholder";
 import { runStyleAnalysis } from "./style-engine";
 import type { AnalysisConditions, AnalysisResult } from "./types";
+import type { PhotoInfo } from "./utils";
 
 /**
  * Local persistence layer for the MVP demo.
@@ -80,12 +81,13 @@ interface SeedSpec {
   applied?: boolean;
 }
 
+// Conditions follow OCCASION_QUESTIONS: only what each situation leaves open.
 const SEEDS: SeedSpec[] = [
   {
     id: "seed-date",
     sampleId: "date-feminine",
     daysAgo: 2,
-    conditions: { companion: "연인", place: "카페", mood: "자연스러운" },
+    conditions: { companion: null, place: "카페", mood: "자연스러운" },
     favorite: true,
     applied: true,
   },
@@ -93,13 +95,13 @@ const SEEDS: SeedSpec[] = [
     id: "seed-interview",
     sampleId: "interview-black",
     daysAgo: 5,
-    conditions: { companion: "처음 만나는 사람", place: "회사", mood: "단정한" },
+    conditions: { companion: null, place: null, mood: "단정한" },
   },
   {
     id: "seed-friends",
     sampleId: "friends-casual",
     daysAgo: 9,
-    conditions: { companion: "친구", place: "식당", mood: "편안한" },
+    conditions: { companion: null, place: "식당", mood: "편안한" },
   },
 ];
 
@@ -154,7 +156,7 @@ function isRenderable(a: unknown): a is AnalysisResult {
 }
 
 function normalize(r: AnalysisResult): AnalysisResult {
-  if (r.id.startsWith("seed-") && !r.conditionNotes) {
+  if (r.id.startsWith("seed-") && (!r.conditionNotes || !r.primaryRecommendation?.action)) {
     const fresh = buildSeed(Date.now(), r.id)[0];
     if (fresh) return { ...fresh, createdAt: r.createdAt, favorite: Boolean(r.favorite), appliedAt: r.appliedAt ?? null };
   }
@@ -289,6 +291,8 @@ const DRAFT_KEY = "stylecheck.draft.v1";
 
 export interface CheckDraft {
   image: string | null;
+  /** Pixel facts about an uploaded photo (for the tip), not about the outfit. */
+  photo?: PhotoInfo | null;
   sampleId: string | null;
   occasion: string | null;
   conditions: AnalysisConditions;

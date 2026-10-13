@@ -99,3 +99,52 @@ export function currentSeason(): "spring" | "summer" | "autumn" | "winter" {
   if (m >= 9 && m <= 11) return "autumn";
   return "winter";
 }
+
+/* ── What each situation still needs to know ─────────────────────────────
+   The situation already answers most questions (a 면접 is at a company, with
+   people you meet for the first time). Only what it leaves open is asked —
+   with options that make sense for it — and everything is optional. The
+   implied part is shown, not asked, so the user sees it was considered. */
+
+export interface ConditionQuestion {
+  label: string;
+  options: string[];
+}
+
+export interface OccasionQuestions {
+  /** Shown as already understood, e.g. "회사 · 처음 만나는 면접관 기준" */
+  implied?: string;
+  companion?: ConditionQuestion;
+  place?: ConditionQuestion;
+}
+
+export const OCCASION_QUESTIONS: Record<OccasionId, OccasionQuestions> = {
+  wedding: { implied: "하객 기준", place: { label: "예식은 어디서 하나요?", options: ["호텔", "예식장", "야외"] } },
+  interview: { implied: "회사 · 처음 만나는 면접관 기준" },
+  "first-day": { implied: "회사 · 새 동료 기준" },
+  "blind-date": { implied: "처음 만나는 사람 기준", place: { label: "어디서 만나나요?", options: ["카페", "식당", "야외"] } },
+  "family-meeting": { implied: "양가 가족 기준", place: { label: "어디서 만나나요?", options: ["호텔", "식당"] } },
+  business: {
+    companion: { label: "누구를 만나나요?", options: ["거래처", "상사", "직장동료"] },
+    place: { label: "어디서 만나나요?", options: ["회사", "카페", "식당", "호텔"] },
+  },
+  date: { implied: "연인 기준", place: { label: "어디로 가나요?", options: ["카페", "식당", "야외", "호텔"] } },
+  friends: { implied: "친구 기준", place: { label: "어디서 모이나요?", options: ["카페", "식당", "야외"] } },
+  restaurant: {
+    implied: "호텔 · 파인다이닝 기준",
+    companion: { label: "누구와 함께인가요?", options: ["연인", "가족", "친구", "거래처"] },
+  },
+  travel: { implied: "야외 활동 기준", companion: { label: "누구와 떠나나요?", options: ["연인", "친구", "가족"] } },
+  party: { place: { label: "어디서 열리나요?", options: ["호텔", "행사장", "야외"] } },
+  funeral: { implied: "조문 기준" },
+};
+
+/** Drop answers the newly chosen situation doesn't ask about (they would silently change the score). */
+export function conditionsFor<T extends { companion: string | null; place: string | null }>(occasion: OccasionId, c: T): T {
+  const q = OCCASION_QUESTIONS[occasion];
+  return {
+    ...c,
+    companion: c.companion && q.companion?.options.includes(c.companion) ? c.companion : null,
+    place: c.place && q.place?.options.includes(c.place) ? c.place : null,
+  };
+}

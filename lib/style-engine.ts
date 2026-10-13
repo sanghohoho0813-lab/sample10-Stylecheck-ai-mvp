@@ -284,6 +284,8 @@ interface RecTemplate {
   from: string;
   to: string;
   reason: string;
+  action: string;
+  effect: string;
 }
 
 /**
@@ -293,39 +295,51 @@ interface RecTemplate {
 const REC_BY_DIMENSION: Record<keyof ScoreSet, RecTemplate> = {
   detail: {
     slot: "신발",
-    from: "지금 신발",
+    from: "신고 있는 신발",
     to: "블랙 로퍼",
     reason: "신발만 정돈된 디자인으로 바꿔도 전체 격식 밸런스가 눈에 띄게 올라가요.",
+    action: "신발만 정돈된 블랙 로퍼로 바꾸면",
+    effect: "전체 격식이 눈에 띄게 올라가요",
   },
   formality: {
     slot: "아우터",
     from: "상의 단독 착용",
     to: "미니멀 재킷",
     reason: "재킷 하나만 더해도 자리에 맞는 단정한 무드가 완성돼요.",
+    action: "재킷 하나만 걸치면",
+    effect: "자리에 맞는 단정한 무드가 완성돼요",
   },
   color: {
     slot: "상의",
     from: "포인트 컬러 여러 개",
     to: "포인트 컬러 1개",
     reason: "컬러를 하나로 모으면 시선이 정리되어 훨씬 세련되어 보여요.",
+    action: "포인트 컬러를 하나로 줄이면",
+    effect: "시선이 정리되어 훨씬 세련되어 보여요",
   },
   silhouette: {
     slot: "하의",
     from: "상·하의 모두 여유 있는 핏",
     to: "한쪽만 여유 있는 핏",
     reason: "한쪽에만 볼륨을 주면 비율이 살아나 실루엣이 안정돼요.",
+    action: "상·하의 중 한쪽만 여유 있게 입으면",
+    effect: "비율이 살아나 실루엣이 안정돼요",
   },
   occasion: {
     slot: "액세서리",
     from: "튀는 포인트 아이템",
     to: "차분한 베이식 아이템",
     reason: "튀는 아이템 하나만 바꾸면 장소 분위기와 자연스럽게 어울려요.",
+    action: "튀는 아이템 하나만 차분한 것으로 바꾸면",
+    effect: "장소 분위기와 자연스럽게 어울려요",
   },
   seasonal: {
     slot: "상의",
     from: "시즌 오프 소재",
     to: "계절감 있는 소재",
     reason: "계절에 맞는 소재로 바꾸면 룩 전체가 훨씬 신선해 보여요.",
+    action: "한 가지만 계절감 있는 소재로 바꾸면",
+    effect: "룩 전체가 훨씬 신선해 보여요",
   },
 };
 
@@ -336,12 +350,12 @@ function summaryLine(overall: number, occasionLabel: string): string {
   return `${occasionLabel} 기준으로 몇 가지를 조정하면 좋겠어요. 아래 추천을 확인해보세요.`;
 }
 
-/** Headline verdict for a score band — shared by the result and history views. */
+/** Short verdict for a score band — lists, previews, metadata. The result page uses lib/advice. */
 export function verdictFor(score: number): string {
-  if (score >= 90) return "이대로 나가도 좋아요";
-  if (score >= 85) return "아주 잘 어울리는 코디예요";
-  if (score >= 75) return "전반적으로 잘 어울려요";
-  return "조금만 다듬으면 좋아져요";
+  if (score >= 90) return "지금 그대로도 충분히 좋아요";
+  if (score >= 82) return "잘 맞는 코디예요";
+  if (score >= 72) return "전반적으로 괜찮아요";
+  return "한 가지만 손보면 좋아져요";
 }
 
 function sortDimensions(scores: ScoreSet): (keyof ScoreSet)[] {
@@ -379,6 +393,9 @@ function buildPrimaryRecommendation(
     from: t.from,
     to: t.to,
     reason: t.reason,
+    action: t.action,
+    effect: t.effect,
+    dimension: sample ? sample.recommendation.dimension : weakest,
     scoreBefore: overall,
     scoreAfter: overall + Math.max(gain, 3),
   };

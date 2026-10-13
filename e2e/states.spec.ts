@@ -6,7 +6,7 @@ test.describe("빈 화면 · 오류 · 설정", () => {
     await page.goto("/history");
     expect(await countOf(page, "전체")).toBe(3);
     expect(await countOf(page, "저장한 코디")).toBe(1);
-    expect(await countOf(page, "추천 적용")).toBe(1);
+    expect(await countOf(page, "바꿔 입음")).toBe(1);
   });
 
   test("empty history offers a way in instead of zero-count filters", async ({ page }) => {

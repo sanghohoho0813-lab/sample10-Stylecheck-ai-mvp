@@ -64,7 +64,7 @@ export default function MyPageView() {
   const stats: { label: string; value: number | null; unit: string; href?: string }[] = [
     { label: "확인한 코디", value: list.length, unit: "회", href: "/history" },
     { label: "저장한 코디", value: list.filter((a) => a.favorite).length, unit: "개", href: "/history?filter=favorite" },
-    { label: "추천 적용", value: list.filter((a) => a.appliedAt).length, unit: "회", href: "/history?filter=applied" },
+    { label: "바꿔 입음", value: list.filter((a) => a.appliedAt).length, unit: "회", href: "/history?filter=applied" },
     {
       label: "평균 적합도",
       // No records → no average (a "0점" would read as a terrible score)

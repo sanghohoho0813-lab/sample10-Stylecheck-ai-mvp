@@ -1,8 +1,8 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { ImageResponse } from "next/og";
+import { adviceFor } from "./advice";
 import { OCCASION_MAP } from "./occasions";
-import { verdictFor } from "./style-engine";
 import type { AnalysisResult } from "./types";
 
 /**
@@ -102,32 +102,31 @@ function Frame({ photo, children }: { photo: string | null; children: React.Reac
 export async function resultPreview(result: AnalysisResult) {
   const occasion = OCCASION_MAP[result.occasion].label;
   const rec = result.primaryRecommendation;
+  // The question being asked is "어때?", so the preview shows the advice as given — before any change
+  const { headline, advice } = adviceFor({ ...result, appliedAt: null });
   return new ImageResponse(
     (
       <Frame photo={await lookPhoto(result.sampleId)}>
-        <div style={{ display: "flex", fontSize: 30, fontWeight: 700, color: COLOR.deep }}>{occasion} 코디 적합도</div>
-        <div style={{ display: "flex", alignItems: "flex-end", marginTop: 8 }}>
-          <span style={{ fontSize: 150, fontWeight: 700, lineHeight: 1 }}>{result.overallScore}</span>
-          <span style={{ fontSize: 34, color: COLOR.faint, marginLeft: 10, marginBottom: 18 }}>/100</span>
-        </div>
-        <div style={{ display: "flex", fontSize: 46, fontWeight: 700, marginTop: 12 }}>{verdictFor(result.overallScore)}</div>
+        <div style={{ display: "flex", fontSize: 28, fontWeight: 700, color: COLOR.deep }}>{occasion} 코디 판정</div>
+        <div style={{ display: "flex", marginTop: 14, fontSize: 60, fontWeight: 700, lineHeight: 1.2 }}>{headline}</div>
+        <div style={{ display: "flex", marginTop: 20, fontSize: 30, lineHeight: 1.5, color: COLOR.soft }}>{advice}</div>
         <div
           style={{
             display: "flex",
-            flexDirection: "column",
-            marginTop: 32,
-            padding: "22px 28px",
-            borderRadius: 20,
-            background: COLOR.blush,
+            alignItems: "center",
+            marginTop: 28,
+            paddingTop: 22,
+            borderTop: `2px solid ${COLOR.linen}`,
+            fontSize: 26,
+            color: COLOR.faint,
           }}
         >
-          <div style={{ display: "flex", fontSize: 22, fontWeight: 700, color: COLOR.deep }}>한 가지만 바꾼다면</div>
-          <div style={{ display: "flex", alignItems: "center", marginTop: 8, fontSize: 30, fontWeight: 700 }}>
-            <span style={{ color: COLOR.faint, textDecoration: "line-through" }}>{rec.from}</span>
-            <span style={{ color: COLOR.rose, margin: "0 14px" }}>→</span>
-            <span>{rec.to}</span>
-            <span style={{ marginLeft: "auto", paddingLeft: 20, color: COLOR.deep }}>{rec.scoreAfter}점</span>
-          </div>
+          <span>적합도</span>
+          <span style={{ marginLeft: 10, fontWeight: 700, color: COLOR.ink }}>{result.overallScore}</span>
+          <span style={{ margin: "0 12px", color: COLOR.rose }}>→</span>
+          <span>{rec.to}</span>
+          <span style={{ marginLeft: 8 }}>바꾸면</span>
+          <span style={{ marginLeft: 10, fontWeight: 700, color: COLOR.deep }}>{rec.scoreAfter}</span>
         </div>
       </Frame>
     ),

@@ -57,7 +57,14 @@ export interface PrimaryRecommendation {
   slot: string;
   from: string;
   to: string;
+  /** Why this one change — the longer explanation. */
   reason: string;
+  /** The change as a conditional clause: "구두만 블랙 스트레이트팁으로 바꾸면". Absent on older records. */
+  action?: string;
+  /** What it does, as a clause ending in -요: "격식이 한 단계 올라가요". Absent on older records. */
+  effect?: string;
+  /** The score dimension the change mainly improves. */
+  dimension?: keyof ScoreSet;
   scoreBefore: number;
   scoreAfter: number;
 }
@@ -134,7 +141,14 @@ export interface DemoSample {
   seasons: Season[];
   items: { slot: string; name: string }[];
   /** Sample-specific "한 가지만 바꾼다면" copy matched to the photo. */
-  recommendation: { from: string; to: string; reason: string };
+  recommendation: {
+    from: string;
+    to: string;
+    reason: string;
+    action: string;
+    effect: string;
+    dimension: keyof ScoreSet;
+  };
   /** Wardrobe item offered as the swap for this look. */
   wardrobe: WardrobeSuggestion;
 }

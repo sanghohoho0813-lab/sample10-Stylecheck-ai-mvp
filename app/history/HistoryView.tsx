@@ -3,14 +3,15 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowRight, Heart, Trash2 } from "lucide-react";
+import { ArrowRight, Check, Heart, Lightbulb, Trash2 } from "lucide-react";
 import { DEMO_SAMPLES } from "@/lib/demo-samples";
 import SampleBridgeCTA from "@/components/SampleBridgeCTA";
 import { useToast } from "@/components/Toast";
 import { deleteAnalysis, listAnalyses, restoreAnalysis, toggleFavorite } from "@/lib/storage";
 import { OCCASION_MAP } from "@/lib/occasions";
+import { MIN_RECORDS, styleInsights } from "@/lib/insights";
 import { verdictFor } from "@/lib/style-engine";
-import { formatRelativeDay, withEuro } from "@/lib/utils";
+import { formatRelativeDay } from "@/lib/utils";
 import type { AnalysisResult } from "@/lib/types";
 import LookImage from "@/components/LookImage";
 
@@ -25,8 +26,8 @@ const FILTERS: { id: Filter; label: string; empty: { title: string; body: string
   },
   {
     id: "applied",
-    label: "추천 적용",
-    empty: { title: "추천을 적용한 코디가 없어요", body: "결과 화면에서 ‘추천대로 바꿔 입기’를 누르면 여기에 남아요." },
+    label: "바꿔 입음",
+    empty: { title: "아직 바꿔 입은 코디가 없어요", body: "결과 화면에서 ‘추천대로 바꿔 입기’를 누르면 여기에 남아요." },
   },
 ];
 
@@ -72,12 +73,13 @@ export default function HistoryView() {
   const visible = (items ?? []).filter((a) => matches(a, filter));
   const active = FILTERS.find((f) => f.id === filter)!;
   const total = items?.length ?? 0;
+  const insights = items ? styleInsights(items) : [];
 
   return (
     <>
       <div className="mx-auto max-w-4xl px-5 pb-12 pt-8 md:px-8 md:pt-12">
         <h1 className="font-display text-page font-semibold text-ink">스타일 기록</h1>
-        <p className="mt-2 text-body text-ink-soft">확인했던 코디와 결정한 내용을 다시 볼 수 있어요.</p>
+        <p className="mt-2 text-body text-ink-soft">어디에 입고 갔고, 무엇을 바꿨는지 모아뒀어요.</p>
 
         {(items === null || total > 0) && (
           <div role="tablist" aria-label="기록 필터" className="no-scrollbar -mx-5 mt-6 flex gap-2 overflow-x-auto px-5">
@@ -134,65 +136,84 @@ export default function HistoryView() {
             )}
           </div>
         ) : (
-          <ul className="mt-6 grid gap-3 sm:grid-cols-2">
-            {visible.map((a) => {
-              const occ = OCCASION_MAP[a.occasion];
-              const applied = Boolean(a.appliedAt);
-              return (
-                <li
-                  key={a.id}
-                  className="group relative flex gap-4 rounded-md border border-linen bg-white p-3 transition-colors duration-150 hover:border-rose-soft"
-                >
-                  <Link
-                    href={`/result/${a.id}`}
-                    className="absolute inset-0 z-0 rounded-md"
-                    aria-label={`${formatRelativeDay(a.createdAt)} ${occ.label} 판정 결과 보기`}
-                  />
-                  <LookImage src={a.image} alt="" sizes="80px" className="w-20 shrink-0 rounded-sm" />
-                  <div className="min-w-0 flex-1 py-0.5">
-                    <p className="text-meta text-ink-faint">
-                      {formatRelativeDay(a.createdAt)} · <span className="font-semibold text-rose-deep">{occ.label}</span>
-                    </p>
-                    <p className="mt-1 flex flex-wrap items-baseline gap-x-2 whitespace-nowrap">
-                      <span className="font-display text-title font-semibold tabular-nums text-ink">
-                        {a.overallScore}
-                        <span className="ml-0.5 font-body text-meta font-normal text-ink-faint">점</span>
-                      </span>
+          <>
+            {filter === "all" &&
+              (insights.length > 0 ? (
+                <section aria-labelledby="patterns" className="mt-6 rounded-md border border-linen bg-white px-5 py-4">
+                  <h2 id="patterns" className="flex items-center gap-2 text-meta font-semibold text-ink">
+                    <Lightbulb className="h-4 w-4 text-gold" />내 스타일 패턴
+                  </h2>
+                  <ul className="mt-2 space-y-1.5">
+                    {insights.map((i) => (
+                      <li key={i.id} className="text-body-sm text-ink-soft">
+                        {i.text}
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ) : (
+                total < MIN_RECORDS && (
+                  <p className="mt-6 text-meta text-ink-faint">
+                    기록이 {MIN_RECORDS}개 이상 쌓이면 자주 보이는 패턴을 알려드려요. (지금 {total}개)
+                  </p>
+                )
+              ))}
+            <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+              {visible.map((a, index) => {
+                const occ = OCCASION_MAP[a.occasion];
+                const applied = Boolean(a.appliedAt);
+                return (
+                  <li
+                    key={a.id}
+                    className="group relative flex gap-4 rounded-md border border-linen bg-white p-3 transition-colors duration-150 hover:border-rose-soft"
+                  >
+                    <Link
+                      href={`/result/${a.id}`}
+                      className="absolute inset-0 z-0 rounded-md"
+                      aria-label={`${formatRelativeDay(a.createdAt)} ${occ.label} 판정 결과 보기`}
+                    />
+                    <LookImage src={a.image} alt="" sizes="80px" className="w-20 shrink-0 rounded-sm" priority={index < 2} />
+                    <div className="min-w-0 flex-1 py-0.5">
+                      <p className="text-meta text-ink-faint">
+                        {formatRelativeDay(a.createdAt)} · <span className="font-semibold text-rose-deep">{occ.label}</span>
+                        <span className="tabular-nums"> · {a.overallScore}점</span>
+                      </p>
+                      <p className="mt-1 text-body font-semibold text-ink">{verdictFor(a.overallScore)}</p>
+                      <p className="mt-1 line-clamp-2 text-meta text-ink-soft">
+                        <span className="text-ink-faint">한 가지 </span>
+                        {a.primaryRecommendation.from} → {a.primaryRecommendation.to}
+                      </p>
                       {applied && (
-                        <span className="text-meta font-semibold tabular-nums text-sage">
-                          추천 적용 → {a.primaryRecommendation.scoreAfter}점
-                        </span>
+                        <p className="mt-2 inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-sage/10 px-2.5 py-0.5 text-meta font-semibold tabular-nums text-sage">
+                          <Check className="h-3.5 w-3.5" strokeWidth={2.75} />
+                          바꿔 입음 {a.primaryRecommendation.scoreBefore}→{a.primaryRecommendation.scoreAfter}
+                        </p>
                       )}
-                    </p>
-                    <p className="mt-1 line-clamp-2 text-body-sm text-ink-soft">
-                      {applied
-                        ? `${withEuro(a.primaryRecommendation.to)} 바꿔 입기로 했어요`
-                        : verdictFor(a.overallScore)}
-                    </p>
-                  </div>
-                  <div className="relative z-10 flex flex-col items-center justify-between">
-                    <button
-                      type="button"
-                      onClick={() => onFavorite(a.id)}
-                      aria-pressed={a.favorite}
-                      aria-label={a.favorite ? "저장 해제" : "저장하기"}
-                      className="flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-blush"
-                    >
-                      <Heart className={`h-[1.15rem] w-[1.15rem] ${a.favorite ? "fill-rose text-rose" : "text-ink-faint"}`} />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => onDelete(a.id)}
-                      aria-label="기록 삭제"
-                      className="flex h-10 w-10 items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-blush hover:text-danger md:opacity-0 md:focus-visible:opacity-100 md:group-hover:opacity-100"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+                    </div>
+                    <div className="relative z-10 flex flex-col items-center justify-between">
+                      <button
+                        type="button"
+                        onClick={() => onFavorite(a.id)}
+                        aria-pressed={a.favorite}
+                        aria-label={a.favorite ? "저장 해제" : "저장하기"}
+                        className="flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-blush"
+                      >
+                        <Heart className={`h-[1.15rem] w-[1.15rem] ${a.favorite ? "fill-rose text-rose" : "text-ink-faint"}`} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onDelete(a.id)}
+                        aria-label="기록 삭제"
+                        className="flex h-10 w-10 items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-blush hover:text-danger md:opacity-0 md:focus-visible:opacity-100 md:group-hover:opacity-100"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
         )}
       </div>
 
