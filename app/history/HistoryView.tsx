@@ -77,7 +77,7 @@ export default function HistoryView() {
 
   return (
     <>
-      <div className="mx-auto max-w-4xl px-5 pb-12 pt-8 md:px-8 md:pt-12">
+      <div className="mx-auto max-w-5xl px-5 pb-12 pt-8 md:px-8 md:pt-12">
         <h1 className="font-display text-page font-semibold text-ink">스타일 기록</h1>
         <p className="mt-2 text-body text-ink-soft">어디에 입고 갔고, 무엇을 바꿨는지 모아뒀어요.</p>
 
@@ -106,13 +106,28 @@ export default function HistoryView() {
         )}
 
         {items === null ? (
-          <div className="mt-6 grid min-h-[100svh] content-start gap-3 sm:grid-cols-2" aria-busy="true">
+          <div className="mt-6 grid min-h-[100svh] content-start gap-3 md:grid-cols-3 md:gap-5" aria-busy="true">
             {[0, 1, 2].map((i) => (
-              <div key={i} className="skeleton h-[8.5rem] rounded-md" />
+              <div key={i} className="skeleton h-[9.5rem] rounded-md md:h-[30rem]" />
             ))}
           </div>
         ) : visible.length === 0 ? (
-          <div className="mt-16 flex flex-col items-center text-center">
+          <div className="mt-14 flex flex-col items-center text-center">
+            {total === 0 && (
+              // What will collect here: looks, not numbers
+              <div className="mb-7 flex items-end" aria-hidden>
+                {DEMO_SAMPLES.slice(1, 4).map((s, i) => (
+                  <div
+                    key={s.id}
+                    className={`overflow-hidden rounded-sm border-2 border-cream shadow-subtle ${
+                      i === 1 ? "z-10 -mx-3 w-20" : "w-16 opacity-80"
+                    }`}
+                  >
+                    <LookImage src={s.image} alt="" sizes="80px" className="w-full" />
+                  </div>
+                ))}
+              </div>
+            )}
             <h2 className="font-display text-title font-semibold text-ink">{active.empty.title}</h2>
             <p className="mt-2 text-body-sm text-ink-soft">{active.empty.body}</p>
             {total > 0 ? (
@@ -139,13 +154,13 @@ export default function HistoryView() {
           <>
             {filter === "all" &&
               (insights.length > 0 ? (
-                <section aria-labelledby="patterns" className="mt-6 rounded-md border border-linen bg-white px-5 py-4">
-                  <h2 id="patterns" className="flex items-center gap-2 text-meta font-semibold text-ink">
-                    <Lightbulb className="h-4 w-4 text-gold" />내 스타일 패턴
+                <section aria-labelledby="patterns" className="mt-6 rounded-lg bg-white px-5 py-5 shadow-subtle md:px-6">
+                  <h2 id="patterns" className="flex items-center gap-2 text-meta font-semibold text-rose-deep">
+                    <Lightbulb className="h-4 w-4" />내 스타일 패턴
                   </h2>
-                  <ul className="mt-2 space-y-1.5">
+                  <ul className={`mt-3 grid gap-3 ${insights.length > 1 ? "md:grid-cols-2 md:gap-8" : ""}`}>
                     {insights.map((i) => (
-                      <li key={i.id} className="text-body-sm text-ink-soft">
+                      <li key={i.id} className="border-l-2 border-rose-soft pl-3.5 text-body-sm text-ink">
                         {i.text}
                       </li>
                     ))}
@@ -158,22 +173,31 @@ export default function HistoryView() {
                   </p>
                 )
               ))}
-            <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+            {/* Phones: a reading list. Tablets up: a lookbook, the outfit first. */}
+            <ul className="mt-6 grid gap-3 md:grid-cols-3 md:gap-5">
               {visible.map((a, index) => {
                 const occ = OCCASION_MAP[a.occasion];
                 const applied = Boolean(a.appliedAt);
                 return (
                   <li
                     key={a.id}
-                    className="group relative flex gap-4 rounded-md border border-linen bg-white p-3 transition-colors duration-150 hover:border-rose-soft"
+                    className="group relative flex gap-4 rounded-md border border-linen bg-white p-3 transition-colors duration-150 hover:border-rose-soft md:flex-col md:gap-0 md:overflow-hidden md:p-0"
                   >
                     <Link
                       href={`/result/${a.id}`}
                       className="absolute inset-0 z-0 rounded-md"
                       aria-label={`${formatRelativeDay(a.createdAt)} ${occ.label} 판정 결과 보기`}
                     />
-                    <LookImage src={a.image} alt="" sizes="80px" className="w-20 shrink-0 rounded-sm" priority={index < 2} />
-                    <div className="min-w-0 flex-1 py-0.5">
+                    <div className="w-20 shrink-0 overflow-hidden rounded-sm min-[380px]:w-24 md:w-full md:rounded-none">
+                      <LookImage
+                        src={a.image}
+                        alt=""
+                        sizes="(min-width: 768px) 300px, 96px"
+                        className="w-full transition-transform duration-500 md:group-hover:scale-[1.02]"
+                        priority={index < 2}
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1 py-0.5 md:px-4 md:pb-4 md:pt-3.5">
                       <p className="text-meta text-ink-faint">
                         {formatRelativeDay(a.createdAt)} · <span className="font-semibold text-rose-deep">{occ.label}</span>
                         <span className="tabular-nums"> · {a.overallScore}점</span>
@@ -190,13 +214,14 @@ export default function HistoryView() {
                         </p>
                       )}
                     </div>
-                    <div className="relative z-10 flex flex-col items-center justify-between">
+                    {/* Phones: a column beside the text. Lookbook: floating on the photo. */}
+                    <div className="relative z-10 flex flex-col items-center justify-between md:absolute md:right-3 md:top-3 md:flex-row-reverse md:gap-2">
                       <button
                         type="button"
                         onClick={() => onFavorite(a.id)}
                         aria-pressed={a.favorite}
                         aria-label={a.favorite ? "저장 해제" : "저장하기"}
-                        className="flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-blush"
+                        className="flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-blush md:bg-white/90 md:shadow-subtle md:backdrop-blur-sm"
                       >
                         <Heart className={`h-[1.15rem] w-[1.15rem] ${a.favorite ? "fill-rose text-rose" : "text-ink-faint"}`} />
                       </button>
@@ -204,7 +229,7 @@ export default function HistoryView() {
                         type="button"
                         onClick={() => onDelete(a.id)}
                         aria-label="기록 삭제"
-                        className="flex h-10 w-10 items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-blush hover:text-danger md:opacity-0 md:focus-visible:opacity-100 md:group-hover:opacity-100"
+                        className="flex h-10 w-10 items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-blush hover:text-danger md:bg-white/90 md:shadow-subtle md:backdrop-blur-sm md:pointer-fine:opacity-0 md:focus-visible:opacity-100 md:group-hover:opacity-100"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -218,7 +243,7 @@ export default function HistoryView() {
       </div>
 
       {/* Only once records are in, so loading never pushes it around */}
-      {items !== null && <SampleBridgeCTA maxWidthClass="max-w-4xl" />}
+      {items !== null && <SampleBridgeCTA maxWidthClass="max-w-5xl" />}
     </>
   );
 }

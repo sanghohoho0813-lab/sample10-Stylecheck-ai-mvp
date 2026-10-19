@@ -6,7 +6,7 @@ test.describe("첫 화면 → 코디 확인", () => {
     await page.goto("/");
     await page.locator('input[data-picker="album"]').setInputFiles(OUTFIT);
     await page.waitForURL(/\/check$/);
-    expect(await currentStep(page)).toBe("상황");
+    await expect.poll(() => currentStep(page)).toBe("상황");
     await expect(page.getByText("이 사진으로 확인해요")).toBeVisible();
     await page.getByRole("radio", { name: /면접/ }).click();
     await visibleButton(page, "코디 판정하기").click();
@@ -60,7 +60,7 @@ test.describe("코디 확인 흐름", () => {
     });
     await expect(page.locator("main").getByRole("alert")).toContainText("JPG, PNG, WEBP");
     await page.locator('input[data-picker="album"]').setInputFiles(OUTFIT);
-    expect(await currentStep(page)).toBe("상황");
+    await expect.poll(() => currentStep(page)).toBe("상황");
   });
 
   test("asks for a situation before judging", async ({ page }) => {
@@ -73,34 +73,34 @@ test.describe("코디 확인 흐름", () => {
   test("browser back and forward walk the steps without losing the photo", async ({ page }) => {
     await page.goto("/check");
     await page.locator('input[data-picker="album"]').setInputFiles(OUTFIT);
-    expect(await currentStep(page)).toBe("상황");
+    await expect.poll(() => currentStep(page)).toBe("상황");
     await page.goBack();
-    expect(await currentStep(page)).toBe("사진");
+    await expect.poll(() => currentStep(page)).toBe("사진");
     await expect(page.getByAltText("선택한 코디 사진")).toBeVisible();
     await page.goForward();
-    expect(await currentStep(page)).toBe("상황");
+    await expect.poll(() => currentStep(page)).toBe("상황");
   });
 
   test("a refresh resumes the same step with the same answers", async ({ page }) => {
     await page.goto("/check?sample=wedding-navy");
     await page.getByRole("button", { name: "야외", exact: true }).click();
     await page.reload();
-    expect(await currentStep(page)).toBe("상황");
+    await expect.poll(() => currentStep(page)).toBe("상황");
     await expect(page.getByRole("button", { name: "야외", exact: true })).toHaveAttribute("aria-pressed", "true");
   });
 
   test("a sample lands on 상황 with its situation chosen, and back returns to 사진", async ({ page }) => {
     await page.goto("/check");
     await page.getByRole("button", { name: /미니멀 면접 룩/ }).click();
-    expect(await currentStep(page)).toBe("상황");
+    await expect.poll(() => currentStep(page)).toBe("상황");
     await expect(page.getByText("회사 · 처음 만나는 면접관 기준")).toBeVisible();
     await page.goBack();
-    expect(await currentStep(page)).toBe("사진");
+    await expect.poll(() => currentStep(page)).toBe("사진");
   });
 
   test("back from the result skips the flow and returns to where it started", async ({ page }, info) => {
     await page.goto("/history");
-    if (isPhone(info)) await page.getByRole("navigation", { name: "하단 메뉴" }).getByRole("link", { name: "검사" }).click();
+    if (isPhone(info)) await page.getByRole("navigation", { name: "하단 메뉴" }).getByRole("link", { name: "코디 확인" }).click();
     else await page.getByRole("banner").getByRole("link", { name: "코디 확인하기" }).click();
     await page.waitForURL("**/check");
     await page.getByRole("button", { name: /클래식 하객 룩/ }).click();
@@ -113,7 +113,7 @@ test.describe("코디 확인 흐름", () => {
   test("the close button returns to the page the check started from", async ({ page }, info) => {
     test.skip(!isPhone(info), "the close button is part of the phone header");
     await page.goto("/guide");
-    await page.getByRole("navigation", { name: "하단 메뉴" }).getByRole("link", { name: "검사" }).click();
+    await page.getByRole("navigation", { name: "하단 메뉴" }).getByRole("link", { name: "코디 확인" }).click();
     await page.getByRole("button", { name: /러블리 캐주얼 룩/ }).click();
     await page.getByRole("button", { name: "코디 확인 닫기" }).click();
     await expect(page).toHaveURL(/\/guide$/);

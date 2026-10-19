@@ -69,35 +69,44 @@ export default function HeroQuickStart({ sampleHref }: { sampleHref: string }) {
         <br />
         괜찮을까요?
       </h1>
-      <p className="mt-5 max-w-md text-body text-ink-soft md:text-lead">
+      <p className="mt-4 max-w-md text-body text-ink-soft md:mt-5 md:text-lead">
         사진 한 장과 가는 곳만 알려주세요. 괜찮은지, 하나만 바꾼다면 무엇인지 알려드려요.
       </p>
 
-      <div className="mt-8 flex flex-col gap-3 sm:max-w-md sm:flex-row">
-        {/* Phones open the camera; desktops open the file picker */}
+      {/* Phones: the camera is the one big action; album and sample share a row */}
+      <div className="mt-6 grid grid-cols-2 gap-2.5 sm:hidden">
         <button
           type="button"
           onClick={picker.openCamera}
           disabled={picker.preparing}
-          className="btn btn-lg btn-primary sm:hidden"
+          className="btn btn-lg btn-primary col-span-2 shadow-cta"
         >
           {picker.preparing ? <LoaderCircle className="h-5 w-5 animate-spin" /> : <Camera className="h-5 w-5" />}
           {picker.preparing ? "사진 준비 중…" : "사진 찍고 확인하기"}
         </button>
-        <button type="button" onClick={picker.openAlbum} disabled={picker.preparing} className="btn btn-lg btn-secondary sm:hidden">
-          <ImagePlus className="h-5 w-5 text-rose-deep" />
+        <button type="button" onClick={picker.openAlbum} disabled={picker.preparing} className="btn btn-sm btn-secondary px-3">
+          <ImagePlus className="h-4.5 w-4.5 text-rose-deep" />
           앨범에서 고르기
         </button>
-        <button
-          type="button"
-          onClick={picker.openAlbum}
-          disabled={picker.preparing}
-          className="btn btn-lg btn-primary hidden sm:inline-flex"
-        >
+        <Link href={sampleHref} className="btn btn-sm btn-secondary px-3">
+          샘플로 체험하기
+        </Link>
+      </div>
+
+      {/* Tablets and desktops open the file picker — or take a dropped photo */}
+      <div className="mt-8 hidden flex-wrap items-center gap-x-5 gap-y-3 sm:flex">
+        <button type="button" onClick={picker.openAlbum} disabled={picker.preparing} className="btn btn-lg btn-primary shadow-cta">
           {picker.preparing ? <LoaderCircle className="h-5 w-5 animate-spin" /> : <ImagePlus className="h-5 w-5" />}
           {picker.preparing ? "사진 준비 중…" : "사진 올리고 확인하기"}
         </button>
+        <Link
+          href={sampleHref}
+          className="text-body-sm font-semibold text-ink underline decoration-linen underline-offset-4 hover:decoration-ink"
+        >
+          사진이 없다면 샘플로 체험하기
+        </Link>
       </div>
+      <p className="mt-3 hidden text-meta text-ink-faint sm:block">사진을 여기로 끌어다 놓아도 돼요.</p>
 
       {picker.error && (
         <p role="alert" className="mt-3 max-w-md rounded-sm bg-white px-4 py-3 text-body-sm font-medium text-rose-deep">
@@ -105,15 +114,8 @@ export default function HeroQuickStart({ sampleHref }: { sampleHref: string }) {
         </p>
       )}
 
-      <p className="mt-4 text-body-sm text-ink-soft">
-        <span className="hidden sm:inline">사진을 여기로 끌어다 놓아도 돼요 · </span>
-        <Link href={sampleHref} className="font-semibold text-ink underline decoration-linen underline-offset-4 hover:decoration-ink">
-          사진이 없다면 샘플로 체험하기
-        </Link>
-      </p>
-
       {/* Reserved line: appears for returning users without shifting the page */}
-      <p className="mt-6 min-h-6 text-meta">
+      <p className="mt-4 min-h-6 text-meta md:mt-6">
         {last && (
           <Link href={`/result/${last.id}`} className="group inline-flex items-center gap-1.5 text-ink-soft hover:text-ink">
             <span className="text-ink-faint">지난번</span>

@@ -58,6 +58,16 @@ test.describe("빈 화면 · 오류 · 설정", () => {
     await expect(nav.locator("[aria-current=location]")).toContainText("데이트");
   });
 
+  test("phone screens fit the screen — nothing widens the page sideways", async ({ page }, info) => {
+    test.skip(!isPhone(info), "phone layout");
+    for (const path of ["/", "/check", "/check?sample=wedding-navy", "/result/seed-date", "/history", "/mypage", "/guide"]) {
+      await page.goto(path);
+      await page.waitForLoadState("networkidle");
+      // A mobile browser grows the layout viewport to fit anything that overflows
+      expect(await page.evaluate(() => window.innerWidth), path).toBe(390);
+    }
+  });
+
   test("keyboard users can skip to the content", async ({ page }, info) => {
     test.skip(isPhone(info), "keyboard path");
     await page.goto("/");

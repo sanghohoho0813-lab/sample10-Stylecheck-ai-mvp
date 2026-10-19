@@ -7,7 +7,7 @@ import { BookOpen, Camera, Clock3, House, User } from "lucide-react";
 const ITEMS = [
   { href: "/", label: "홈", icon: House },
   { href: "/guide", label: "가이드", icon: BookOpen },
-  { href: "/check", label: "검사", icon: Camera, primary: true },
+  { href: "/check", label: "코디 확인", icon: Camera, primary: true },
   { href: "/history", label: "기록", icon: Clock3 },
   { href: "/mypage", label: "마이", icon: User },
 ];

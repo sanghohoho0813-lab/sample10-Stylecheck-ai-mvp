@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Camera, ImagePlus, Info, RefreshCw, Trash2 } from "lucide-react";
 import { DEMO_SAMPLES } from "@/lib/demo-samples";
+import { OCCASION_MAP } from "@/lib/occasions";
 import { photoTip, type PhotoInfo, type PreparedImage } from "@/lib/utils";
 import LookImage from "./LookImage";
 import { usePhotoPicker } from "./usePhotoPicker";
@@ -111,8 +112,10 @@ export default function OutfitUploader({
               dragging ? "border-rose bg-blush/70" : "border-linen bg-white hover:border-rose-soft"
             }`}
           >
-            <ImagePlus className="h-8 w-8 text-rose-deep" strokeWidth={1.6} />
-            <span className="mt-4 text-lead font-semibold text-ink">사진을 끌어다 놓거나 클릭해서 선택</span>
+            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-blush text-rose-deep">
+              <ImagePlus className="h-6 w-6" strokeWidth={1.7} />
+            </span>
+            <span className="mt-4 text-lead font-semibold text-ink">사진을 끌어다 놓거나 클릭해서 고르기</span>
             <span className="mt-1 text-meta text-ink-faint">JPG · PNG · WEBP · 25MB 이하</span>
           </button>
 
@@ -120,11 +123,11 @@ export default function OutfitUploader({
           <div className="mt-7 grid gap-3 md:hidden">
             <button type="button" onClick={picker.openCamera} className="btn btn-lg btn-primary w-full">
               <Camera className="h-5 w-5" />
-              사진 촬영
+              사진 찍기
             </button>
             <button type="button" onClick={picker.openAlbum} className="btn btn-lg btn-secondary w-full">
               <ImagePlus className="h-5 w-5 text-rose-deep" />
-              앨범에서 선택
+              앨범에서 고르기
             </button>
           </div>
         </>
@@ -141,23 +144,29 @@ export default function OutfitUploader({
           <h2 id="sample-strip" className="text-body-sm font-semibold text-ink">
             사진이 없다면 샘플 코디로 체험해보세요
           </h2>
-          <div className="no-scrollbar -mx-5 mt-3 flex gap-3 overflow-x-auto px-5 pb-1 md:mx-0 md:grid md:grid-cols-8 md:gap-2.5 md:px-0">
+          <div className="no-scrollbar relative -mx-5 mt-3 flex gap-3 overflow-x-auto px-5 pb-1 md:mx-0 md:grid md:grid-cols-4 md:gap-2.5 md:overflow-visible md:px-0">
             {DEMO_SAMPLES.map((s) => (
               <button
                 key={s.id}
                 type="button"
                 onClick={() => onSample(s.id)}
-                className="group w-24 shrink-0 text-left md:w-auto"
+                // Phones: a swipeable shelf. Desktop: compact cards, names in full.
+                className="group w-28 shrink-0 text-left md:flex md:w-auto md:items-center md:gap-3 md:rounded-md md:border md:border-linen md:bg-white md:p-2 md:transition-colors md:hover:border-rose-soft"
               >
                 <LookImage
                   src={s.image}
                   alt=""
-                  sizes="96px"
-                  className="w-full rounded-sm ring-rose transition group-hover:ring-2"
+                  sizes="(min-width: 768px) 56px, 112px"
+                  className="w-full rounded-sm ring-rose transition group-hover:ring-2 md:w-14 md:shrink-0 md:group-hover:ring-0"
                   // Above the fold (all eight on desktop) and the largest paint on this screen
                   priority
                 />
-                <span className="mt-1.5 block truncate text-caption text-ink-soft">{s.name}</span>
+                <span className="block min-w-0">
+                  <span className="mt-2 block truncate text-meta font-medium text-ink md:mt-0 md:whitespace-normal">
+                    {s.name}
+                  </span>
+                  <span className="block truncate text-caption text-ink-faint">{OCCASION_MAP[s.occasion].label}</span>
+                </span>
               </button>
             ))}
           </div>

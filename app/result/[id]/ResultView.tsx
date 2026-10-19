@@ -542,12 +542,20 @@ export default function ResultView({ id, share }: { id: string; share?: string }
             {/* ── NEXT STEPS ──────────────────────────────────────────── */}
             <div className="flex flex-col gap-2 border-t border-linen pt-8 lg:flex-row">
               {!shared && (
-                <button type="button" onClick={checkAgain} className="btn btn-sm btn-secondary lg:flex-1">
-                  <Camera className="h-4 w-4 text-ink-soft" />
+                // Once the change is made, checking the new look is the next thing to do
+                <button
+                  type="button"
+                  onClick={checkAgain}
+                  className={`btn lg:flex-1 ${applied ? "btn-md btn-primary" : "btn-sm btn-secondary"}`}
+                >
+                  <Camera className={`h-4 w-4 ${applied ? "" : "text-ink-soft"}`} />
                   바꿔 입고 다시 확인하기
                 </button>
               )}
-              <Link href={`/guide#${result.occasion}`} className="btn btn-sm btn-secondary lg:flex-1">
+              <Link
+                href={`/guide#${result.occasion}`}
+                className={`btn btn-secondary lg:flex-1 ${applied && !shared ? "btn-md" : "btn-sm"}`}
+              >
                 <BookOpen className="h-4 w-4 text-ink-soft" />
                 {occ.label} 스타일 가이드
               </Link>

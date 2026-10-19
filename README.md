@@ -82,7 +82,7 @@ EXIF 회전은 브라우저 디코딩에 맡기고, 투명 PNG는 흰 배경 위
 | 영역 | 내용 |
 |---|---|
 | 단위 테스트 (77) | `lib/__tests__` — 모든 샘플 × 계절 × 조건 조합에서 점수 범위, "바꾸면 좋아진다", 대안 < 추천, 조건 점수 = 설명된 점수 합. 판정·조언 문장(모든 샘플·업로드 템플릿에서 한 문장으로 끝나는지), 상황별 질문, 스타일 패턴의 데이터 기준. 공유 링크 왕복·변조 거부. 저장 계층의 마이그레이션·용량 초과·차단 대응. 한국어 조사·날짜 |
-| E2E (54) | `e2e/` — phone(390, 터치)·desktop(1280) 프로젝트. 첫 화면 사진 → 상황 → 판정 → 바꿔 입기 → 저장 → 공유 → 기록 전체 여정, 상황별 질문, 사진 팁, 뒤로/앞으로/새로고침, 다시 확인하기, 깨끗한 기기에서 공유 링크·미리보기, 빈·오류 상태, 키보드 경로 |
+| E2E (55) | `e2e/` — phone(390, 터치)·desktop(1280) 프로젝트. 첫 화면 사진 → 상황 → 판정 → 바꿔 입기 → 저장 → 공유 → 기록 전체 여정, 상황별 질문, 사진 팁, 뒤로/앞으로/새로고침, 다시 확인하기, 깨끗한 기기에서 공유 링크·미리보기, 빈·오류 상태, 키보드 경로, 휴대폰에서 화면이 옆으로 넓어지지 않는지(레이아웃 뷰포트 폭) |
 | CI | `.github/workflows/ci.yml` — lint · typecheck · unit → build · E2E (실패 시 리포트 업로드) |
 | 접근성 | 본문 바로가기, 상황 선택의 WAI-ARIA radio 키보드 패턴(화살표·Home·End), 단계 전환 시 제목으로 포커스, `aria-live` 로딩·토스트, 텍스트 색 대비 4.5:1 이상, `prefers-reduced-motion` |
 | 성능 | 샘플 사진은 `next/image`(AVIF/WebP, 크기별 srcset, 접힘 위만 priority), 기기 사진은 data URL 그대로. 클라이언트 로딩 화면의 스켈레톤이 실제 레이아웃과 같아 CLS ≈ 0 |
@@ -96,7 +96,7 @@ app/
   page.tsx · check/ · result/[id]/ · history/ · mypage/ · guide/   화면
   og/result/route.ts · opengraph-image.tsx · apple-icon.tsx · manifest.ts
   error.tsx · global-error.tsx · not-found.tsx
-components/          UI (LookImage, OccasionGrid, ConditionForm, GuideNav, Toast, SampleBridgeCTA …)
+components/          UI (LookImage, OccasionGrid, SituationStep, HeroQuickStart, GuideNav, Toast, SampleBridgeCTA …)
 lib/
   style-engine.ts    데모 분석 엔진 (조건 규칙 applyConditions)
   advice.ts          판정 한 줄 · 조언 한 문장 · 공유 메시지
@@ -116,6 +116,18 @@ e2e/ · lib/__tests__/   테스트
 - **Color** — rose 한 계열 + cream→ink 중립 + 상태색(sage·gold·danger). 글자·채움 색은 4.5:1 이상이고 `rose`는 장식용입니다.
 - **Radius** `sm 12 · md 20 · lg 28` · **Shadow** `subtle · raised · overlay · cta`
 - **Components** — `btn` + `btn-lg/md/sm/xs` + `btn-primary/secondary/quiet`, 선택형 `chip` + `chip-on/off`
+
+### 화면별 방향
+
+화면마다 역할이 달라 레이아웃 원칙도 나눴습니다. 모두 같은 토큰·컴포넌트를 씁니다.
+
+| 화면 | 방향 | 핵심 |
+|---|---|---|
+| 홈 | 비주얼 + 행동 | 첫 화면에 촬영 버튼과 실제 판정 결과 카드. 데스크톱은 코디 사진 위에 판정 카드를 겹친 구성. 샘플은 휴대폰에서 가로로 넘기는 선반, 태블릿부터 그리드. 상황은 아이콘 그리드 |
+| 코디 확인 | 기능 | 한 화면에 한 가지 결정. 휴대폰은 하단 고정 버튼, 데스크톱 상황 단계는 판정할 사진을 옆에 크게 고정 |
+| 결과 | 하이브리드 | 판정 → 이유 → 바꿀 한 가지 순서. 바꿔 입은 뒤에는 "다시 확인하기"가 다음 주 행동이 됨 |
+| 기록 | 비주얼 | 휴대폰은 읽기 쉬운 목록, 태블릿부터 사진이 먼저 보이는 룩북 카드 |
+| 가이드 · 마이 | 정보 | 텍스트 위계와 여백 중심, 장식 없음 |
 
 ### 미래AI랩 브랜딩
 

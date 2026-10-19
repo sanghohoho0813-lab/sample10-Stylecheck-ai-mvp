@@ -18,6 +18,10 @@ import LookImage from "@/components/LookImage";
 
 type Step = "upload" | "occasion" | "loading";
 
+// The same outer frame in every state (wide enough for the docked photo on
+// desktop), so swapping the loading placeholder for a step never shifts it.
+const FRAME = "mx-auto max-w-2xl px-5 pb-10 pt-6 md:px-8 md:pb-20 md:pt-12 lg:max-w-5xl";
+
 const STEPS: { id: Exclude<Step, "loading">; label: string }[] = [
   { id: "upload", label: "사진" },
   { id: "occasion", label: "상황" },
@@ -288,8 +292,10 @@ export default function CheckFlow() {
 
   if (!ready) {
     return (
-      <div className="mx-auto max-w-2xl px-5 pt-6 md:px-8 md:pt-12" aria-busy="true">
-        <div className="skeleton h-72 rounded-lg" />
+      <div className={FRAME} aria-busy="true">
+        <div key="loading" className="mx-auto max-w-2xl">
+          <div className="skeleton h-72 rounded-lg" />
+        </div>
       </div>
     );
   }
@@ -329,123 +335,152 @@ export default function CheckFlow() {
     </>
   );
 
-  return (
-    <div className="mx-auto max-w-2xl px-5 pb-10 pt-6 md:px-8 md:pb-20 md:pt-12">
-      {step !== "loading" && (
-        <nav aria-label="코디 확인 단계" className="mb-7">
-          <ol className="grid grid-cols-2 gap-2">
-            {STEPS.map((s, i) => {
-              const state = i < stepIndex ? "done" : i === stepIndex ? "current" : "todo";
-              const body = (
-                <>
-                  <span
-                    className={`block h-1 rounded-full transition-colors duration-200 ${
-                      state === "todo" ? "bg-blush-deep" : "bg-rose"
-                    }`}
-                  />
-                  <span
-                    className={`mt-2 flex items-center gap-1.5 text-meta ${
-                      state === "current"
-                        ? "font-semibold text-rose-deep"
-                        : state === "done"
-                          ? "font-medium text-ink-soft"
-                          : "text-ink-faint"
-                    }`}
-                  >
-                    {state === "done" ? (
-                      <Check className="h-3.5 w-3.5 text-sage" strokeWidth={2.75} aria-hidden />
-                    ) : (
-                      <span className="tabular-nums">{i + 1}</span>
-                    )}
-                    {s.label}
-                  </span>
-                </>
-              );
-              return (
-                <li key={s.id}>
-                  {state === "done" ? (
-                    <button
-                      type="button"
-                      onClick={() => retreat(s.id)}
-                      className="block w-full rounded-sm text-left transition-opacity hover:opacity-75"
-                      aria-label={`${s.label} 단계로 돌아가기`}
-                    >
-                      {body}
-                    </button>
-                  ) : (
-                    <div aria-current={state === "current" ? "step" : undefined}>{body}</div>
-                  )}
-                </li>
-              );
-            })}
-          </ol>
-        </nav>
-      )}
+  // Desktop: while choosing the situation, the photo docks beside the form
+  // instead of shrinking to a thumbnail.
+  const docked = step === "occasion" && Boolean(image);
 
-      {/* What is being judged — the photo stays in view while choosing the situation */}
-      {step === "occasion" && image && (
-        <div className="mb-7 rounded-md bg-white p-2 shadow-subtle">
-          <div className="flex items-center gap-3">
-            <LookImage src={image} alt="" sizes="56px" className="w-14 shrink-0 rounded-sm" priority />
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-body-sm font-semibold text-ink">{photoName}</p>
-              <p className="truncate text-meta text-ink-faint">{sample ? "샘플 코디로 확인해요" : "이 사진으로 확인해요"}</p>
+  return (
+    <div className={FRAME}>
+      <div
+        key="flow"
+        className={
+          docked
+            ? "lg:grid lg:grid-cols-[17rem_minmax(0,1fr)] lg:grid-rows-[auto_1fr] lg:items-start lg:gap-x-14"
+            : "mx-auto max-w-2xl"
+        }
+      >
+        {step !== "loading" && (
+          <nav aria-label="코디 확인 단계" className="mb-7 lg:col-start-2">
+            <ol className="grid grid-cols-2 gap-2">
+              {STEPS.map((s, i) => {
+                const state = i < stepIndex ? "done" : i === stepIndex ? "current" : "todo";
+                const body = (
+                  <>
+                    <span
+                      className={`block h-1 rounded-full transition-colors duration-200 ${
+                        state === "todo" ? "bg-blush-deep" : "bg-rose"
+                      }`}
+                    />
+                    <span
+                      className={`mt-2 flex items-center gap-1.5 text-meta ${
+                        state === "current"
+                          ? "font-semibold text-rose-deep"
+                          : state === "done"
+                            ? "font-medium text-ink-soft"
+                            : "text-ink-faint"
+                      }`}
+                    >
+                      {state === "done" ? (
+                        <Check className="h-3.5 w-3.5 text-sage" strokeWidth={2.75} aria-hidden />
+                      ) : (
+                        <span className="tabular-nums">{i + 1}</span>
+                      )}
+                      {s.label}
+                    </span>
+                  </>
+                );
+                return (
+                  <li key={s.id}>
+                    {state === "done" ? (
+                      <button
+                        type="button"
+                        onClick={() => retreat(s.id)}
+                        className="block w-full rounded-sm text-left transition-opacity hover:opacity-75"
+                        aria-label={`${s.label} 단계로 돌아가기`}
+                      >
+                        {body}
+                      </button>
+                    ) : (
+                      <div aria-current={state === "current" ? "step" : undefined}>{body}</div>
+                    )}
+                  </li>
+                );
+              })}
+            </ol>
+          </nav>
+        )}
+
+        {/* What is being judged — the photo stays in view while choosing the
+            situation: a strip above the form on phones, a card docked beside
+            it on desktop. One element either way. */}
+        {docked && image && (
+          <div className="mb-7 rounded-md bg-white p-2 shadow-subtle lg:sticky lg:top-28 lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:mb-0 lg:overflow-hidden lg:rounded-lg lg:p-0">
+            <div className="flex items-center gap-3 lg:block">
+              <LookImage
+                src={image}
+                alt=""
+                sizes="(min-width: 1024px) 272px, 56px"
+                className="w-14 shrink-0 rounded-sm lg:w-full lg:rounded-none"
+                priority
+              />
+              <div className="flex min-w-0 flex-1 items-center gap-3 lg:p-4">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-body-sm font-semibold text-ink">{photoName}</p>
+                  <p className="truncate text-meta text-ink-faint">{sample ? "샘플 코디로 확인해요" : "이 사진으로 확인해요"}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => retreat("upload")}
+                  className="btn btn-xs btn-quiet px-3 lg:border lg:border-linen lg:px-3.5"
+                >
+                  사진 변경
+                </button>
+              </div>
             </div>
-            <button type="button" onClick={() => retreat("upload")} className="btn btn-xs btn-quiet px-3">
-              사진 변경
-            </button>
+            {tip && (
+              <p className="mt-2 flex items-start gap-2 border-t border-linen px-1 pt-2 text-meta text-ink-soft lg:mx-4 lg:mt-0 lg:px-0 lg:pb-4 lg:pt-3">
+                <Info className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
+                {tip}
+              </p>
+            )}
           </div>
-          {tip && (
-            <p className="mt-2 flex items-start gap-2 border-t border-linen px-1 pt-2 text-meta text-ink-soft">
-              <Info className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
-              {tip}
-            </p>
+        )}
+
+        <div className="min-w-0 lg:col-start-2">
+          {step === "upload" && (
+            <OutfitUploader
+              image={image}
+              photo={photo}
+              isSample={Boolean(sampleId)}
+              sampleName={sample?.name}
+              onImage={takePhoto}
+              onSample={applySample}
+              occasionLabel={occasion ? OCCASION_MAP[occasion].label : undefined}
+              onClear={() => {
+                setImage(null);
+                setPhoto(null);
+                setSampleId(null);
+              }}
+              error={error}
+            />
+          )}
+
+          {step === "occasion" && (
+            <SituationStep
+              occasion={occasion}
+              onOccasion={chooseOccasion}
+              conditions={conditions}
+              onConditions={setConditions}
+              moodFromPrefs={moodFromPrefs}
+              error={error}
+            />
+          )}
+
+          {step === "loading" && image && <AnalysisLoading image={image} onDone={finishAnalysis} />}
+
+          {/* No photo yet: 촬영 / 앨범 / 샘플 are the only actions — a dead "다음" would just be noise */}
+          {step !== "loading" && !(step === "upload" && !image) && (
+            <>
+              {/* Desktop: inline actions */}
+              <div className="mt-10 hidden items-center gap-3 md:flex">{renderButtons()}</div>
+              {/* Phones: thumb-reach sticky action bar (the tab bar is hidden in this flow) */}
+              <div className="fixed inset-x-0 bottom-0 z-40 border-t border-linen bg-ivory/95 px-5 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 backdrop-blur-md md:hidden">
+                <div className="mx-auto flex max-w-2xl items-center gap-2">{renderButtons(true)}</div>
+              </div>
+            </>
           )}
         </div>
-      )}
-
-      {step === "upload" && (
-        <OutfitUploader
-          image={image}
-          photo={photo}
-          isSample={Boolean(sampleId)}
-          sampleName={sample?.name}
-          onImage={takePhoto}
-          onSample={applySample}
-          occasionLabel={occasion ? OCCASION_MAP[occasion].label : undefined}
-          onClear={() => {
-            setImage(null);
-            setPhoto(null);
-            setSampleId(null);
-          }}
-          error={error}
-        />
-      )}
-
-      {step === "occasion" && (
-        <SituationStep
-          occasion={occasion}
-          onOccasion={chooseOccasion}
-          conditions={conditions}
-          onConditions={setConditions}
-          moodFromPrefs={moodFromPrefs}
-          error={error}
-        />
-      )}
-
-      {step === "loading" && image && <AnalysisLoading image={image} onDone={finishAnalysis} />}
-
-      {/* No photo yet: 촬영 / 앨범 / 샘플 are the only actions — a dead "다음" would just be noise */}
-      {step !== "loading" && !(step === "upload" && !image) && (
-        <>
-          {/* Desktop: inline actions */}
-          <div className="mt-10 hidden items-center gap-3 md:flex">{renderButtons()}</div>
-          {/* Phones: thumb-reach sticky action bar (the tab bar is hidden in this flow) */}
-          <div className="fixed inset-x-0 bottom-0 z-40 border-t border-linen bg-ivory/95 px-5 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 backdrop-blur-md md:hidden">
-            <div className="mx-auto flex max-w-2xl items-center gap-2">{renderButtons(true)}</div>
-          </div>
-        </>
-      )}
+      </div>
     </div>
   );
 }
