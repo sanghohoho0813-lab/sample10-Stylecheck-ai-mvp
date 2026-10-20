@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { RotateCcw } from "lucide-react";
+import LookTrio from "@/components/LookTrio";
 
 /**
  * Route-level error screen. Keeps the header, tab bar and footer (the layout)
@@ -14,7 +15,8 @@ export default function RouteError({ error, reset }: { error: Error & { digest?:
   }, [error]);
 
   return (
-    <div className="mx-auto max-w-md px-5 pb-24 pt-20 text-center" role="alert">
+    <div className="mx-auto max-w-md px-5 pb-24 pt-16 text-center" role="alert">
+      <LookTrio className="mb-8" />
       <h1 className="font-display text-section font-semibold text-ink">화면을 불러오지 못했어요</h1>
       <p className="mt-3 text-body text-ink-soft">
         잠시 후 다시 시도해주세요. 확인한 코디 기록은 이 기기에 그대로 남아 있어요.

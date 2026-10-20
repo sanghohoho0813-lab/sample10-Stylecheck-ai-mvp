@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatDate, formatRelativeDay, withEuro, withGwa } from "../utils";
+import { daysAgo, formatDate, formatRelativeDay, withEuro, withGwa } from "../utils";
 
 describe("Korean particles", () => {
   it.each([
@@ -41,5 +41,11 @@ describe("dates", () => {
     [new Date(2026, 8, 20, 12), "9월 20일"],
   ])("%s → %s", (date, expected) => {
     expect(formatRelativeDay(date.toISOString(), now)).toBe(expected);
+  });
+
+  it("counts calendar days, not 24-hour spans", () => {
+    expect(daysAgo(new Date(2026, 9, 6, 0, 1).toISOString(), now)).toBe(0);
+    expect(daysAgo(new Date(2026, 9, 5, 23, 59).toISOString(), now)).toBe(1);
+    expect(daysAgo(new Date(2026, 8, 29, 16).toISOString(), now)).toBe(7);
   });
 });

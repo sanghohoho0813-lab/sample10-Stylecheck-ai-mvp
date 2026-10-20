@@ -27,9 +27,9 @@ import type { AnalysisResult, ItemStatus } from "@/lib/types";
 import LookImage from "@/components/LookImage";
 
 const STATUS_META: Record<ItemStatus, { label: string; cls: string }> = {
-  good: { label: "잘 맞음", cls: "text-sage" },
-  adjust: { label: "조금 수정", cls: "text-gold" },
-  recommend: { label: "바꾸면 좋아요", cls: "text-rose-deep" },
+  good: { label: "잘 맞음", cls: "bg-sage/10 text-sage" },
+  adjust: { label: "조금 수정", cls: "bg-gold/10 text-gold" },
+  recommend: { label: "바꾸면 좋아요", cls: "bg-blush text-rose-deep" },
 };
 
 const signed = (n: number) => (n > 0 ? `+${n}` : `−${Math.abs(n)}`);
@@ -297,7 +297,7 @@ export default function ResultView({ id, share }: { id: string; share?: string }
             {/* ── 한 가지만 바꾼다면 — the product's point ─────────────────── */}
             <section
               aria-labelledby="next-action"
-              className={`mt-8 animate-fade-up rounded-lg border bg-white p-5 shadow-subtle transition-colors duration-300 md:p-6 ${
+              className={`mt-8 animate-fade-up rounded-lg border bg-white p-5 shadow-subtle transition-colors duration-300 [animation-delay:120ms] md:p-6 ${
                 applied ? "border-sage/40" : "border-linen"
               }`}
             >
@@ -323,7 +323,10 @@ export default function ResultView({ id, share }: { id: string; share?: string }
                   </p>
                 </div>
                 <ArrowRight className="h-4 w-4 self-center text-rose" aria-label="에서" />
-                <div className={`rounded-md px-3.5 py-3 ${applied ? "bg-sage/10" : "bg-blush"}`}>
+                <div
+                  key={applied ? "applied" : "pending"}
+                  className={`rounded-md px-3.5 py-3 ${applied ? "animate-scale-in bg-sage/10" : "bg-blush"}`}
+                >
                   <p className={`flex items-center gap-1 text-caption ${applied ? "text-sage" : "text-rose-deep"}`}>
                     {applied && <Check className="h-3.5 w-3.5" strokeWidth={2.75} />}
                     {applied ? "바꿔 입음" : "바꿀 것"}
@@ -519,7 +522,7 @@ export default function ResultView({ id, share }: { id: string; share?: string }
 
                   <div>
                     <h3 className="mb-4 text-meta font-semibold text-ink-soft">세부 점수</h3>
-                    <ScoreBreakdown scores={result.scores} />
+                    <ScoreBreakdown scores={result.scores} focus={rec.dimension} />
                   </div>
 
                   <div>
@@ -535,7 +538,9 @@ export default function ResultView({ id, share }: { id: string; share?: string }
                               <p className="text-body-sm font-semibold text-ink">{nameIsSlot ? item.comment : item.name}</p>
                               {!nameIsSlot && <p className="mt-0.5 text-meta text-ink-soft">{item.comment}</p>}
                             </div>
-                            <span className={`shrink-0 whitespace-nowrap pt-0.5 text-meta font-semibold ${meta.cls}`}>
+                            <span
+                              className={`shrink-0 whitespace-nowrap rounded-full px-2.5 py-0.5 text-caption font-semibold ${meta.cls}`}
+                            >
                               {meta.label}
                             </span>
                           </li>

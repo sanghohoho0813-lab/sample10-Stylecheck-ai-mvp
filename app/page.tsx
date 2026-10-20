@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Camera } from "lucide-react";
 import HeroQuickStart from "@/components/HeroQuickStart";
 import SampleBridgeCTA from "@/components/SampleBridgeCTA";
 import { OccasionIcon, OccasionLabel } from "@/components/OccasionIcon";
@@ -27,6 +27,31 @@ const STEPS = [
   { title: "사진 한 장", body: "오늘 입은 옷을 찍거나 앨범에서 골라요. 전신이 보이면 가장 좋아요." },
   { title: "가는 곳 하나", body: "결혼식·면접·소개팅 등 12가지 중 하나만 고르면 돼요. 나머지는 선택이에요." },
   { title: "한 가지만 바꾸기", body: "괜찮은지, 그리고 가장 효과가 큰 한 가지를 친구처럼 바로 알려드려요." },
+];
+
+const STEP_VISUALS = [
+  // 사진 한 장
+  <div key="photo" className="relative">
+    <LookImage src={DEMO_SAMPLES[1].image} alt="" sizes="56px" className="w-11 rounded-[0.4rem] md:w-[4.5rem] md:rounded-sm" />
+    <span className="absolute -bottom-1.5 -right-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-rose-deep text-white shadow-subtle md:-bottom-2 md:-right-3 md:h-9 md:w-9">
+      <Camera className="h-3.5 w-3.5 md:h-4.5 md:w-4.5" />
+    </span>
+  </div>,
+  // 가는 곳 하나
+  <span
+    key="place"
+    className="inline-flex h-8 items-center gap-1.5 rounded-full bg-rose-deep px-3 text-meta font-semibold text-white shadow-cta md:h-12 md:gap-2 md:px-5 md:text-body"
+  >
+    <OccasionIcon id={HERO_SAMPLE.occasion} className="h-4 w-4 md:h-5 md:w-5" />
+    {OCCASION_MAP[HERO_SAMPLE.occasion].label}
+  </span>,
+  // 한 가지만 바꾸기
+  <div key="change" className="px-2 text-center">
+    <span className="rounded-full bg-blush px-2.5 py-0.5 text-caption font-semibold tabular-nums text-rose-deep md:px-3.5 md:py-1 md:text-body-sm">
+      {HERO_SCORE} → {HERO_AFTER}점
+    </span>
+    <p className="mt-2 text-caption font-semibold leading-snug text-ink md:mt-3 md:text-lead">{HERO_SAMPLE.recommendation.to}</p>
+  </div>,
 ];
 
 function SectionHeading({ title, sub }: { title: string; sub: string }) {
@@ -160,18 +185,20 @@ export default function HomePage() {
       {/* ── How it works ─────────────────────────────────────────────── */}
       <section className="mx-auto max-w-6xl px-5 py-12 md:px-8 md:py-20">
         <h2 className="font-display text-section font-semibold text-ink md:text-page">이렇게 확인해요</h2>
-        <ol className="mt-6 grid gap-5 md:mt-8 md:grid-cols-3 md:gap-10">
+        <ol className="mt-6 grid gap-4 md:mt-8 md:grid-cols-3 md:gap-6 lg:gap-8">
           {STEPS.map((step, i) => (
-            <li
-              key={step.title}
-              className="flex gap-4 border-t border-linen pt-5 first:border-t-0 first:pt-0 md:block md:border-t-2 md:border-ink md:pt-5 md:first:border-t-2 md:first:pt-5"
-            >
-              <span className="w-7 shrink-0 font-display text-lead font-semibold tabular-nums text-rose-deep md:text-body">
-                0{i + 1}
-              </span>
-              <div className="md:mt-2">
-                <h3 className="text-title font-semibold text-ink">{step.title}</h3>
-                <p className="mt-1.5 text-body-sm text-ink-soft md:mt-2">{step.body}</p>
+            <li key={step.title} className="flex items-center gap-4 md:block">
+              {/* Each step pictured with the real piece of UI it produces */}
+              <div
+                className="flex h-24 w-26 shrink-0 items-center justify-center rounded-md border border-linen bg-white md:h-40 md:w-full md:rounded-lg"
+                aria-hidden
+              >
+                {STEP_VISUALS[i]}
+              </div>
+              <div className="min-w-0 md:mt-5">
+                <span className="font-display text-body font-semibold tabular-nums text-rose-deep">0{i + 1}</span>
+                <h3 className="mt-0.5 text-title font-semibold text-ink md:mt-1">{step.title}</h3>
+                <p className="mt-1 text-body-sm text-ink-soft md:mt-2">{step.body}</p>
               </div>
             </li>
           ))}

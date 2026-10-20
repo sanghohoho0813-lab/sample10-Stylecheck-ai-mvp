@@ -37,8 +37,8 @@
   --color-rose-ink: #963d54; /* pressed / hover for primary fills */
   --color-rose-soft: #f2d3da;
   /* status */
-  --color-sage: #557f51; /* good / success */
-  --color-gold: #8f6d2c; /* adjust / warning */
+  --color-sage: #4b7247; /* good / success — 4.8:1+ on cream, blush and its own 10% tint */
+  --color-gold: #806127; /* adjust / warning — same */
   --color-danger: #b83c36; /* destructive */
 
   --font-display: "Playfair Display", "Noto Serif KR", serif;
@@ -91,6 +91,8 @@
   --animate-pulse-soft: pulse-soft 1.6s ease-in-out infinite;
   --animate-shimmer: shimmer 1.6s linear infinite;
   --animate-heart-pop: heart-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  /* "This needs an answer" — one short sideways nudge */
+  --animate-nudge: nudge 0.42s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
   /* Bridge CTA only — one slow pass every 6s, resting the rest of the cycle */
   --animate-light-sweep: light-sweep 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 
@@ -113,6 +115,13 @@
   @keyframes shimmer {
     from { background-position: -200% 0; }
     to { background-position: 200% 0; }
+  }
+  @keyframes nudge {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(5px); }
+    60% { transform: translateX(-3px); }
+    80% { transform: translateX(2px); }
   }
   @keyframes heart-pop {
     0% { transform: scale(1); }
@@ -154,9 +163,13 @@ body {
   color: var(--color-ink);
 }
 
-:focus-visible {
-  outline: 2px solid var(--color-rose);
-  outline-offset: 2px;
+/* In the base layer so a component's own `outline-none` (step titles and other
+   programmatic focus targets) takes precedence over it. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--color-rose);
+    outline-offset: 2px;
+  }
 }
 
 .font-display {
@@ -233,6 +246,8 @@ body {
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    /* A staggered entrance would otherwise sit invisible through its delay */
+    animation-delay: 0ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;

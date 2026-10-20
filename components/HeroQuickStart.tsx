@@ -9,6 +9,7 @@ import { currentSeason, MOODS, OCCASION_MAP } from "@/lib/occasions";
 import { getPreferredMoods, listAnalyses, setDraft } from "@/lib/storage";
 import type { AnalysisResult } from "@/lib/types";
 import { formatRelativeDay, type PreparedImage } from "@/lib/utils";
+import LookImage from "./LookImage";
 import { usePhotoPicker } from "./usePhotoPicker";
 
 /**
@@ -118,6 +119,8 @@ export default function HeroQuickStart({ sampleHref }: { sampleHref: string }) {
       <p className="mt-3 min-h-6 text-meta md:mt-6">
         {last && (
           <Link href={`/result/${last.id}`} className="group inline-flex items-center gap-1.5 text-ink-soft hover:text-ink">
+            {/* The look itself, at a glance — 24px fits the reserved line */}
+            <LookImage src={last.image} alt="" sizes="18px" className="mr-0.5 h-6 w-[1.125rem] rounded-[3px]" />
             <span className="text-ink-faint">지난번</span>
             {formatRelativeDay(last.createdAt)} {OCCASION_MAP[last.occasion].label} ·{" "}
             {last.appliedAt ? "추천대로 바꿔 입음" : adviceFor(last).headline}

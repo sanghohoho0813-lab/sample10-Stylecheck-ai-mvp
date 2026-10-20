@@ -91,6 +91,15 @@ test.describe("결과 · 추천 적용 · 기록", () => {
     expect(await countOf(page, "전체")).toBe(3);
   });
 
+  test("history separates the last seven days from earlier records", async ({ page }) => {
+    await page.goto("/history");
+    await expect(page.getByRole("heading", { name: /최근 7일 · 2/ })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /이전 기록 · 1/ })).toBeVisible();
+    // A filter with records from one period alone needs no headings
+    await page.getByRole("tab", { name: /저장한 코디/ }).click();
+    await expect(page.getByRole("heading", { name: /최근 7일/ })).toHaveCount(0);
+  });
+
   test("history names the user's patterns once there is enough data", async ({ page }) => {
     await page.goto("/history");
     const patterns = page.getByRole("region", { name: "내 스타일 패턴" });

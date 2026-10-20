@@ -59,6 +59,7 @@ export default function AnalysisLoading({ image, caption, onDone }: Props) {
       <div
         className="mt-5 h-1 w-48 overflow-hidden rounded-full bg-blush-deep"
         role="progressbar"
+        aria-label="판정 진행률"
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={Math.round(progress)}

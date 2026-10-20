@@ -4,8 +4,10 @@ import { ArrowRight, Check } from "lucide-react";
 import SampleBridgeCTA from "@/components/SampleBridgeCTA";
 import { GuideChipBar, GuideSideNav } from "@/components/GuideNav";
 import { OccasionIcon } from "@/components/OccasionIcon";
+import { DEMO_SAMPLES } from "@/lib/demo-samples";
 import { GUIDES } from "@/lib/guides";
 import { OCCASIONS } from "@/lib/occasions";
+import { withEuro } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "상황별 스타일 가이드",
@@ -29,6 +31,7 @@ export default function GuidePage() {
             <div className="divide-y divide-linen lg:border-t lg:border-linen">
               {OCCASIONS.map((o) => {
                 const guide = GUIDES[o.id];
+                const sample = DEMO_SAMPLES.find((s) => s.occasion === o.id);
                 return (
                   <section
                     key={o.id}
@@ -73,13 +76,24 @@ export default function GuidePage() {
                       </div>
                     </div>
 
-                    <Link
-                      href={`/check?occasion=${o.id}`}
-                      className="mt-5 inline-flex min-h-10 items-center gap-1.5 text-body-sm font-semibold text-rose-deep hover:underline hover:underline-offset-4"
-                    >
-                      이 상황으로 코디 확인하기
-                      <ArrowRight className="h-4 w-4" />
-                    </Link>
+                    <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-1">
+                      <Link
+                        href={`/check?occasion=${o.id}`}
+                        className="inline-flex min-h-10 items-center gap-1.5 text-body-sm font-semibold text-rose-deep hover:underline hover:underline-offset-4"
+                      >
+                        이 상황으로 코디 확인하기
+                        <ArrowRight className="h-4 w-4" />
+                      </Link>
+                      {/* A ready-made look for this situation, when there is one */}
+                      {sample && (
+                        <Link
+                          href={`/check?sample=${sample.id}`}
+                          className="inline-flex min-h-10 items-center text-body-sm font-semibold text-ink-soft underline decoration-linen underline-offset-4 hover:text-ink hover:decoration-ink"
+                        >
+                          {withEuro(sample.name)} 체험하기
+                        </Link>
+                      )}
+                    </div>
                   </section>
                 );
               })}

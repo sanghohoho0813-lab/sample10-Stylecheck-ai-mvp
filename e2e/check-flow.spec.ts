@@ -63,11 +63,16 @@ test.describe("코디 확인 흐름", () => {
     await expect.poll(() => currentStep(page)).toBe("상황");
   });
 
-  test("asks for a situation before judging", async ({ page }) => {
+  test("asks for a situation before judging — where the eye is", async ({ page }) => {
     await page.goto("/check");
     await page.locator('input[data-picker="album"]').setInputFiles(OUTFIT);
+    await expect(page.getByRole("radiogroup", { name: "상황 선택" })).toBeVisible();
+    // Scrolled away from the question, the button still explains in view
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
     await visibleButton(page, "코디 판정하기").click({ force: true }); // aria-disabled, still explains
-    await expect(page.locator("main").getByRole("alert")).toContainText("어디에 입고 갈 옷인지");
+    const alert = page.locator("main").getByRole("alert");
+    await expect(alert).toContainText("어디에 입고 갈 옷인지");
+    await expect(alert).toBeInViewport();
   });
 
   test("browser back and forward walk the steps without losing the photo", async ({ page }) => {

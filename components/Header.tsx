@@ -29,7 +29,7 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-linen/80 bg-ivory/90 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 md:h-16 md:px-8">
-        <Link href="/" className="shrink-0 font-display text-title font-semibold tracking-tight text-ink">
+        <Link href="/" data-logotype className="shrink-0 font-display text-title font-semibold tracking-tight text-ink">
           StyleCheck <em className="not-italic text-rose">AI</em>
         </Link>
 

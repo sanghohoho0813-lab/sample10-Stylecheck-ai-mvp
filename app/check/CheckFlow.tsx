@@ -67,6 +67,8 @@ export default function CheckFlow() {
   const [moodFromPrefs, setMoodFromPrefs] = useState(false);
   const [conditions, setConditions] = useState<AnalysisConditions>(freshConditions);
   const [error, setError] = useState<string | null>(null);
+  /** Blocked "코디 판정하기" taps — each one re-runs the grid's nudge */
+  const [attempt, setAttempt] = useState(0);
 
   /**
    * The flow's history entries up to the current one, oldest first. Stored in
@@ -236,7 +238,14 @@ export default function CheckFlow() {
       if (!image) return setError("먼저 코디 사진을 올려주세요.");
       advance("occasion");
     } else if (step === "occasion") {
-      if (!occasion) return setError("어디에 입고 갈 옷인지 하나만 골라주세요.");
+      if (!occasion) {
+        // The button sits in the bottom bar; the question may be off screen
+        setError("어디에 입고 갈 옷인지 하나만 골라주세요.");
+        setAttempt((a) => a + 1);
+        const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        document.getElementById("step-title")?.scrollIntoView({ block: "start", behavior: still ? "auto" : "smooth" });
+        return;
+      }
       advance("loading");
     }
   };
@@ -463,6 +472,7 @@ export default function CheckFlow() {
               onConditions={setConditions}
               moodFromPrefs={moodFromPrefs}
               error={error}
+              attempt={attempt}
             />
           )}
 

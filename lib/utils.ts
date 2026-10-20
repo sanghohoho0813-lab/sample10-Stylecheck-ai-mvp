@@ -7,10 +7,15 @@ export function formatDate(iso: string): string {
 }
 
 /** 오늘 14:05 / 어제 09:30 / 3일 전 / 9월 2일 — for lists where recency matters more than the date */
+/** Calendar days between `iso` and `now` (0 = today, 1 = yesterday …). */
+export function daysAgo(iso: string, now = new Date()): number {
+  const startOf = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+  return Math.round((startOf(now) - startOf(new Date(iso))) / 86400000);
+}
+
 export function formatRelativeDay(iso: string, now = new Date()): string {
   const d = new Date(iso);
-  const startOf = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
-  const days = Math.round((startOf(now) - startOf(d)) / 86400000);
+  const days = daysAgo(iso, now);
   const time = `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
   // Same-day checks are told apart by time
   if (days <= 0) return `오늘 ${time}`;

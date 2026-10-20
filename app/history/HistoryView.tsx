@@ -11,9 +11,10 @@ import { deleteAnalysis, listAnalyses, restoreAnalysis, toggleFavorite } from "@
 import { OCCASION_MAP } from "@/lib/occasions";
 import { MIN_RECORDS, styleInsights } from "@/lib/insights";
 import { verdictFor } from "@/lib/style-engine";
-import { formatRelativeDay } from "@/lib/utils";
+import { daysAgo, formatRelativeDay } from "@/lib/utils";
 import type { AnalysisResult } from "@/lib/types";
 import LookImage from "@/components/LookImage";
+import LookTrio from "@/components/LookTrio";
 
 type Filter = "all" | "favorite" | "applied";
 
@@ -74,6 +75,74 @@ export default function HistoryView() {
   const active = FILTERS.find((f) => f.id === filter)!;
   const total = items?.length ?? 0;
   const insights = items ? styleInsights(items) : [];
+  const groups = [
+    { id: "recent", label: "최근 7일", items: visible.filter((a) => daysAgo(a.createdAt) < 7) },
+    { id: "earlier", label: "이전 기록", items: visible.filter((a) => daysAgo(a.createdAt) >= 7) },
+  ].filter((g) => g.items.length > 0);
+
+  const renderCard = (a: AnalysisResult) => {
+    const index = visible.indexOf(a);
+    const occ = OCCASION_MAP[a.occasion];
+    const applied = Boolean(a.appliedAt);
+    return (
+      <li
+        key={a.id}
+        className="group relative flex gap-4 rounded-md border border-linen bg-white p-3 transition-[border-color,transform] duration-150 hover:border-rose-soft has-[>a:active]:scale-[0.985] md:flex-col md:gap-0 md:overflow-hidden md:p-0"
+      >
+        <Link
+          href={`/result/${a.id}`}
+          className="absolute inset-0 z-0 rounded-md"
+          aria-label={`${formatRelativeDay(a.createdAt)} ${occ.label} 판정 결과 보기`}
+        />
+        <div className="w-20 shrink-0 overflow-hidden rounded-sm min-[380px]:w-24 md:w-full md:rounded-none">
+          <LookImage
+            src={a.image}
+            alt=""
+            sizes="(min-width: 768px) 300px, 96px"
+            className="w-full transition-transform duration-500 md:group-hover:scale-[1.02]"
+            priority={index < 2}
+          />
+        </div>
+        <div className="min-w-0 flex-1 py-0.5 md:px-4 md:pb-4 md:pt-3.5">
+          <p className="text-meta text-ink-faint">
+            {formatRelativeDay(a.createdAt)} · <span className="font-semibold text-rose-deep">{occ.label}</span>
+            <span className="tabular-nums"> · {a.overallScore}점</span>
+          </p>
+          <p className="mt-1 text-body font-semibold text-ink">{verdictFor(a.overallScore)}</p>
+          <p className="mt-1 line-clamp-2 text-meta text-ink-soft">
+            <span className="text-ink-faint">한 가지 </span>
+            {a.primaryRecommendation.from} → {a.primaryRecommendation.to}
+          </p>
+          {applied && (
+            <p className="mt-2 inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-sage/10 px-2.5 py-0.5 text-meta font-semibold tabular-nums text-sage">
+              <Check className="h-3.5 w-3.5" strokeWidth={2.75} />
+              바꿔 입음 {a.primaryRecommendation.scoreBefore}→{a.primaryRecommendation.scoreAfter}
+            </p>
+          )}
+        </div>
+        {/* Phones: a column beside the text. Lookbook: floating on the photo. */}
+        <div className="relative z-10 flex flex-col items-center justify-between md:absolute md:right-3 md:top-3 md:flex-row-reverse md:gap-2">
+          <button
+            type="button"
+            onClick={() => onFavorite(a.id)}
+            aria-pressed={a.favorite}
+            aria-label={a.favorite ? "저장 해제" : "저장하기"}
+            className="flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-blush md:bg-white/90 md:shadow-subtle md:backdrop-blur-sm"
+          >
+            <Heart className={`h-[1.15rem] w-[1.15rem] ${a.favorite ? "fill-rose text-rose" : "text-ink-faint"}`} />
+          </button>
+          <button
+            type="button"
+            onClick={() => onDelete(a.id)}
+            aria-label="기록 삭제"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-blush hover:text-danger md:bg-white/90 md:shadow-subtle md:backdrop-blur-sm md:pointer-fine:opacity-0 md:focus-visible:opacity-100 md:group-hover:opacity-100"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
+      </li>
+    );
+  };
 
   return (
     <>
@@ -116,21 +185,7 @@ export default function HistoryView() {
           </div>
         ) : visible.length === 0 ? (
           <div className="mt-14 flex flex-col items-center text-center">
-            {total === 0 && (
-              // What will collect here: looks, not numbers
-              <div className="mb-7 flex items-end" aria-hidden>
-                {DEMO_SAMPLES.slice(1, 4).map((s, i) => (
-                  <div
-                    key={s.id}
-                    className={`overflow-hidden rounded-sm border-2 border-cream shadow-subtle ${
-                      i === 1 ? "z-10 -mx-3 w-20" : "w-16 opacity-80"
-                    }`}
-                  >
-                    <LookImage src={s.image} alt="" sizes="80px" className="w-full" />
-                  </div>
-                ))}
-              </div>
-            )}
+            {total === 0 && <LookTrio className="mb-7" />}
             <h2 className="font-display text-title font-semibold text-ink">{active.empty.title}</h2>
             <p className="mt-2 text-body-sm text-ink-soft">{active.empty.body}</p>
             {total > 0 ? (
@@ -176,71 +231,20 @@ export default function HistoryView() {
                   </p>
                 )
               ))}
-            {/* Phones: a reading list. Tablets up: a lookbook, the outfit first. */}
-            <ul className="mt-6 grid gap-3 md:grid-cols-3 md:gap-5">
-              {visible.map((a, index) => {
-                const occ = OCCASION_MAP[a.occasion];
-                const applied = Boolean(a.appliedAt);
-                return (
-                  <li
-                    key={a.id}
-                    className="group relative flex gap-4 rounded-md border border-linen bg-white p-3 transition-[border-color,transform] duration-150 hover:border-rose-soft has-[>a:active]:scale-[0.985] md:flex-col md:gap-0 md:overflow-hidden md:p-0"
-                  >
-                    <Link
-                      href={`/result/${a.id}`}
-                      className="absolute inset-0 z-0 rounded-md"
-                      aria-label={`${formatRelativeDay(a.createdAt)} ${occ.label} 판정 결과 보기`}
-                    />
-                    <div className="w-20 shrink-0 overflow-hidden rounded-sm min-[380px]:w-24 md:w-full md:rounded-none">
-                      <LookImage
-                        src={a.image}
-                        alt=""
-                        sizes="(min-width: 768px) 300px, 96px"
-                        className="w-full transition-transform duration-500 md:group-hover:scale-[1.02]"
-                        priority={index < 2}
-                      />
-                    </div>
-                    <div className="min-w-0 flex-1 py-0.5 md:px-4 md:pb-4 md:pt-3.5">
-                      <p className="text-meta text-ink-faint">
-                        {formatRelativeDay(a.createdAt)} · <span className="font-semibold text-rose-deep">{occ.label}</span>
-                        <span className="tabular-nums"> · {a.overallScore}점</span>
-                      </p>
-                      <p className="mt-1 text-body font-semibold text-ink">{verdictFor(a.overallScore)}</p>
-                      <p className="mt-1 line-clamp-2 text-meta text-ink-soft">
-                        <span className="text-ink-faint">한 가지 </span>
-                        {a.primaryRecommendation.from} → {a.primaryRecommendation.to}
-                      </p>
-                      {applied && (
-                        <p className="mt-2 inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-sage/10 px-2.5 py-0.5 text-meta font-semibold tabular-nums text-sage">
-                          <Check className="h-3.5 w-3.5" strokeWidth={2.75} />
-                          바꿔 입음 {a.primaryRecommendation.scoreBefore}→{a.primaryRecommendation.scoreAfter}
-                        </p>
-                      )}
-                    </div>
-                    {/* Phones: a column beside the text. Lookbook: floating on the photo. */}
-                    <div className="relative z-10 flex flex-col items-center justify-between md:absolute md:right-3 md:top-3 md:flex-row-reverse md:gap-2">
-                      <button
-                        type="button"
-                        onClick={() => onFavorite(a.id)}
-                        aria-pressed={a.favorite}
-                        aria-label={a.favorite ? "저장 해제" : "저장하기"}
-                        className="flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-blush md:bg-white/90 md:shadow-subtle md:backdrop-blur-sm"
-                      >
-                        <Heart className={`h-[1.15rem] w-[1.15rem] ${a.favorite ? "fill-rose text-rose" : "text-ink-faint"}`} />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => onDelete(a.id)}
-                        aria-label="기록 삭제"
-                        className="flex h-10 w-10 items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-blush hover:text-danger md:bg-white/90 md:shadow-subtle md:backdrop-blur-sm md:pointer-fine:opacity-0 md:focus-visible:opacity-100 md:group-hover:opacity-100"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
+            {/* Phones: a reading list. Tablets up: a lookbook, the outfit first.
+                Grouped by time once there is more than one period to tell apart. */}
+            <div className="mt-6 space-y-8">
+              {groups.map((g) => (
+                <div key={g.id}>
+                  {groups.length > 1 && (
+                    <h2 className="mb-3 text-meta font-semibold text-ink-faint">
+                      {g.label} <span className="font-normal tabular-nums">· {g.items.length}</span>
+                    </h2>
+                  )}
+                  <ul className="grid gap-3 md:grid-cols-3 md:gap-5">{g.items.map(renderCard)}</ul>
+                </div>
+              ))}
+            </div>
           </>
         )}
       </div>

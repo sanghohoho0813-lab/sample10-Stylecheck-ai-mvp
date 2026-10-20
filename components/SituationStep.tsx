@@ -14,6 +14,8 @@ interface Props {
   /** True when "원하는 느낌" was pre-filled from 마이페이지 선호 스타일 */
   moodFromPrefs?: boolean;
   error: string | null;
+  /** Increments on each blocked submit — replays the grid's nudge */
+  attempt?: number;
 }
 
 function Chips({
@@ -60,7 +62,15 @@ function Chips({
  * that situation leaves open. The grid folds into a single line so the
  * optional part reads as optional, and "코디 판정하기" works at any point.
  */
-export default function SituationStep({ occasion, onOccasion, conditions, onConditions, moodFromPrefs, error }: Props) {
+export default function SituationStep({
+  occasion,
+  onOccasion,
+  conditions,
+  onConditions,
+  moodFromPrefs,
+  error,
+  attempt = 0,
+}: Props) {
   const [choosing, setChoosing] = useState(!occasion);
   // Open from the start only if the user already picked a different season
   const [seasonOpen, setSeasonOpen] = useState(() => conditions.season !== currentSeason());
@@ -85,8 +95,15 @@ export default function SituationStep({ occasion, onOccasion, conditions, onCond
 
       {showGrid ? (
         <>
-          <p className="mt-2 text-body text-ink-soft">하나만 고르면 바로 판정할 수 있어요.</p>
-          <div className="mt-6">
+          {/* The explanation replaces the hint in place — where the eye already is */}
+          {error ? (
+            <p role="alert" className="mt-2 text-body font-semibold text-rose-deep">
+              {error}
+            </p>
+          ) : (
+            <p className="mt-2 text-body text-ink-soft">하나만 고르면 바로 판정할 수 있어요.</p>
+          )}
+          <div key={attempt} className={`mt-6 ${attempt > 0 ? "animate-nudge" : ""}`}>
             <OccasionGrid
               selected={occasion}
               onSelect={(id, commit) => {
@@ -95,11 +112,6 @@ export default function SituationStep({ occasion, onOccasion, conditions, onCond
               }}
             />
           </div>
-          {error && (
-            <p role="alert" className="mt-4 rounded-sm bg-blush px-4 py-3 text-center text-body-sm font-medium text-rose-deep">
-              {error}
-            </p>
-          )}
         </>
       ) : (
         occasion &&

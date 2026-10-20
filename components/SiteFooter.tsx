@@ -12,7 +12,7 @@ export default function SiteFooter() {
     <footer className="border-t border-linen bg-ivory">
       <div className="mx-auto flex max-w-6xl flex-col gap-5 px-5 py-10 md:flex-row md:items-end md:justify-between md:px-8">
         <div>
-          <p className="font-display text-title font-semibold text-ink">
+          <p data-logotype className="font-display text-title font-semibold text-ink">
             StyleCheck <em className="not-italic text-rose">AI</em>
           </p>
           <p className="mt-2 max-w-md text-meta text-ink-faint">
