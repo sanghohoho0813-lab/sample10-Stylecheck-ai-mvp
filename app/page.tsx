@@ -43,7 +43,7 @@ export default function HomePage() {
     <div>
       {/* ── Hero ─────────────────────────────────────────────────────── */}
       <section className="bg-[linear-gradient(180deg,var(--color-blush)_0%,color-mix(in_srgb,var(--color-blush)_45%,var(--color-cream))_70%,var(--color-cream)_100%)]">
-        <div className="mx-auto grid max-w-6xl gap-8 px-5 pb-10 pt-7 md:grid-cols-[minmax(0,1fr)_20rem] md:items-center md:px-8 md:pb-16 md:pt-14 lg:grid-cols-[minmax(0,1fr)_30rem] lg:gap-12 lg:pb-20">
+        <div className="mx-auto grid max-w-6xl gap-6 px-5 pb-10 pt-7 md:grid-cols-[minmax(0,1fr)_20rem] md:items-center md:px-8 md:pb-16 md:pt-14 lg:grid-cols-[minmax(0,1fr)_30rem] lg:gap-12 lg:pb-20">
           <HeroQuickStart sampleHref={SAMPLE_HREF} />
 
           {/* What a result looks like — the real wedding sample, verdict first.
@@ -103,7 +103,7 @@ export default function HomePage() {
             const score = evaluateOccasionFit(s.baseScores, s.occasion);
             return (
               <li key={s.id} className="w-[42%] shrink-0 snap-start sm:w-[30%] md:w-auto">
-                <Link href={`/check?sample=${s.id}`} className="group block">
+                <Link href={`/check?sample=${s.id}`} className="group block transition-transform duration-150 active:scale-[0.98]">
                   <div className="overflow-hidden rounded-md bg-blush">
                     <LookImage
                       src={s.image}
@@ -139,7 +139,7 @@ export default function HomePage() {
               <li key={o.id}>
                 <Link
                   href={`/check?occasion=${o.id}`}
-                  className="group flex flex-col items-center gap-2 rounded-md text-center lg:flex-row lg:gap-4 lg:border lg:border-linen lg:p-4 lg:text-left lg:transition-colors lg:hover:border-rose-soft lg:hover:bg-blush/40"
+                  className="group flex flex-col items-center gap-2 rounded-md text-center transition-[transform,background-color,border-color] duration-150 active:scale-[0.96] lg:flex-row lg:gap-4 lg:border lg:border-linen lg:p-4 lg:text-left lg:hover:border-rose-soft lg:hover:bg-blush/40 lg:active:scale-[0.98]"
                 >
                   <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-blush text-rose-deep transition-colors group-hover:bg-blush-deep lg:h-12 lg:w-12">
                     <OccasionIcon id={o.id} className="h-6 w-6" />

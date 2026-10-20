@@ -15,8 +15,9 @@ const ITEMS = [
 export default function MobileNav() {
   const pathname = usePathname() ?? "/";
 
-  // The check flow is a focused task with its own sticky action bar.
-  if (pathname.startsWith("/check")) return null;
+  // The check flow (a focused task) and the result (a detail screen) bring
+  // their own sticky action bar instead.
+  if (pathname.startsWith("/check") || pathname.startsWith("/result/")) return null;
 
   return (
     <nav
@@ -31,7 +32,7 @@ export default function MobileNav() {
               key={href}
               href={href}
               aria-current={active ? "page" : undefined}
-              className="flex min-w-0 flex-1 flex-col items-center justify-center gap-1"
+              className="flex min-w-0 flex-1 flex-col items-center justify-center gap-1 transition-transform duration-75 active:scale-95"
             >
               {primary ? (
                 <span className="flex h-8 w-8 items-center justify-center rounded-full bg-rose-deep text-white">

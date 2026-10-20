@@ -13,7 +13,14 @@ const STAGES = [
 
 const STAGE_MS = 700;
 
-export default function AnalysisLoading({ image, onDone }: { image: string; onDone: () => void }) {
+interface Props {
+  image: string;
+  /** What the photo is being judged for, e.g. "데이트 · 카페 기준" */
+  caption?: string;
+  onDone: () => void;
+}
+
+export default function AnalysisLoading({ image, caption, onDone }: Props) {
   const [stage, setStage] = useState(0);
 
   useEffect(() => {
@@ -28,8 +35,12 @@ export default function AnalysisLoading({ image, onDone }: { image: string; onDo
   const progress = Math.min(100, (stage / STAGES.length) * 100);
 
   return (
-    <div className="flex animate-fade-in flex-col items-center pt-2 text-center" aria-busy="true">
-      <div className="relative w-40 overflow-hidden rounded-lg md:w-48">
+    // Phones: centred in the space the flow leaves, instead of hanging at the top
+    <div
+      className="flex min-h-[calc(100svh-12rem)] animate-fade-in flex-col items-center justify-center pb-6 text-center md:min-h-0 md:justify-start md:pb-0 md:pt-2"
+      aria-busy="true"
+    >
+      <div className="relative w-44 overflow-hidden rounded-lg shadow-raised md:w-48">
         <LookImage src={image} alt="확인 중인 코디 사진" sizes="192px" className="w-full" priority />
         {/* A single scan line — the only motion that says "reading the photo" */}
         <div
@@ -43,6 +54,7 @@ export default function AnalysisLoading({ image, onDone }: { image: string; onDo
       </div>
 
       <h1 id="step-title" tabIndex={-1} className="outline-none mt-8 font-display text-title font-semibold text-ink md:text-section">코디를 확인하고 있어요</h1>
+      {caption && <p className="mt-1.5 text-meta text-ink-faint">{caption}</p>}
 
       <div
         className="mt-5 h-1 w-48 overflow-hidden rounded-full bg-blush-deep"

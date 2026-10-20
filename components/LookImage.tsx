@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { LOOK_TINTS } from "@/lib/look-tints";
 
 interface Props {
   src: string;
@@ -28,6 +29,7 @@ export default function LookImage({ src, alt, sizes, className = "", priority = 
         sizes={sizes}
         priority={priority}
         className={`aspect-[3/4] object-cover ${className}`}
+        style={{ backgroundColor: LOOK_TINTS[src] }}
       />
     );
   }

@@ -466,7 +466,17 @@ export default function CheckFlow() {
             />
           )}
 
-          {step === "loading" && image && <AnalysisLoading image={image} onDone={finishAnalysis} />}
+          {step === "loading" && image && (
+            <AnalysisLoading
+              image={image}
+              caption={
+                occasion
+                  ? `${[OCCASION_MAP[occasion].label, conditions.companion, conditions.place].filter(Boolean).join(" · ")} 기준`
+                  : undefined
+              }
+              onDone={finishAnalysis}
+            />
+          )}
 
           {/* No photo yet: 촬영 / 앨범 / 샘플 are the only actions — a dead "다음" would just be noise */}
           {step !== "loading" && !(step === "upload" && !image) && (

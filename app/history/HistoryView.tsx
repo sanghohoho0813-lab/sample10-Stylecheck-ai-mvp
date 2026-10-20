@@ -98,7 +98,10 @@ export default function HistoryView() {
                   }`}
                 >
                   {f.label}
-                  {items && <span className={`tabular-nums ${on ? "text-white/70" : "text-ink-faint"}`}>{count}</span>}
+                  {/* The count's slot exists before the records load, so the tabs keep their width */}
+                  <span className={`inline-block min-w-[1ch] tabular-nums ${on ? "text-white/70" : "text-ink-faint"}`}>
+                    {items ? count : ""}
+                  </span>
                 </button>
               );
             })}
@@ -181,7 +184,7 @@ export default function HistoryView() {
                 return (
                   <li
                     key={a.id}
-                    className="group relative flex gap-4 rounded-md border border-linen bg-white p-3 transition-colors duration-150 hover:border-rose-soft md:flex-col md:gap-0 md:overflow-hidden md:p-0"
+                    className="group relative flex gap-4 rounded-md border border-linen bg-white p-3 transition-[border-color,transform] duration-150 hover:border-rose-soft has-[>a:active]:scale-[0.985] md:flex-col md:gap-0 md:overflow-hidden md:p-0"
                   >
                     <Link
                       href={`/result/${a.id}`}

@@ -151,7 +151,7 @@ export default function OutfitUploader({
                 type="button"
                 onClick={() => onSample(s.id)}
                 // Phones: a swipeable shelf. Desktop: compact cards, names in full.
-                className="group w-28 shrink-0 text-left md:flex md:w-auto md:items-center md:gap-3 md:rounded-md md:border md:border-linen md:bg-white md:p-2 md:transition-colors md:hover:border-rose-soft"
+                className="group w-28 shrink-0 text-left transition-[transform,border-color] duration-150 active:scale-[0.97] md:flex md:w-auto md:items-center md:gap-3 md:rounded-md md:border md:border-linen md:bg-white md:p-2 md:hover:border-rose-soft"
               >
                 <LookImage
                   src={s.image}

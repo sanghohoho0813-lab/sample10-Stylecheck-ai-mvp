@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { checkUploadedOutfit, countOf, visibleButton } from "./helpers";
+import { checkUploadedOutfit, countOf, isPhone, visibleButton } from "./helpers";
 
 test.describe("결과 · 추천 적용 · 기록", () => {
   test("applying the one change shows before → after and becomes part of the history", async ({ page }) => {
@@ -41,6 +41,26 @@ test.describe("결과 · 추천 적용 · 기록", () => {
     await page.getByRole("button", { name: "되돌리기" }).click();
     await page.reload();
     await expect(visibleButton(page, "추천대로 바꿔 입기")).toBeVisible();
+  });
+
+  test("on phones the result's actions stay under the thumb", async ({ page }, info) => {
+    test.skip(!isPhone(info), "the phone action bar");
+    await page.goto("/check?sample=wedding-navy");
+    await visibleButton(page, "코디 판정하기").click();
+    await page.waitForURL("**/result/**");
+    // The detail screen brings its own bar instead of the tab bar
+    await expect(page.getByRole("navigation", { name: "하단 메뉴" })).toHaveCount(0);
+    const bar = page.getByRole("group", { name: "이 결과로 할 일" });
+
+    await page.evaluate(() => window.scrollTo(0, 700));
+    await bar.getByRole("button", { name: "추천대로 바꿔 입기" }).click();
+    // Applying from far down brings the changed verdict and score into view
+    await expect(page.locator("#verdict")).toHaveText("이제 결혼식에 딱 맞아요");
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThan(5);
+    await expect(bar.getByRole("button", { name: "다시 확인하기" })).toBeVisible();
+
+    await bar.getByRole("button", { name: "저장", exact: true }).click();
+    await expect(bar.getByRole("button", { name: "저장됨" })).toBeVisible();
   });
 
   test("alternatives sit under the one change for when the item is missing", async ({ page }) => {

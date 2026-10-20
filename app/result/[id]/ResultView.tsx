@@ -140,6 +140,14 @@ export default function ResultView({ id, share }: { id: string; share?: string }
     if (!next) toast("바꿔 입기를 취소했어요", "info");
   };
 
+  // From the bottom bar the card may be off screen — bring the verdict, where
+  // the score and headline change, into view.
+  const applyFromBar = () => {
+    onApply(true);
+    const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: 0, behavior: still ? "auto" : "smooth" });
+  };
+
   const onShare = async () => {
     const url = shareUrl(result, window.location.origin);
     const text = shareMessage(result);
@@ -416,7 +424,7 @@ export default function ResultView({ id, share }: { id: string; share?: string }
 
             {shared ? (
               <div className="mt-4 flex flex-col gap-2 lg:flex-row">
-                <Link href="/check" className="btn btn-md btn-primary lg:flex-1">
+                <Link href="/check" className="btn btn-md btn-primary hidden md:inline-flex lg:flex-1">
                   내 코디도 확인하기
                   <ArrowRight className="h-4 w-4" />
                 </Link>
@@ -427,7 +435,7 @@ export default function ResultView({ id, share }: { id: string; share?: string }
                 )}
               </div>
             ) : (
-              <div className="mt-4 flex gap-2">
+              <div className="mt-4 hidden gap-2 md:flex">
                 <button
                   type="button"
                   onClick={onFavorite}
@@ -546,7 +554,7 @@ export default function ResultView({ id, share }: { id: string; share?: string }
                 <button
                   type="button"
                   onClick={checkAgain}
-                  className={`btn lg:flex-1 ${applied ? "btn-md btn-primary" : "btn-sm btn-secondary"}`}
+                  className={`btn lg:flex-1 ${applied ? "btn-md btn-primary hidden md:inline-flex" : "btn-sm btn-secondary"}`}
                 >
                   <Camera className={`h-4 w-4 ${applied ? "" : "text-ink-soft"}`} />
                   바꿔 입고 다시 확인하기
@@ -570,6 +578,57 @@ export default function ResultView({ id, share }: { id: string; share?: string }
       </div>
 
       <SampleBridgeCTA maxWidthClass="max-w-6xl" />
+
+      {/* Phones: this screen's actions stay under the thumb — the tab bar steps
+          aside on the result, as it does in the check flow. */}
+      <div
+        role="group"
+        aria-label="이 결과로 할 일"
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-linen bg-ivory/95 px-3 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-2 backdrop-blur-md md:hidden"
+      >
+        <div className="mx-auto flex max-w-md items-center gap-1">
+          {shared ? (
+            <Link href="/check" className="btn btn-md btn-primary w-full">
+              내 코디도 확인하기
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={onFavorite}
+                aria-pressed={result.favorite}
+                className="flex h-12 w-14 shrink-0 flex-col items-center justify-center gap-0.5 rounded-sm text-caption font-medium text-ink-soft transition-transform active:scale-95"
+              >
+                <Heart
+                  className={`h-5 w-5 ${result.favorite ? "animate-heart-pop fill-rose text-rose" : "text-ink-soft"}`}
+                  strokeWidth={1.8}
+                />
+                {result.favorite ? "저장됨" : "저장"}
+              </button>
+              <button
+                type="button"
+                onClick={onShare}
+                aria-label="친구에게 물어보기"
+                className="flex h-12 w-14 shrink-0 flex-col items-center justify-center gap-0.5 rounded-sm text-caption font-medium text-ink-soft transition-transform active:scale-95"
+              >
+                <Share2 className="h-5 w-5" strokeWidth={1.8} />
+                물어보기
+              </button>
+              {applied ? (
+                <button type="button" onClick={checkAgain} className="btn btn-md btn-primary ml-1 min-w-0 flex-1 px-4">
+                  <Camera className="h-4 w-4 shrink-0" />
+                  <span className="truncate">다시 확인하기</span>
+                </button>
+              ) : (
+                <button type="button" onClick={applyFromBar} className="btn btn-md btn-primary ml-1 min-w-0 flex-1 px-4">
+                  <span className="truncate">추천대로 바꿔 입기</span>
+                </button>
+              )}
+            </>
+          )}
+        </div>
+      </div>
     </>
   );
 }

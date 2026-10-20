@@ -115,7 +115,7 @@ export default function HeroQuickStart({ sampleHref }: { sampleHref: string }) {
       )}
 
       {/* Reserved line: appears for returning users without shifting the page */}
-      <p className="mt-4 min-h-6 text-meta md:mt-6">
+      <p className="mt-3 min-h-6 text-meta md:mt-6">
         {last && (
           <Link href={`/result/${last.id}`} className="group inline-flex items-center gap-1.5 text-ink-soft hover:text-ink">
             <span className="text-ink-faint">지난번</span>

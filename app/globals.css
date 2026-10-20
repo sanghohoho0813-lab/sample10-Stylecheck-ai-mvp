@@ -145,6 +145,8 @@ body {
   overflow-wrap: break-word;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  /* Every control has its own pressed state — no grey flash on tap */
+  -webkit-tap-highlight-color: transparent;
 }
 
 ::selection {
@@ -166,8 +168,9 @@ body {
    primary) · md 48 (flow / card primary) · sm 44 (secondary rows) · xs 40
    (inline). Utilities on the element still win, e.g. `btn btn-md w-full`. */
 @layer components {
+  /* Pressed state: a slight sink, so a tap on glass feels like a press */
   .btn {
-    @apply inline-flex shrink-0 select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-colors duration-200;
+    @apply inline-flex shrink-0 select-none items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition-[color,background-color,border-color,transform] duration-200 active:scale-[0.98] active:duration-75;
   }
   .btn-lg {
     @apply h-13 px-7 text-body;
@@ -193,7 +196,7 @@ body {
 
   /* Selectable pill (multiple / single choice inputs) */
   .chip {
-    @apply inline-flex h-10 items-center gap-1.5 whitespace-nowrap rounded-full border px-4 text-body-sm font-medium transition-colors duration-150;
+    @apply inline-flex h-10 items-center gap-1.5 whitespace-nowrap rounded-full border px-4 text-body-sm font-medium transition-[color,background-color,border-color,transform] duration-150 active:scale-[0.96] active:duration-75;
   }
   .chip-off {
     @apply border-linen bg-white text-ink-soft hover:border-rose-soft hover:text-ink;

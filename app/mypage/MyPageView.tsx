@@ -109,7 +109,7 @@ export default function MyPageView() {
             return (
               <li key={s.label} className="bg-white">
                 {s.href ? (
-                  <Link href={s.href} className="block h-full px-4 py-4 transition-colors duration-150 hover:bg-blush/50">
+                  <Link href={s.href} className="block h-full px-4 py-4 transition-colors duration-150 hover:bg-blush/50 active:bg-blush/70">
                     {body}
                   </Link>
                 ) : (

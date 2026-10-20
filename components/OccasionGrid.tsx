@@ -49,7 +49,7 @@ export default function OccasionGrid({ selected, onSelect }: Props) {
             tabIndex={i === focusIndex ? 0 : -1}
             data-index={i}
             onClick={() => onSelect(o.id, true)}
-            className={`relative flex min-h-24 flex-col items-center justify-center gap-2 rounded-md border px-2 py-4 text-center transition-colors duration-150 ${
+            className={`relative flex min-h-24 flex-col items-center justify-center gap-2 rounded-md border px-2 py-4 text-center transition-[color,background-color,border-color,transform] duration-150 active:scale-[0.97] ${
               active
                 ? "border-rose bg-blush text-rose-deep"
                 : "border-linen bg-white text-ink hover:border-rose-soft"
